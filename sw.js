@@ -1,5 +1,5 @@
 // ВелоНав: приложение открывается без интернета. Плитки карт хранятся отдельно, в IndexedDB.
-const V='velonav-v2';
+const V='velonav-v3';
 const SHELL=['./','./index.html','./manifest.webmanifest','./icon-180.png','./icon-512.png'];
 const LIBS=['https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css','https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js'];
 self.addEventListener('install',e=>{e.waitUntil((async()=>{const c=await caches.open(V);await c.addAll(SHELL);
