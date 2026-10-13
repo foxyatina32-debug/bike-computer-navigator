@@ -91,6 +91,22 @@ button{cursor:pointer;border:0;background:none}
 .pin{width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 2px 6px rgb(0 0 0/.4)}
 .pop{display:grid;gap:6px;min-width:150px}
 .pop .btn{min-height:40px;font-size:16px}
+/* панель карт */
+.mhead{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.mhead h2{font:700 22px var(--f-sign);margin:0}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;background:var(--panel);border:2px solid transparent;text-align:left;width:100%}
+.opt.on{border-color:var(--route)}
+.opt input{margin:3px 0 0;width:20px;height:20px;accent-color:var(--route);flex:none}
+.opt div{min-width:0;flex:1}
+.opt b{display:block;font:600 17px var(--f-sign)}
+.opt small{display:block;color:var(--muted);font-size:13px}
+.opt .x{width:40px;height:40px;border-radius:10px;color:var(--muted);font-size:22px;flex:none;margin:-6px -6px -6px 0}
+.keyrow{display:grid;gap:6px;padding:0 4px}
+.keyrow a{color:var(--route);font-size:14px}
+.prog{background:var(--panel);border-radius:12px;padding:10px 12px;display:grid;gap:6px;font-size:14px}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--route);transition:width .3s}
+.note{font-size:13px;color:var(--muted);margin:0}
 @media (prefers-reduced-motion:reduce){.me svg{transition:none}}
 </style>
 </head>
@@ -111,7 +127,7 @@ button{cursor:pointer;border:0;background:none}
 
 <div id="fabs">
   <button class="fab on" id="fFollow" aria-label="Следовать за мной"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
-  <button class="fab" id="fLayer" aria-label="Слой карты"><small id="layerLbl">ВЕЛО</small></button>
+  <button class="fab" id="fLayer" aria-label="Карты"><svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg></button>
   <button class="fab on" id="fVoice" aria-label="Голос"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path id="vWave" d="M16.5 8.5a5 5 0 0 1 0 7"/></svg></button>
 </div>
 
@@ -160,10 +176,17 @@ button{cursor:pointer;border:0;background:none}
       <button class="btn pri" id="bStop">Стоп</button>
     </div>
   </div>
+
+  <!-- карты -->
+  <div id="vMaps" hidden class="list">
+    <div class="mhead"><h2>Карты</h2><button class="btn pri" id="mDone">Готово</button></div>
+    <div id="mBody" class="list"></div>
+  </div>
 </div>
 
 <div id="toast" hidden></div>
 <input type="file" id="file" hidden>
+<input type="file" id="mapFile" hidden>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
@@ -178,11 +201,63 @@ const S={pos:null,acc:null,head:0,spd:0,route:null,nav:false,follow:true,voice:s
 
 /* ---------- карта ---------- */
 const map=L.map('map',{zoomControl:false}).setView(store.get('view',[32.09,34.88]),store.get('zoom',13));
-const LAYERS={
-  ВЕЛО:L.tileLayer('https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',{maxZoom:20,subdomains:'abc',attribution:'© OpenStreetMap · CyclOSM'}),
-  OSM:L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'})};
-let layerName=store.get('layer','ВЕЛО'); if(!LAYERS[layerName])layerName='ВЕЛО';
-LAYERS[layerName].addTo(map); $('#layerLbl').textContent=layerName;
+/* ---------- источники карт ---------- */
+const DEFS=[
+  {id:'cyclosm',name:'CyclOSM',note:'Велокарта: велодорожки, грунтовки, тип покрытия',url:'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',sub:'abc',max:20,attr:'© OpenStreetMap · CyclOSM'},
+  {id:'ilmtb',name:'Israel MTB Map',note:'MTB-карта Израиля от Israel Hiking Map',url:'https://israelhiking.osm.org.il/mtbTiles/{z}/{x}/{y}.png',max:16,attr:'© Israel Hiking Map · © OpenStreetMap'},
+  {id:'otm',name:'OpenTopoMap',note:'Рельеф, горизонтали, тропы',url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',sub:'abc',max:17,attr:'© OpenStreetMap · SRTM · © OpenTopoMap (CC-BY-SA)'},
+  {id:'esri',name:'Спутник',note:'Снимки Esri World Imagery',url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',max:18,attr:'Esri, Maxar, Earthstar Geographics'},
+  {id:'osm',name:'OpenStreetMap',note:'Обычная карта. Скачивать районы нельзя по правилам OSM',url:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',max:19,attr:'© OpenStreetMap',noBulk:true},
+  {id:'tf-cycle',name:'OpenCycleMap',note:'Thunderforest · нужен бесплатный ключ',url:'https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey={apikey}',key:'thunderforest',keyUrl:'https://manage.thunderforest.com/',max:22,attr:'Maps © Thunderforest · © OpenStreetMap'},
+  {id:'tf-out',name:'Thunderforest Outdoors',note:'Тропы и рельеф · нужен бесплатный ключ',url:'https://tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey={apikey}',key:'thunderforest',keyUrl:'https://manage.thunderforest.com/',max:22,attr:'Maps © Thunderforest · © OpenStreetMap'},
+  {id:'mapy',name:'Mapy.com Outdoor',note:'Туристическая карта · нужен бесплатный ключ',url:'https://api.mapy.com/v1/maptiles/outdoor/256/{z}/{x}/{y}?apikey={apikey}',key:'mapy',keyUrl:'https://developer.mapy.com/',max:18,attr:'© Seznam.cz · © OpenStreetMap'},
+  {id:'tt-topo',name:'Tracestrack Topo',note:'Топографическая · нужен бесплатный ключ',url:'https://tile.tracestrack.com/topo__/{z}/{x}/{y}.png?key={apikey}',key:'tracestrack',keyUrl:'https://console.tracestrack.com/',max:19,attr:'© Tracestrack · © OpenStreetMap'}];
+const OVERLAYS=[
+  {id:'wm-mtb',name:'MTB-тропы',note:'Размеченные MTB-маршруты, Waymarked Trails',url:'https://tile.waymarkedtrails.org/mtb/{z}/{x}/{y}.png',max:18,attr:'© Waymarked Trails'},
+  {id:'wm-cyc',name:'Веломаршруты',note:'Размеченные велосипедные маршруты, Waymarked Trails',url:'https://tile.waymarkedtrails.org/cycling/{z}/{x}/{y}.png',max:18,attr:'© Waymarked Trails'}];
+const M={base:store.get('base','cyclosm'),over:new Set(store.get('over',[])),keys:store.get('keys',{}),custom:store.get('custom',[]),
+  maps:[],cached:new Set(),baseLayer:null,overLayers:{}};
+
+/* ---------- офлайн-хранилище плиток (IndexedDB) ---------- */
+const IDB={p:null,
+  open(){return this.p||(this.p=new Promise((res,rej)=>{const r=indexedDB.open('velonav',1);
+    r.onupgradeneeded=()=>{const d=r.result;d.createObjectStore('tiles');d.createObjectStore('maps',{keyPath:'id'})};
+    r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}))},
+  async req(st,mode,fn){const d=await this.open();return new Promise((res,rej)=>{const t=d.transaction(st,mode);const q=fn(t.objectStore(st));
+    t.oncomplete=()=>res(q&&'result' in q?q.result:undefined);t.onerror=t.onabort=()=>rej(t.error||new Error('Ошибка хранилища'))})},
+  get(st,k){return this.req(st,'readonly',s=>s.get(k))},
+  all(st){return this.req(st,'readonly',s=>s.getAll())},
+  put(st,v,k){return this.req(st,'readwrite',s=>k===undefined?s.put(v):s.put(v,k))},
+  putMany(arr){return this.req('tiles','readwrite',s=>{for(const [k,v] of arr)s.put(v,k)})},
+  async drop(id){await this.req('tiles','readwrite',s=>s.delete(IDBKeyRange.bound(id+'|',id+'|￿')));await this.req('maps','readwrite',s=>s.delete(id))}};
+const tkey=(id,z,x,y)=>id+'|'+z+'|'+x+'|'+y;
+function blobImg(img,b,done){const u=URL.createObjectURL(b);img.onload=()=>{URL.revokeObjectURL(u);done(null,img)};img.onerror=()=>{URL.revokeObjectURL(u);done(null,img)};img.src=u}
+
+/* онлайн-слой, который сначала берёт плитку из скачанного района */
+const HybridLayer=L.TileLayer.extend({createTile(c,done){const img=document.createElement('img');img.alt='';
+  const url=this.getTileUrl(c),cid='cache:'+this.options.srcId;
+  const net=()=>{img.onload=()=>done(null,img);img.onerror=e=>done(e,img);img.src=url};
+  if(!M.cached.has(cid)){net();return img}
+  IDB.get('tiles',tkey(cid,c.z,c.x,c.y)).then(b=>b?blobImg(img,b,done):net(),net);return img}});
+/* слой из файла офлайн-карты */
+const OfflineLayer=L.GridLayer.extend({createTile(c,done){const img=document.createElement('img');img.alt='';
+  IDB.get('tiles',tkey(this.options.mapId,c.z,c.x,c.y)).then(b=>b?blobImg(img,b,done):done(null,img),()=>done(null,img));return img}});
+
+const allDefs=()=>DEFS.concat(M.custom);
+function makeOnline(d){return new HybridLayer(d.url,{srcId:d.id,subdomains:d.sub||'abc',maxNativeZoom:d.max||19,maxZoom:20,attribution:d.attr||'',apikey:d.key?(M.keys[d.key]||''):'',crossOrigin:false})}
+function applyBase(){
+  if(M.baseLayer)map.removeLayer(M.baseLayer);M.baseLayer=null;
+  const off=M.maps.find(m=>m.id===M.base&&m.kind==='file');
+  if(off)M.baseLayer=new OfflineLayer({mapId:off.id,minNativeZoom:off.minZ,maxNativeZoom:off.maxZ,maxZoom:20,attribution:off.name+' (офлайн)'});
+  else{let d=allDefs().find(d=>d.id===M.base);if(!d||(d.key&&!M.keys[d.key])){d=DEFS[0]}M.baseLayer=makeOnline(d)}
+  M.baseLayer.addTo(map);M.baseLayer.bringToBack();store.set('base',M.base)}
+function applyOverlays(){for(const o of OVERLAYS){const on=M.over.has(o.id);
+  if(on&&!M.overLayers[o.id])M.overLayers[o.id]=L.tileLayer(o.url,{maxNativeZoom:o.max,maxZoom:20,attribution:o.attr,opacity:.9}).addTo(map);
+  if(!on&&M.overLayers[o.id]){map.removeLayer(M.overLayers[o.id]);delete M.overLayers[o.id]}}
+  store.set('over',[...M.over])}
+async function loadMaps(){try{M.maps=await IDB.all('maps');M.cached=new Set(M.maps.filter(m=>m.kind==='cache').map(m=>m.id))}catch(e){M.maps=[]}}
+applyBase();applyOverlays();
+loadMaps().then(()=>{if(M.maps.some(m=>m.id===M.base))applyBase()});
 
 const routeCase=L.polyline([],{color:'#ffffff',weight:10,opacity:.9}).addTo(map);
 const routeLine=L.polyline([],{color:css('--route'),weight:6}).addTo(map);
@@ -300,8 +375,9 @@ const phrase=s=>s.kind==='arrive'?'финиш':lower(s.txt)+(s.name?', '+s.name:
 let toastT;function toast(t,ms=3500){const el=$('#toast');el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,ms)}
 function sheetH(){document.documentElement.style.setProperty('--sheet-h',$('#sheet').offsetHeight+'px')}
 new ResizeObserver(sheetH).observe($('#sheet'));
-function view(v){['vIdle','vRoute','vNav'].forEach(id=>$('#'+id).hidden=id!==v);
-  $('#search').hidden=v==='vNav';$('#board').hidden=v!=='vNav';$('#results').hidden=true;sheetH()}
+let curView='vIdle';
+function view(v){if(v!=='vMaps')curView=v;['vIdle','vRoute','vNav','vMaps'].forEach(id=>$('#'+id).hidden=id!==v);
+  $('#search').hidden=S.nav||v==='vMaps';$('#board').hidden=!S.nav;$('#results').hidden=true;sheetH()}
 
 function showRoute(r,fit=true){
   S.route=r;S.seg=0;S.arrived=false;r.steps.forEach(s=>{s.a1=s.a2=false});
@@ -311,7 +387,7 @@ function showRoute(r,fit=true){
   $('#rName').textContent=r.name;$('#rDist').textContent=fmtKm(r.total);
   $('#rTime').textContent=fmtDur(r.total/4.4);$('#rTurns').textContent=r.steps.length-1;
   store.set('current',pack(r));
-  if(!S.nav){view('vRoute');if(fit)map.fitBounds(routeLine.getBounds(),{paddingTopLeft:[30,90],paddingBottomRight:[30,$('#sheet').offsetHeight+30]})}}
+  if(!S.nav){if($('#vMaps').hidden)view('vRoute');else curView='vRoute';if(fit)map.fitBounds(routeLine.getBounds(),{paddingTopLeft:[30,90],paddingBottomRight:[30,$('#sheet').offsetHeight+30]})}}
 function pack(r){return {name:r.name,kind:r.kind,dest:r.dest,pts:r.pts.map(p=>[+p[0].toFixed(6),+p[1].toFixed(6)]),steps:r.steps.filter(s=>s.kind!=='arrive').map(({d,kind,mod,txt,name})=>({d,kind,mod,txt,name}))}}
 function unpack(o){return makeRoute(o.pts,o.steps,{name:o.name,kind:o.kind,dest:o.dest})}
 function clearRoute(){S.route=null;routeLine.setLatLngs([]);routeCase.setLatLngs([]);doneLine.setLatLngs([]);guide.setLatLngs([]);
@@ -387,7 +463,7 @@ $('#bClear').onclick=clearRoute;
 /* кнопки на карте */
 $('#fFollow').onclick=()=>{S.follow=true;$('#fFollow').classList.add('on');if(S.pos)map.setView(S.pos,Math.max(map.getZoom(),S.nav?17:15));else toast('Жду сигнал GPS…')};
 map.on('dragstart',()=>{S.follow=false;$('#fFollow').classList.remove('on')});
-$('#fLayer').onclick=()=>{map.removeLayer(LAYERS[layerName]);layerName=layerName==='ВЕЛО'?'OSM':'ВЕЛО';LAYERS[layerName].addTo(map);$('#layerLbl').textContent=layerName;store.set('layer',layerName)};
+$('#fLayer').onclick=openMaps;$('#mDone').onclick=closeMaps;
 function voiceUI(){$('#fVoice').classList.toggle('on',S.voice);$('#vWave').style.display=S.voice?'':'none'}
 $('#fVoice').onclick=()=>{S.voice=!S.voice;store.set('voice',S.voice);voiceUI();if(S.voice)say('Голос включён')};voiceUI();
 map.on('moveend',()=>{const c=map.getCenter();store.set('view',[c.lat,c.lng]);store.set('zoom',map.getZoom())});
@@ -469,6 +545,172 @@ function onErr(e){if(e.code===1)toast('Нет доступа к геолокац
   else if(!S.pos)toast('GPS пока не видит спутники…')}
 if('geolocation' in navigator)navigator.geolocation.watchPosition(onFix,onErr,{enableHighAccuracy:true,maximumAge:0,timeout:30000});
 else toast('Это устройство не даёт доступ к GPS');
+
+/* ---------- панель «Карты» ---------- */
+function h(tag,attrs,...kids){const e=document.createElement(tag);for(const k in attrs||{}){const v=attrs[k];if(k.startsWith('on'))e.addEventListener(k.slice(2),v);else if(v===true)e.setAttribute(k,'');else if(v!==false&&v!=null)e.setAttribute(k,v)}
+  for(const c of kids.flat())if(c!=null&&c!==false)e.append(c);return e}
+const fmtMB=b=>b>=1e9?(b/1e9).toFixed(1).replace('.',',')+' ГБ':Math.max(1,Math.round(b/1e6))+' МБ';
+function openMaps(){view('vMaps');renderMaps()}
+function closeMaps(){view(S.nav?'vNav':curView)}
+function opt({type,name,checked,title,note,onpick,ondel}){
+  const inp=h('input',{type,name,checked:!!checked,'aria-label':title,onchange:onpick});
+  return h('label',{class:'opt'+(checked?' on':'')},inp,h('div',null,h('b',null,title),note?h('small',null,note):null),
+    ondel?h('button',{class:'x','aria-label':'Удалить',onclick:e=>{e.preventDefault();ondel()}},'×'):null)}
+function pickBase(id){M.base=id;applyBase();renderMaps();const m=M.maps.find(m=>m.id===id);
+  if(m&&m.bounds&&!map.getBounds().intersects(L.latLngBounds(m.bounds)))map.fitBounds(m.bounds)}
+async function renderMaps(){
+  const b=$('#mBody');b.innerHTML='';
+  b.append(h('p',{class:'sh'},'Онлайн'));
+  for(const d of allDefs()){const sel=M.base===d.id;
+    b.append(opt({type:'radio',name:'base',checked:sel,title:d.name,note:d.note||d.url,onpick:()=>pickBase(d.id),
+      ondel:d.custom?()=>{M.custom=M.custom.filter(c=>c.id!==d.id);store.set('custom',M.custom);if(sel)M.base='cyclosm';applyBase();renderMaps()}:null}));
+    if(sel&&d.key){const inp=h('input',{id:'key-'+d.key,type:'text',placeholder:'Вставьте API-ключ',value:M.keys[d.key]||'',autocomplete:'off',autocapitalize:'off',spellcheck:'false'});
+      b.append(h('div',{class:'keyrow'},h('div',{class:'field'},inp,h('button',{class:'btn pri',onclick:()=>{M.keys[d.key]=inp.value.trim();store.set('keys',M.keys);applyBase();toast(M.keys[d.key]?'Ключ сохранён':'Ключ удалён')}},'Сохранить')),
+        h('a',{href:d.keyUrl,target:'_blank',rel:'noopener'},'Получить бесплатный ключ ↗'),
+        !M.keys[d.key]?h('p',{class:'note'},'Пока ключа нет, показывается CyclOSM.'):null))}}
+  b.append(h('p',{class:'sh'},'Поверх карты'));
+  for(const o of OVERLAYS)b.append(opt({type:'checkbox',checked:M.over.has(o.id),title:o.name,note:o.note,
+    onpick:e=>{e.target.checked?M.over.add(o.id):M.over.delete(o.id);applyOverlays();renderMaps()}}));
+
+  b.append(h('p',{class:'sh'},'Офлайн'));
+  await loadMaps();
+  for(const m of M.maps.filter(m=>m.kind==='file'))b.append(opt({type:'radio',name:'base',checked:M.base===m.id,title:m.name,
+    note:`Файл · масштабы ${m.minZ}–${m.maxZ} · ${m.count.toLocaleString('ru-RU')} плиток · ${fmtMB(m.bytes)}`,onpick:()=>pickBase(m.id),
+    ondel:()=>confirmDel(m)}));
+  for(const m of M.maps.filter(m=>m.kind==='cache'))b.append(opt({type:'checkbox',checked:true,title:m.name,
+    note:`Скачанный район · ${m.count.toLocaleString('ru-RU')} плиток · ${fmtMB(m.bytes)}. Работает без интернета на этой карте`,onpick:e=>{e.target.checked=true},ondel:()=>confirmDel(m)}));
+  b.append(h('div',{id:'mProg'}));
+  b.append(h('div',{class:'row'},h('button',{class:'btn sec',onclick:()=>$('#mapFile').click()},'Открыть файл карты'),
+    h('button',{class:'btn sec',onclick:planDownload},'Скачать этот район')));
+  b.append(h('p',{class:'note'},'Файлы: .mbtiles (растровые), .sqlitedb (Locus, RMaps), OruxMapsImages.db (OruxMaps). Для Израиля есть готовые офлайн-карты Israel Hiking и Israel MTB в формате OruxMaps на сайте israelhiking.osm.org.il/Hebrew/OruxMaps/. Скачайте zip, откройте его в «Файлах», чтобы распаковать, и выберите OruxMapsImages.db.'));
+
+  b.append(h('p',{class:'sh'},'Свой источник'));
+  const cn=h('input',{id:'cName',type:'text',placeholder:'Название'}),cu=h('input',{id:'cUrl',type:'url',placeholder:'https://…/{z}/{x}/{y}.png',autocapitalize:'off',spellcheck:'false'});
+  b.append(h('div',{class:'list'},h('div',{class:'field'},cn),h('div',{class:'field'},cu,h('button',{class:'btn pri',onclick:()=>{
+    const u=cu.value.trim();if(!/^https:\/\/.+\{z\}.+\{x\}.+\{y\}|^https:\/\/.+\{z\}.+\{y\}.+\{x\}/.test(u)){toast('Нужен адрес https:// с {z}, {x} и {y}');return}
+    const d={id:'c'+Date.now(),name:cn.value.trim()||'Моя карта',url:u,max:19,custom:true,note:u};M.custom.push(d);store.set('custom',M.custom);M.base=d.id;applyBase();renderMaps()}},'Добавить'))));
+  b.append(h('p',{class:'note'},'Карты Komoot, Trailforks, Strava, Gaia GPS и OsmAnd закрыты внутри этих приложений: их нельзя подключить ни онлайн, ни офлайн. Маршруты из них переносятся через экспорт GPX.'));
+  try{const e=await navigator.storage.estimate();b.append(h('p',{class:'note'},`Занято под офлайн-карты: ${fmtMB(e.usage||0)}`+(e.quota?` из доступных ${fmtMB(e.quota)}`:'')))}catch(e){}
+  sheetH()}
+function confirmDel(m){const p=$('#mProg');p.innerHTML='';
+  p.append(h('div',{class:'prog'},`Удалить «${m.name}» с телефона?`,h('div',{class:'row'},
+    h('button',{class:'btn pri',onclick:async()=>{p.textContent='Удаляю…';try{await IDB.drop(m.id)}catch(e){}if(M.base===m.id)M.base='cyclosm';await loadMaps();applyBase();renderMaps()}},'Удалить'),
+    h('button',{class:'btn sec',onclick:()=>p.innerHTML=''},'Отмена'))));sheetH()}
+function progBox(text){const p=$('#mProg');if(!p)return {set(){},done(){}};p.innerHTML='';const t=h('div',null,text),i=h('i');
+  p.append(h('div',{class:'prog'},t,h('div',{class:'bar'},i)));sheetH();
+  return {set(txt,frac){t.textContent=txt;if(frac!=null)i.style.width=Math.min(100,frac*100)+'%'},done(txt){p.innerHTML='';if(txt)toast(txt,5000);sheetH()}}}
+async function persist(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
+
+/* ---------- скачать видимый район ---------- */
+const lon2x=(lon,z)=>Math.floor((lon+180)/360*2**z);
+const lat2y=(lat,z)=>{const r=rad(Math.max(-85.05,Math.min(85.05,lat)));return Math.floor((1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*2**z)};
+const x2lon=(x,z)=>x/2**z*360-180;
+const y2lat=(y,z)=>{const n=Math.PI-2*Math.PI*y/2**z;return 180/Math.PI*Math.atan(Math.sinh(n))};
+function tileRange(b,z){return {z,x0:lon2x(b.getWest(),z),x1:lon2x(b.getEast(),z),y0:lat2y(b.getNorth(),z),y1:lat2y(b.getSouth(),z)}}
+const LIMIT=3000;
+function planDownload(){
+  if(M.maps.some(m=>m.id===M.base&&m.kind==='file')){toast('Это уже офлайн-карта. Выберите онлайн-карту, чтобы скачать район.');return}
+  const d=allDefs().find(d=>d.id===M.base)||DEFS[0];
+  if(d.noBulk){toast('OpenStreetMap запрещает скачивать районы. Выберите CyclOSM, OpenTopoMap или другую карту.',6000);return}
+  if(d.key&&!M.keys[d.key]){toast('Сначала вставьте ключ для этой карты');return}
+  const b=map.getBounds(),zNow=Math.round(map.getZoom()),zFrom=Math.max(1,Math.min(zNow,zNow-2<8?zNow:zNow-2));
+  let zTo=Math.min(d.max||18,17),plan=[],n=0;
+  for(;zTo>=zFrom;zTo--){plan=[];n=0;for(let z=zFrom;z<=zTo;z++){const r=tileRange(b,z);plan.push(r);n+=(r.x1-r.x0+1)*(r.y1-r.y0+1)}if(n<=LIMIT)break}
+  if(n>LIMIT||zTo<Math.min(zNow,d.max||18,17)){toast('Район слишком большой. Приблизьте карту и попробуйте ещё раз.',5000);return}
+  const p=$('#mProg');p.innerHTML='';
+  p.append(h('div',{class:'prog'},`«${d.name}»: ${n.toLocaleString('ru-RU')} плиток, масштабы ${zFrom}–${zTo}, примерно ${fmtMB(n*20000)}. Для личного использования, небольшими районами.`,
+    h('div',{class:'row'},h('button',{class:'btn pri',onclick:()=>runDownload(d,plan,n)},'Скачать'),h('button',{class:'btn sec',onclick:()=>{p.innerHTML='';sheetH()}},'Отмена'))));sheetH()}
+async function runDownload(d,plan,total){
+  persist();const id='cache:'+d.id,pb=progBox('Скачиваю…'),sub=(d.sub||'abc');
+  const urlOf=(z,x,y)=>L.Util.template(d.url,{s:sub[Math.abs(x+y)%sub.length],z,x,y,apikey:d.key?M.keys[d.key]:''});
+  const old=M.maps.find(m=>m.id===id)||{id,kind:'cache',name:d.name,count:0,bytes:0};
+  const jobs=[];for(const r of plan)for(let x=r.x0;x<=r.x1;x++)for(let y=r.y0;y<=r.y1;y++)jobs.push([r.z,x,y]);
+  let done=0,ok=0,fail=0,bytes=0,batch=[];
+  const flush=async()=>{if(batch.length){const bt=batch;batch=[];await IDB.putMany(bt)}};
+  async function worker(){while(jobs.length){const [z,x,y]=jobs.shift();
+    try{const u=urlOf(z,x,y);const r=await fetchT(u,20000);const bl=await r.blob();
+      if(!/^image\//.test(bl.type)&&bl.size<200)throw new Error('не картинка');batch.push([tkey(id,z,x,y),bl]);ok++;bytes+=bl.size;if(batch.length>=100)await flush()}catch(e){fail++}
+    done++;if(done%10===0)pb.set(`Скачано ${done} из ${total}`,done/total);
+    if(done>=20&&ok===0){jobs.length=0}}}
+  try{await Promise.all([1,2,3,4].map(worker));await flush();
+    if(!ok){pb.done('Эта карта не разрешает скачивание из приложения. Попробуйте другую.');return}
+    old.count+=ok;old.bytes+=bytes;await IDB.put('maps',old);await loadMaps();applyBase();renderMaps();
+    pb.done(`Район сохранён: ${ok} плиток`+(fail?`, не удалось ${fail}`:''))}
+  catch(e){pb.done(/quota/i.test(e.name+e.message)?'Не хватает места на телефоне':'Ошибка сохранения: '+e.message)}}
+
+/* ---------- чтение файлов офлайн-карт (SQLite) без загрузки целиком в память ---------- */
+const td=new TextDecoder();
+const u16=(b,o)=>(b[o]<<8)|b[o+1],u32=(b,o)=>((b[o]<<24)>>>0)+(b[o+1]<<16)+(b[o+2]<<8)+b[o+3];
+function varint(b,o){let v=0;for(let i=0;i<8;i++){const c=b[o+i];v=v*128+(c&127);if(!(c&128))return [v,o+i+1]}return [v*256+b[o+8],o+9]}
+function record(b){let [hs,p]=varint(b,0);const ty=[];while(p<hs){const r=varint(b,p);ty.push(r[0]);p=r[1]}
+  let o=hs;const out=[];for(const t of ty){let v=null,n=0;
+    if(t>=1&&t<=6){n=[0,1,2,3,4,6,8][t];v=0;for(let i=0;i<n;i++)v=v*256+b[o+i];if(b[o]&128)v-=2**(8*n)}
+    else if(t===7){n=8;v=new DataView(b.buffer,b.byteOffset+o,8).getFloat64(0)}
+    else if(t===8)v=0;else if(t===9)v=1;
+    else if(t>=12){n=t%2?(t-13)/2:(t-12)/2;const s=b.subarray(o,o+n);v=t%2?td.decode(s):s}
+    o+=n;out.push(v)}return out}
+function cols(sql){const a=sql.indexOf('('),z=sql.lastIndexOf(')');const body=sql.slice(a+1,z),parts=[];let d=0,cur='';
+  for(const ch of body){if(ch==='(')d++;if(ch===')')d--;if(ch===','&&!d){parts.push(cur);cur=''}else cur+=ch}parts.push(cur);
+  return parts.map(s=>s.trim()).filter(s=>s&&!/^(primary|unique|check|foreign|constraint)\b/i.test(s))
+    .map(s=>({name:(s.match(/^["`\[]?([^"`\]\s]+)/)||[,''])[1].toLowerCase(),ipk:/\binteger\s+primary\s+key\b/i.test(s)}))}
+class SQLiteFile{
+  constructor(f){this.f=f;this.cache=new Map();this.CH=1<<22;this.read=0}
+  async init(){const hd=new Uint8Array(await this.f.slice(0,100).arrayBuffer());
+    if(td.decode(hd.subarray(0,15))!=='SQLite format 3')throw new Error('Это не файл офлайн-карты (нужен .mbtiles, .sqlitedb или OruxMapsImages.db)');
+    let ps=u16(hd,16);if(ps===1)ps=65536;this.ps=ps;this.U=ps-hd[20]}
+  async page(n){const off=(n-1)*this.ps,ci=Math.floor(off/this.CH);let c=this.cache.get(ci);
+    if(c){this.cache.delete(ci);this.cache.set(ci,c)}
+    else{c=new Uint8Array(await this.f.slice(ci*this.CH,(ci+1)*this.CH).arrayBuffer());this.read+=c.length;this.cache.set(ci,c);if(this.cache.size>8)this.cache.delete(this.cache.keys().next().value)}
+    const o=off-ci*this.CH;if(o+this.ps>c.length)throw new Error('Файл карты повреждён или не полностью скачан');return c.subarray(o,o+this.ps)}
+  async payload(pg,p,P){const U=this.U,X=U-35;let loc=P;
+    if(P>X){const Mn=Math.floor((U-12)*32/255)-23,K=Mn+((P-Mn)%(U-4));loc=K<=X?K:Mn}
+    if(loc===P)return pg.subarray(p,p+P);
+    const out=new Uint8Array(P);out.set(pg.subarray(p,p+loc));let ov=u32(pg,p+loc),w=loc;
+    while(w<P&&ov){const op=await this.page(ov);const k=Math.min(P-w,U-4);out.set(op.subarray(4,4+k),w);w+=k;ov=u32(op,0)}return out}
+  async *rows(root){const st=[root];while(st.length){const n=st.pop(),pg=await this.page(n),o=n===1?100:0,t=pg[o],nc=u16(pg,o+3);
+    if(t===5){const kids=[];for(let i=0;i<nc;i++)kids.push(u32(pg,u16(pg,o+12+2*i)));kids.push(u32(pg,o+8));for(let i=kids.length-1;i>=0;i--)st.push(kids[i])}
+    else if(t===13){for(let i=0;i<nc;i++){let p=u16(pg,o+8+2*i);const [P,a]=varint(pg,p);const [rid,c]=varint(pg,a);yield [rid,await this.payload(pg,c,P)]}}
+    else throw new Error('Не удалось прочитать структуру файла')}}}
+function sniff(b){if(b[0]===0x89&&b[1]===0x50)return 'image/png';if(b[0]===0xff&&b[1]===0xd8)return 'image/jpeg';
+  if(b[0]===0x52&&b[1]===0x49&&b[8]===0x57&&b[9]===0x45)return 'image/webp';if(b[0]===0x47&&b[1]===0x49)return 'image/gif';return null}
+
+async function importMapFile(file){
+  const pb=progBox('Открываю файл…');persist();
+  const db=new SQLiteFile(file),id='f'+Date.now();let name=file.name.replace(/\.(mbtiles|sqlitedb|sqlite|db)$/i,'');
+  if(/^oruxmapsimages$/i.test(name))name='OruxMaps '+new Date().toLocaleDateString('ru-RU');
+  const st={n:0,bytes:0,minZ:99,maxZ:-1,ext:{}};let fmt=null,batch=[];
+  const flush=async()=>{if(batch.length){const b=batch;batch=[];await IDB.putMany(b)}pb.set(`Импорт: ${st.n.toLocaleString('ru-RU')} плиток · ${fmtMB(st.bytes)}`,db.read/file.size)};
+  const add=async(z,x,y,data)=>{if(!(data instanceof Uint8Array)||!data.length||!(z>=0&&z<=24))return;
+    if(!fmt){fmt=sniff(data);if(!fmt)throw new Error('Это векторная карта или неизвестный формат. Поддерживаются растровые карты (PNG, JPEG, WebP).')}
+    st.n++;st.bytes+=data.length;st.minZ=Math.min(st.minZ,z);st.maxZ=Math.max(st.maxZ,z);
+    const e=st.ext[z]||(st.ext[z]={x0:x,x1:x,y0:y,y1:y});e.x0=Math.min(e.x0,x);e.x1=Math.max(e.x1,x);e.y0=Math.min(e.y0,y);e.y1=Math.max(e.y1,y);
+    batch.push([tkey(id,z,x,y),new Blob([data],{type:fmt})]);if(batch.length>=300)await flush()};
+  try{
+    await db.init();
+    const sch={};for await(const [,pl] of db.rows(1)){const [type,nm,,root,sql]=record(pl);if(nm)sch[String(nm).toLowerCase()]={type,root,sql:sql||''}}
+    if(sch.metadata&&sch.metadata.type==='table'){const c=cols(sch.metadata.sql),ni=c.findIndex(k=>k.name==='name'),vi=c.findIndex(k=>k.name==='value');
+      for await(const [,pl] of db.rows(sch.metadata.root)){const v=record(pl);if(v[ni]==='name'&&v[vi])name=String(v[vi])}}
+    const t=sch.tiles;if(!t)throw new Error('В файле нет плиток карты');
+    const getter=(c,v,rid)=>n=>{const i=c.findIndex(k=>k.name===n);return i<0?undefined:c[i].ipk?rid:v[i]};
+    if(t.type==='table'){const c=cols(t.sql),mb=c.some(k=>k.name==='zoom_level'),rm=c.some(k=>k.name==='s');
+      for await(const [rid,pl] of db.rows(t.root)){const g=getter(c,record(pl),rid);
+        if(mb){const z=g('zoom_level');await add(z,g('tile_column'),2**z-1-g('tile_row'),g('tile_data'))}
+        else{const z=rm?17-g('z'):g('z');await add(z,g('x'),g('y'),g('image'))}}}
+    else if(sch.map&&sch.images){const mc=cols(sch.map.sql),ic=cols(sch.images.sql),ids=new Map();
+      for await(const [rid,pl] of db.rows(sch.map.root)){const g=getter(mc,record(pl),rid),z=g('zoom_level'),k=[z,g('tile_column'),2**z-1-g('tile_row')],tid=g('tile_id');
+        const a=ids.get(tid);a?a.push(k):ids.set(tid,[k])}
+      for await(const [rid,pl] of db.rows(sch.images.root)){const g=getter(ic,record(pl),rid);for(const k of ids.get(g('tile_id'))||[])await add(k[0],k[1],k[2],g('tile_data'))}}
+    else throw new Error('Неизвестное устройство файла карты');
+    await flush();
+    if(!st.n)throw new Error('В файле не нашлось плиток');
+    const e=st.ext[st.maxZ],z=st.maxZ;
+    const m={id,kind:'file',name,minZ:st.minZ,maxZ:st.maxZ,count:st.n,bytes:st.bytes,fmt,bounds:[[y2lat(e.y1+1,z),x2lon(e.x0,z)],[y2lat(e.y0,z),x2lon(e.x1+1,z)]]};
+    await IDB.put('maps',m);await loadMaps();pb.done(`Карта «${name}» сохранена на телефоне`);pickBase(id)
+  }catch(err){try{await IDB.drop(id)}catch(e){}
+    pb.done(/quota/i.test(err.name+err.message)?'Не хватает места на телефоне для этой карты':err.message);renderMaps()}}
+$('#mapFile').onchange=e=>{const f=e.target.files[0];e.target.value='';if(f)importMapFile(f)};
+
+if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 
 /* ---------- старт ---------- */
 view('vIdle');
