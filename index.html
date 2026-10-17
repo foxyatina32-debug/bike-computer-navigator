@@ -126,6 +126,8 @@ svg{display:block}
 .sheet header{position:sticky;top:0;background:#161d28;display:flex;align-items:center;gap:10px;padding:16px 0 10px;z-index:3}
 .sheet h2{margin:0;font-size:24px;font-weight:800;flex:1}
 .sheet h3{margin:18px 0 8px;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.back{display:flex;align-items:center;gap:2px;height:36px;padding:0 12px 0 6px;border-radius:18px;background:rgba(255,255,255,.1);font-weight:700;font-size:15px;color:var(--accent);flex:none}
+.back svg{width:20px;height:20px}
 .close{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);font-size:20px;line-height:1;display:grid;place-items:center}
 .btn{border:1px solid var(--line);background:rgba(255,255,255,.08);border-radius:14px;padding:10px 14px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;color:var(--ink);font-size:15px}
 .btn.pri{background:var(--accent);border-color:transparent;color:var(--accent-ink);font-weight:700}
@@ -287,7 +289,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 </section>
 
 <nav class="tabs" aria-label="Разделы">
-  <button data-tab="rec" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/></svg>Запись</button>
+  <button data-tab="rec" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20Z"/><path d="M9 4v13.5M15 6.5V20"/></svg>Карта</button>
   <button data-tab="routes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 5h11l3 2.5L16 10H5Z"/><path d="M19 12H8l-3 2.5L8 17h11Z"/></svg>Маршруты</button>
   <button data-tab="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6"/><path d="M3 4v4h4"/><path d="M12 7.5V12l3 2"/></svg>История</button>
   <button data-tab="profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M10 7.5v6.5h5"/></svg>Профиль</button>
@@ -295,7 +297,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 
 <!-- ROUTES -->
 <section class="sheet" id="sheet-routes" hidden>
-  <header><h2>Маршруты</h2><button class="close" data-close aria-label="Закрыть">×</button></header>
+  <header><button class="back" data-close aria-label="Назад к карте"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg>Карта</button><h2>Маршруты</h2><button class="close" data-close aria-label="Закрыть">×</button></header>
   <div class="seg" id="rseg"><button data-r="plan" class="on">Построить</button><button data-r="trails">Трассы</button><button data-r="mine">Мои</button></div>
 
   <div id="r-plan">
@@ -369,7 +371,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 
 <!-- QUICK ADD ROUTE -->
 <section class="sheet" id="sheet-add" hidden>
-  <header><h2>Добавить маршрут</h2><button class="close" data-close aria-label="Закрыть">×</button></header>
+  <header><button class="back" data-close aria-label="Назад к карте"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg>Карта</button><h2>Добавить маршрут</h2><button class="close" data-close aria-label="Закрыть">×</button></header>
   <div class="qa">
     <button id="qa-file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5M12 11v6m-3-3 3 3 3-3"/></svg><b>Файл GPX</b><span>GPX, KML, KMZ, TCX из «Файлов»</span></button>
     <button id="qa-plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="10" r="3"/><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11Z"/></svg><b>Построить</b><span>До адреса или точки на карте</span></button>
@@ -383,7 +385,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 
 <!-- GPX IMPORT RESULT -->
 <section class="sheet" id="sheet-gpx" hidden>
-  <header><h2>Маршрут из файла</h2><button class="close" data-close aria-label="Закрыть">×</button></header>
+  <header><button class="back" data-close aria-label="Назад к карте"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg>Карта</button><h2>Маршрут из файла</h2><button class="close" data-close aria-label="Закрыть">×</button></header>
   <div class="list" id="gpx-list"></div>
   <p class="note">Маршрут сохранён в «Маршруты → Мои» и доступен без интернета. Навигация начнётся с ближайшей к вам точки трека; если вы далеко от него — нажмите «Проложить к трассе» в верхней плашке.</p>
   <div class="row"><label class="btn" for="gpx-file">Открыть другой файл</label></div>
@@ -391,14 +393,14 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 
 <!-- HISTORY -->
 <section class="sheet" id="sheet-history" hidden>
-  <header><h2>История</h2><button class="close" data-close aria-label="Закрыть">×</button></header>
+  <header><button class="back" data-close aria-label="Назад к карте"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg>Карта</button><h2>История</h2><button class="close" data-close aria-label="Закрыть">×</button></header>
   <div class="stats" id="hist-sum"></div>
   <div class="list" id="ride-list"></div>
 </section>
 
 <!-- PROFILE: settings + offline -->
 <section class="sheet" id="sheet-profile" hidden>
-  <header><h2>Профиль</h2><button class="close" data-close aria-label="Закрыть">×</button></header>
+  <header><button class="back" data-close aria-label="Назад к карте"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg>Карта</button><h2>Профиль</h2><button class="close" data-close aria-label="Закрыть">×</button></header>
   <h3>Поездка</h3>
   <label class="chk"><input type="checkbox" id="s-autopause" checked> Автопауза на остановках</label>
   <label class="chk"><input type="checkbox" id="s-voice" checked> Звук (голосовые подсказки навигации)</label>
@@ -447,7 +449,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 
 <!-- LAYERS -->
 <section class="sheet" id="sheet-layers" hidden>
-  <header><h2>Карта</h2><button class="close" data-close aria-label="Закрыть">×</button></header>
+  <header><button class="back" data-close aria-label="Назад к карте"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg>Карта</button><h2>Слои карты</h2><button class="close" data-close aria-label="Закрыть">×</button></header>
   <h3>Основа</h3>
   <div id="ly-base"></div>
   <h3>Поверх карты</h3>
@@ -629,11 +631,16 @@ function syncSheetMax() {
   document.documentElement.style.setProperty('--sheet-max', Math.max(200, bottom - top) + 'px');
 }
 window.addEventListener('resize', syncSheetMax);
-function showTab(t) {
+function showTab(t, fromHistory) {
+  const wasOpen = $$('.sheet').some(x => !x.hidden);
   $$('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
   $$('.sheet').forEach(s => s.hidden = s.id !== 'sheet-' + t);
   $('#hud').hidden = t !== 'rec';
   syncSheetMax();
+  try {
+    if (t !== 'rec' && !wasOpen) history.pushState({ sheet: t }, '');
+    else if (t === 'rec' && wasOpen && !fromHistory && history.state && history.state.sheet) history.back();
+  } catch {}
   if (t === 'history') renderRides();
   if (t === 'profile') { refreshOffline(); renderRegions(); regionEstimate(); }
   if (t === 'layers') renderLayers();
@@ -642,6 +649,14 @@ function showTab(t) {
 }
 $$('.tabs button').forEach(b => b.onclick = () => showTab(b.dataset.tab));
 $$('[data-close]').forEach(b => b.onclick = () => showTab('rec'));
+map.on('click', () => {
+  const open = $$('.sheet').find(x => !x.hidden);
+  if (!open) return;
+  if (open.id === 'sheet-routes' && !$('#r-plan').hidden && $('#pl-tap').checked) return; // adding points by tapping
+  showTab('rec');
+});
+// Back gesture / back button returns to the map.
+window.addEventListener('popstate', () => { if ($$('.sheet').some(x => !x.hidden)) showTab('rec', true); });
 $('#t-layers').onclick = () => showTab($('#sheet-layers').hidden ? 'layers' : 'rec');
 $('#attr').onclick = () => showTab('layers');
 $('#t-route').onclick = () => { showTab('routes'); routeSeg('plan'); };
@@ -758,7 +773,7 @@ function onFix(pos) {
   GPS.spdEma = GPS.spdEma * 0.4 + fix.spd * 0.6;
   const ll = [fix.lat, fix.lon];
   // Heading-up: turn the map with the rider (only while following and actually moving).
-  if (S.headingUp && GPS.follow && fix.spd > 1.5 && fix.hdg != null && !Number.isNaN(fix.hdg)) {
+  if (S.headingUp && GPS.follow && !fix.jump && fix.spd > 1.5 && fix.hdg != null && !Number.isNaN(fix.hdg)) {
     if (Math.abs(norm180(fix.hdg - mapHdg)) > 10) setMapBearing(fix.hdg);
   }
   const hdg = fix.spd > 1.2 && fix.hdg != null && !Number.isNaN(fix.hdg) ? Math.round(((fix.hdg - mapHdg) % 360 + 360) % 360 / 5) * 5 : null;
