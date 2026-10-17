@@ -198,6 +198,10 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 .hud.compact .locfab{display:grid}
 .locfab.off{background:var(--accent)}
 .locfab.off svg{color:var(--accent-ink)}
+.compass{position:fixed;z-index:20;top:calc(var(--top) + 64px);left:max(16px,env(safe-area-inset-left,0px));width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--glass-btn);border:1px solid var(--line);box-shadow:0 4px 16px rgba(0,0,0,.35)}
+.compass svg{width:34px;height:34px;transition:transform .35s}
+.compass .lbl{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700;color:var(--ink);background:var(--glass-btn);border:1px solid var(--line);border-radius:8px;padding:1px 6px;white-space:nowrap}
+.compass.hu{border-color:var(--accent)}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{padding:9px 13px;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid var(--line);font-weight:600;font-size:14px}
 .chip.on{background:var(--accent);color:var(--accent-ink);border-color:transparent}
@@ -238,6 +242,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <button class="rb" id="t-route" aria-label="Построить маршрут"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="7" r="3.5"/><path d="M12 10.5V18"/><path d="M7 15.5c-2.4.5-4 1.4-4 2.5 0 1.7 4 3 9 3s9-1.3 9-3c0-1.1-1.6-2-4-2.5"/></svg></button>
 </header>
 
+<button class="compass" id="t-compass" aria-label="Ориентация карты"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="1.5"/><path d="M18 4 23 18H13Z" fill="#ff5a4e"/><path d="M18 32 13 18h10Z" fill="#e8edf2"/><text x="18" y="12.5" text-anchor="middle" font-size="7" font-weight="800" fill="#fff" font-family="system-ui">N</text></svg><span class="lbl" id="compass-lbl">Север</span></button>
 <button class="gpxfab addfab" id="t-gpx" aria-label="Добавить маршрут"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Маршрут</button>
 <input type="file" id="gpx-file" multiple hidden>
 <div class="drop" id="drop" hidden>Отпустите файл GPX</div>
@@ -440,7 +445,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <p class="note" id="st-quota"></p>
   <div class="row"><button class="btn" id="st-persist">Запретить автоочистку</button><button class="btn dng" id="st-clear-tiles">Очистить кэш карт</button></div>
 
-  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v3</p>
+  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v3 · компас</p>
   <h3>iPhone</h3>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -624,10 +629,11 @@ function fitB(bounds) { const p = viewPad(); map.fitBounds(bounds, { paddingTopL
 function placeGpxBtn() {
   const nb = $('#navb');
   $('#t-gpx').style.top = nb.hidden ? '' : (nb.getBoundingClientRect().bottom + 10) + 'px';
+  $('#t-compass').style.top = $('#t-gpx').style.top;
 }
 function syncSheetMax() {
   placeGpxBtn();
-  const top = Math.max((!$('#navb').hidden ? $('#navb') : $('.top')).getBoundingClientRect().bottom, $('#t-gpx').getBoundingClientRect().bottom) + 10;
+  const top = Math.max((!$('#navb').hidden ? $('#navb') : $('.top')).getBoundingClientRect().bottom, $('#t-gpx').getBoundingClientRect().bottom, $('#t-compass').getBoundingClientRect().bottom + 18) + 10;
   const bottom = $('.tabs').getBoundingClientRect().top - 8;
   document.documentElement.style.setProperty('--sheet-max', Math.max(200, bottom - top) + 'px');
 }
@@ -691,7 +697,8 @@ $$('#s-extnav button').forEach(b => b.onclick = () => { S.extnav = b.dataset.n; 
 // Muting stops the phrase that is being spoken right now, too.
 function hush() { try { if (!S.voice && 'speechSynthesis' in window) speechSynthesis.cancel(); } catch {} }
 $('#s-compactnav').onchange = e => { S.compactNav = e.target.checked; saveS(); };
-$('#s-headingup').onchange = e => { S.headingUp = e.target.checked; saveS(); if (!S.headingUp) setMapBearing(0); };
+$('#s-headingup').onchange = e => setOrientation(e.target.checked);
+$('#t-compass').onclick = () => setOrientation(!S.headingUp);
 // Compact HUD: one thin bar instead of buttons + cards, so the map stays visible.
 let hudCompact = false;
 function setCompact(on, remember) {
@@ -738,9 +745,22 @@ const meIcon = hdg => L.divIcon({ className: 'me', iconSize: [30, 30], iconAncho
   : `<svg viewBox="0 0 30 30" style="transform:rotate(${hdg}deg)"><circle cx="15" cy="15" r="14" fill="${css('--accent')}" opacity=".25"/><path d="M15 4 23 25 15 20 7 25Z" fill="${css('--accent')}" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>` });
 let meMarker = null, accCircle = null, lastIconHdg = 'x';
 let mapHdg = 0; // heading the map is turned to (0 = north up)
+function renderCompass() {
+  const svg = $('#t-compass svg'); if (svg) svg.style.transform = `rotate(${-mapHdg}deg)`;
+  $('#t-compass').classList.toggle('hu', !!S.headingUp);
+  $('#compass-lbl').textContent = S.headingUp ? 'По ходу' : 'Север';
+  $('#t-compass').setAttribute('aria-label', S.headingUp ? 'Карта по ходу движения. Нажмите — север вверх' : 'Север вверх. Нажмите — карта по ходу движения');
+}
+function setOrientation(headingUp) {
+  S.headingUp = headingUp; saveS(); $('#s-headingup').checked = headingUp;
+  if (!headingUp) setMapBearing(0);
+  else if (GPS.fix && GPS.fix.spd > 1.5 && GPS.fix.hdg != null && !Number.isNaN(GPS.fix.hdg)) setMapBearing(GPS.fix.hdg);
+  renderCompass();
+  toast(headingUp ? '🧭 Карта по ходу движения' : '🧭 Север всегда вверх');
+}
 function setMapBearing(h) {
   if (!map.setBearing) return;
-  mapHdg = ((h % 360) + 360) % 360; map.setBearing((360 - mapHdg) % 360);
+  mapHdg = ((h % 360) + 360) % 360; map.setBearing((360 - mapHdg) % 360); renderCompass();
   lastIconHdg = 'x'; if (GPS.fix) refreshMe();
 }
 function refreshMe() {
@@ -2058,7 +2078,7 @@ async function renderMb() {
 
 /* ================= boot ================= */
 (async function boot() {
-  applySettings(); renderRouteOpts(); if (S.compact) setCompact(true); renderWps(); renderRecUI(); renderDash(); renderTicks(); setupElev();
+  applySettings(); renderRouteOpts(); renderCompass(); if (S.compact) setCompact(true); renderWps(); renderRecUI(); renderDash(); renderTicks(); setupElev();
   try { await DB.open(); } catch { toast('Хранилище недоступно (приватный режим?) — данные не сохранятся', 5000); }
   if (String(baseKey).startsWith('mb:')) {
     try { const rec = await DB.get('mbtiles', baseKey.slice(3)); if (rec) await openMb(rec); } catch {}
