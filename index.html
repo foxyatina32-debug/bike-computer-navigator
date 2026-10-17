@@ -177,6 +177,8 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 .nojs{position:fixed;inset:0;z-index:500;background:#0d131b;color:#f3f5f8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px max(24px,env(safe-area-inset-right,0px)) 24px max(24px,env(safe-area-inset-left,0px));text-align:center;font:17px/1.45 -apple-system,system-ui,sans-serif}
 .nojs h1{margin:0;font-size:26px}
 .nojs p{margin:0;max-width:34em;color:#c9d2dc}
+.nojs .btns{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.nojs a.chrome{background:#1f2a38;color:#f3f5f8;border:1px solid #3a4758}
 .nojs a{display:inline-block;background:#e2e08a;color:#1c1d08;font-weight:800;font-size:19px;padding:16px 26px;border-radius:16px;text-decoration:none}
 .nojs code{background:#1f2a38;padding:4px 8px;border-radius:8px;font-size:14px;word-break:break-all;-webkit-user-select:all;user-select:all}
 .toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--top) + 64px);background:var(--glass-hi);border:1px solid var(--line);color:var(--ink);padding:11px 18px;border-radius:16px;z-index:100;width:max-content;max-width:calc(100% - 152px);box-shadow:0 8px 30px rgba(0,0,0,.5);font-size:15px;font-weight:600}
@@ -193,8 +195,8 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 <div class="nojs" id="nojs">
   <h1>Велокомп</h1>
   <p id="nojs-why">Файл открыт в режиме просмотра — здесь iPhone не запускает приложение: нет карты, GPS и кнопок.</p>
-  <a href="https://foxyatina32-debug.github.io/bike-computer-navigator/" target="_blank" rel="noopener">Открыть в Safari</a>
-  <p>Или скопируйте адрес в Safari:<br><code>https://foxyatina32-debug.github.io/bike-computer-navigator/</code></p>
+  <div class="btns"><a href="https://foxyatina32-debug.github.io/bike-computer-navigator/" target="_blank" rel="noopener">Открыть в Safari</a><a class="chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/">Открыть в Chrome</a></div>
+  <p>Или скопируйте адрес в Safari или Chrome:<br><code>https://foxyatina32-debug.github.io/bike-computer-navigator/</code></p>
   <p>Затем «Поделиться» → «На экран Домой» — и запускайте с иконки.</p>
 </div>
 <div id="map"></div>
@@ -380,6 +382,8 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <div class="row"><button class="btn" id="st-persist">Запретить автоочистку</button><button class="btn dng" id="st-clear-tiles">Очистить кэш карт</button></div>
 
   <h3>iPhone</h3>
+  <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/" target="_blank" rel="noopener">Открыть в Safari</a></div>
+  <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
   <p class="note">Safari передаёт GPS только при включённом экране. Установите приложение: «Поделиться» → «На экран Домой».</p>
   <p class="note">Карты: Israel Hiking Map (CC BY-NC-SA 3.0), CyclOSM, OpenTopoMap, Esri, © участники OpenStreetMap. Маршруты: BRouter, OSRM. Поиск: Nominatim. Трассы: Overpass API.</p>
 </section>
