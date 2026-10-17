@@ -409,7 +409,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <h3>Поездка</h3>
   <label class="chk"><input type="checkbox" id="s-autopause" checked> Автопауза на остановках</label>
   <label class="chk"><input type="checkbox" id="s-voice" checked> Звук (голосовые подсказки навигации)</label>
-  <label class="chk"><input type="checkbox" id="s-reroute" checked> Автоматически возвращать на маршрут</label>
+  <label class="chk"><input type="checkbox" id="s-reroute" checked> Сбился — автоматически искать путь назад на маршрут (параллельные дороги вперёд, без лишних разворотов)</label>
   <label class="chk"><input type="checkbox" id="s-wake" checked> Не гасить экран</label>
   <label class="chk"><input type="checkbox" id="s-darkmap" checked> Тёмная карта</label>
   <label class="chk"><input type="checkbox" id="s-compactnav" checked> Сворачивать панель при навигации</label>
@@ -447,7 +447,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <p class="note" id="st-quota"></p>
   <div class="row"><button class="btn" id="st-persist">Запретить автоочистку</button><button class="btn dng" id="st-clear-tiles">Очистить кэш карт</button></div>
 
-  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v4 · компас телефона</p>
+  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v6 · умный возврат на маршрут по объездным дорогам</p>
   <h3>iPhone</h3>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -1099,8 +1099,15 @@ function snapNode(G, wf, ll) {
   }
   return { node: best, dist: bd };
 }
-function astar(G, wf, s, t) {
+function astar(G, wf, s, t, avoid) {
   const { reg, off, to, len, way, dir, N, mx, my } = G;
+  // avoid: [[lat, lon, radius_m]] — edges passing through these circles are not used (e.g. the street the rider just came along)
+  const banned = avoid && avoid.length ? e => avoid.some(([la, lo, rad]) => {
+    const u = G.from[e], v = to[e];
+    const ax = (reg.lon[u] - lo) * mx, ay = (reg.lat[u] - la) * my, bx = (reg.lon[v] - lo) * mx, by = (reg.lat[v] - la) * my;
+    const dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy, k = L ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / L)) : 0;
+    return Math.hypot(ax + k * dx, ay + k * dy) < rad;
+  }) : null;
   const g = new Float64Array(N).fill(Infinity), prevE = new Int32Array(N).fill(-1), closed = new Uint8Array(N);
   const hk = [], hv = []; // binary heap (keys = f-score)
   const push = (v, k) => { let i = hk.length; hk.push(k); hv.push(v); while (i > 0) { const p = (i - 1) >> 1; if (hk[p] <= k) break; hk[i] = hk[p]; hv[i] = hv[p]; i = p; } hk[i] = k; hv[i] = v; };
@@ -1112,7 +1119,7 @@ function astar(G, wf, s, t) {
     const u = pop(); if (closed[u]) continue; closed[u] = 1; if (u === t) break;
     const gu = g[u];
     for (let e = off[u]; e < off[u + 1]; e++) {
-      const f = wf[way[e] * 2 + dir[e]]; if (f === Infinity) continue;
+      const f = wf[way[e] * 2 + dir[e]]; if (f === Infinity || (banned && banned(e))) continue;
       const v = to[e]; if (closed[v]) continue;
       const ng = gu + len[e] * f;
       if (ng < g[v]) { g[v] = ng; prevE[v] = e; push(v, ng + h(v)); }
@@ -1123,7 +1130,7 @@ function astar(G, wf, s, t) {
   while (v !== s) { const e = prevE[v]; edges.push(e); v = G.from[e]; }
   return edges.reverse();
 }
-function graphRoute(G, points, bk, terrain) {
+function graphRoute(G, points, bk, terrain, avoid) {
   const { wf, wc } = wayFactors(G, bk, terrain);
   const { reg, off, to, len, way } = G;
   const coords = [], mix = [0, 0, 0];
@@ -1132,7 +1139,7 @@ function graphRoute(G, points, bk, terrain) {
     if (a.node < 0 || b.node < 0) throw new Error('в области нет подходящих дорог');
     if (a.dist > 600) throw new Error(`точка ${k + 1} в ${Math.round(a.dist)} м от ближайшей дороги/тропы`);
     if (b.dist > 600) throw new Error(`точка ${k + 2} в ${Math.round(b.dist)} м от ближайшей дороги/тропы`);
-    const edges = astar(G, wf, a.node, b.node);
+    const edges = astar(G, wf, a.node, b.node, k === 0 ? avoid : null);
     if (!edges) throw new Error(`для «${BIKES[bk].name}» нет проезда между точками ${k + 1} и ${k + 2}`);
     if (!coords.length) coords.push([reg.lat[a.node], reg.lon[a.node], null]);
     for (const e of edges) { const v = to[e]; coords.push([reg.lat[v], reg.lon[v], null]); mix[wc[way[e]]] += len[e]; }
@@ -1157,24 +1164,28 @@ function bboxOf(points, padDeg) {
 }
 const areaKm2 = b => ((b[2] - b[0]) * 110.54) * ((b[3] - b[1]) * 111.32 * Math.cos((b[0] + b[2]) / 2 * D2R));
 const AREA_MAX = 600;
-async function builtinRoute(points, bk, terrain) {
+async function builtinRoute(points, bk, terrain, x = {}) {
   const reg = await findRegion(points);
   let G, src;
   if (reg) { G = await regionGraph(reg.id); src = 'офлайн-область «' + reg.name + '»'; }
   else {
     const on = Graphs.online;
-    if (on && points.every(p => p[0] >= on.bbox[0] && p[0] <= on.bbox[2] && p[1] >= on.bbox[1] && p[1] <= on.bbox[3])) G = on.G;
+    const inside = (b, ps) => ps.every(p => p[0] >= b[0] && p[0] <= b[2] && p[1] >= b[1] && p[1] <= b[3]);
+    const pend = Graphs.pending;
+    if (on && inside(on.bbox, points)) G = on.G;
+    else if (pend && inside(pend.bbox, points)) G = await pend.p; // several routes asked at once share one download
     else {
       if (!navigator.onLine) throw new Error('нет интернета и нет скачанной области. Профиль → Офлайн-маршрутизация');
       const bb = bboxOf(points, 0.02);
       if (areaKm2(bb) > AREA_MAX) throw new Error('слишком дальний маршрут для встроенного движка — выберите BRouter или скачайте область');
-      toast('Загружаю дороги и тропы OSM…', 4000);
-      const j = await overpass(overpassGraphQuery(...bb, 90));
-      G = makeGraph(compactOverpass(j)); Graphs.online = { bbox: bb, G };
+      if (!x.quiet) toast('Загружаю дороги и тропы OSM…', 4000);
+      const p = overpass(overpassGraphQuery(...bb, 90)).then(j => makeGraph(compactOverpass(j)));
+      Graphs.pending = { bbox: bb, p };
+      try { G = await p; Graphs.online = { bbox: bb, G }; } finally { if (Graphs.pending && Graphs.pending.p === p) Graphs.pending = null; }
     }
     src = 'данные OSM онлайн';
   }
-  const r = graphRoute(G, points, bk, terrain);
+  const r = graphRoute(G, points, bk, terrain, x.avoid);
   return { ...r, ascent: null, engine: `Встроенный · ${BIKES[bk].name} · ${TERRAINS[terrain]} · ${src}` };
 }
 function brMix(pr) {
@@ -1190,14 +1201,15 @@ function brMix(pr) {
     return mix[0] + mix[1] + mix[2] > 0 ? mix : null;
   } catch { return null; }
 }
-async function brouterRoute(points, bk, terrain) {
+async function brouterRoute(points, bk, terrain, x = {}) {
   const lonlats = points.map(p => `${p[1].toFixed(6)},${p[0].toFixed(6)}`).join('|');
   const cands = BIKES[bk].br[terrain]; let lastErr;
   for (const prof of cands) {
     try {
-      const j = await fetchJSON(`https://brouter.de/brouter?lonlats=${lonlats}&profile=${encodeURIComponent(prof)}&alternativeidx=0&format=geojson`, {}, 45000);
+      const nogos = x.avoid && x.avoid.length ? '&nogos=' + x.avoid.map(a => `${a[1].toFixed(6)},${a[0].toFixed(6)},${Math.round(a[2])}`).join('|') : '';
+      const j = await fetchJSON(`https://brouter.de/brouter?lonlats=${lonlats}${nogos}&profile=${encodeURIComponent(prof)}&alternativeidx=0&format=geojson`, {}, 45000);
       const f = j.features[0], pr = f.properties || {};
-      if (prof !== cands[0]) toast(`Профиль «${cands[0]}» недоступен — построено по «${prof}»`, 4000);
+      if (prof !== cands[0] && !x.quiet) toast(`Профиль «${cands[0]}» недоступен — построено по «${prof}»`, 4000);
       return { coords: f.geometry.coordinates.map(c => [c[1], c[0], c[2] != null ? c[2] : null]), distance: +pr['track-length'] || null,
         ascent: pr['filtered ascend'] != null ? +pr['filtered ascend'] : null, mix: brMix(pr), engine: `BRouter · ${prof} · ${BIKES[bk].name}` };
     } catch (e) { lastErr = e; if (e.name === 'AbortError') break; }
@@ -1211,14 +1223,14 @@ async function osrmRoute(points) {
   const r = j.routes[0];
   return { coords: r.geometry.coordinates.map(c => [c[1], c[0], null]), distance: r.distance, ascent: null, mix: null, engine: 'OSRM · только дороги', osrmSteps: r.legs.flatMap(l => l.steps) };
 }
-async function routeVia(points, o = curOpts()) {
+async function routeVia(points, o = curOpts(), x = {}) {
   const { bike, terrain, engine } = o;
-  if (engine === 'osrm') return osrmRoute(points);
-  if (engine === 'builtin') return builtinRoute(points, bike, terrain);
-  if (engine === 'brouter') return brouterRoute(points, bike, terrain);
-  if (!navigator.onLine) return builtinRoute(points, bike, terrain);
-  try { return await brouterRoute(points, bike, terrain); }
-  catch (e) { toast('BRouter недоступен — считаю встроенным движком', 3500); return builtinRoute(points, bike, terrain); }
+  if (engine === 'osrm') { if (x.avoid) throw new Error('OSRM не умеет объезды'); return osrmRoute(points); }
+  if (engine === 'builtin') return builtinRoute(points, bike, terrain, x);
+  if (engine === 'brouter') return brouterRoute(points, bike, terrain, x);
+  if (!navigator.onLine) return builtinRoute(points, bike, terrain, x);
+  try { return await brouterRoute(points, bike, terrain, x); }
+  catch (e) { if (!x.quiet) toast('BRouter недоступен — считаю встроенным движком', 3500); return builtinRoute(points, bike, terrain, x); }
 }
 function rideTime(r, bk) {
   const sp = BIKES[bk].spd;
@@ -1418,6 +1430,7 @@ const Nav = {
     let mv = f.spd > 1 && f.hdg != null && !Number.isNaN(f.hdg) && !f.jump ? f.hdg : null;
     if (this.lastPos && hav(this.lastPos, p) >= 6) { if (mv == null) mv = bearing(this.lastPos, p); this.lastPos = p; }
     else if (!this.lastPos) this.lastPos = p;
+    if (mv != null) this.lastMv = mv;
     let loc = this.locate(p, mv);
     if (!this.lost && loc.dist > 120) { this.lost = true; loc = this.locate(p, mv); }
     const lim = 35 + Math.min(f.acc, 40) / 2;
@@ -1440,7 +1453,7 @@ const Nav = {
     if (loc.dist <= lim) { this.lost = false; this.offCount = 0; if (loc.along > this.progress - 50) this.progress = loc.along; }
     else this.offCount++;
     const off = this.offCount >= 3 && Date.now() > this.ignoreOffUntil;
-    if (off && S.reroute && Date.now() - this.lastReroute > 30000) { this.lastReroute = Date.now(); this.rejoin(true); }
+    if (off && S.reroute && !this.rejoining && Date.now() - this.lastReroute > 20000) { this.lastReroute = Date.now(); this.rejoin(true); }
     this.render(off, loc.dist);
     (this.wpts || []).forEach((w, i) => { if (!this.wptSaid[i] && hav(p, w.ll) < 40) { this.wptSaid[i] = 1; const n = w.name || 'точка ' + (i + 1); say('Точка маршрута: ' + n); toast('📍 ' + n); } });
     if (this.route && this.route.total - this.progress < 25 && !this.said.finish) { this.said.finish = 1; say('Вы прибыли'); toast('Финиш маршрута'); }
@@ -1462,19 +1475,52 @@ const Nav = {
     if (stage && !this.said[key] && cue.ang !== 'finish') { this.said[key] = 1; say(d <= 45 ? 'Сейчас ' + cue.spoken : `Через ${Math.round(d / 50) * 50} метров ${cue.spoken}`); }
     drawElev();
   },
+  // Back to the original route: try several rejoin points ahead at once and pick the best way —
+  // usually a parallel street or trail forward; a short U-turn only when it really is shorter.
   async rejoin(auto) {
-    if (!this.route || !GPS.fix) { toast('Нужен сигнал GPS'); return; }
-    const r = this.route; const me = [GPS.fix.lat, GPS.fix.lon];
-    let target;
-    if (this.lost || this.progress < 1) { const loc = this.locate(me); target = Math.min(r.coords.length - 1, lowerBound(r.cum, loc.along + 60)); }
-    else target = Math.min(r.coords.length - 1, lowerBound(r.cum, this.progress + 150));
+    if (!this.route || !GPS.fix) { if (!auto) toast('Нужен сигнал GPS'); return; }
+    if (this.rejoining) return;
+    this.rejoining = true;
+    const r = this.route, me = [GPS.fix.lat, GPS.fix.lon];
+    const base = this.lost || this.progress < 1 ? this.locate(me, null).along : this.progress;  // where you left the route
+    const left = Math.max(0, r.total - base);
+    const offs = [120, 350, 700, 1200].filter(o => o < left - 20); if (left > 20) offs.push(Math.max(20, left - 1));
+    const targets = [...new Set(offs.map(o => Math.min(r.coords.length - 1, lowerBound(r.cum, base + o))))];
+    const opts = r.opts && r.opts.engine !== 'osrm' ? r.opts : curOpts();
+    $('#nv-txt').textContent = 'Ищу путь назад к маршруту…'; $('#nv-dist').textContent = '…';
+    if (!auto) toast('Ищу лучший путь назад к маршруту…');
     try {
-      if (!auto) toast('Прокладываю путь к маршруту…');
-      const res = await routeVia([me, [r.coords[target][0], r.coords[target][1]]], r.opts && r.opts.engine !== 'osrm' ? r.opts : curOpts());
-      this.set({ name: r.name, coords: res.coords.concat(r.coords.slice(target + 1)), opts: r.opts, wpts: this.wpts, keepView: true });
+      // Plain way back to each point ahead, plus a variant that first keeps going the way the rider is heading
+      // (next parallel street / trail), so a forward alternative is found when one exists.
+      const jobs = targets.map(i => ({ i, pts: [me, [r.coords[i][0], r.coords[i][1]]] }));
+      if (this.lastMv != null) {
+        // Same targets, but the road just behind the rider is closed: the router has to find another street/trail forward.
+        const a = (this.lastMv + 180) * D2R, m = 30, behind = [me[0] + Math.cos(a) * m / 110540, me[1] + Math.sin(a) * m / (111320 * Math.cos(me[0] * D2R)), 22];
+        targets.forEach(i => jobs.push({ i, pts: [me, [r.coords[i][0], r.coords[i][1]]], avoid: [behind] }));
+      }
+      const res = await Promise.allSettled(jobs.map(j => routeVia(j.pts, opts, { quiet: true, avoid: j.avoid })));
+      let best = null;
+      res.forEach((x, k) => {
+        if (x.status !== 'fulfilled' || !x.value || !x.value.coords || x.value.coords.length < 2) return;
+        const i = jobs[k].i, c = x.value.coords.slice();
+        // Routers snap to the nearest road node; start the line exactly where the rider is.
+        if (hav(me, c[0]) > 3) c.unshift([me[0], me[1], null]);
+        const cum = cumDist(c), len = cum[cum.length - 1];
+        const skip = Math.max(0, r.cum[i] - base);
+        // Does the way back start by turning around?
+        const j = Math.min(c.length - 1, lowerBound(cum, 30));
+        const uturn = this.lastMv != null && len > 30 && Math.abs(norm180(bearing(me, c[j]) - this.lastMv)) > 120 ? 150 : 0;
+        const score = len - 0.9 * Math.min(skip, 500) + uturn; // short way back wins; a little progress counts, but no big shortcuts past the planned route
+        if (!best || score < best.score) best = { score, i, coords: c, len, skip, uturn };
+      });
+      if (!best) throw new Error('нет пути к маршруту');
+      this.set({ name: r.name, coords: best.coords.concat(r.coords.slice(best.i + 1)), opts: r.opts, wpts: this.wpts, keepView: true });
+      this.lastRejoin = best;
       setFollow(true); centerOn(me);
-      if (auto) say('Маршрут перестроен');
-    } catch (e) { if (!auto) toast('Не удалось перестроить: ' + e.message, 5000); }
+      const msg = best.uturn ? 'Развернитесь и вернитесь на маршрут' : 'Маршрут перестроен. Возвращаемся на маршрут';
+      say(msg); toast('↪ ' + msg + ` · ${Math.round(best.len)} м до маршрута`, 4000);
+    } catch (e) { if (!auto) toast('Не удалось перестроить: ' + e.message, 5000); this.render(true, 0); }
+    finally { this.rejoining = false; }
   }
 };
 $('#nv-rejoin').onclick = () => Nav.rejoin(false);
