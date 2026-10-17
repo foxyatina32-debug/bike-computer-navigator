@@ -440,6 +440,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <p class="note" id="st-quota"></p>
   <div class="row"><button class="btn" id="st-persist">Запретить автоочистку</button><button class="btn dng" id="st-clear-tiles">Очистить кэш карт</button></div>
 
+  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v3</p>
   <h3>iPhone</h3>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -1279,7 +1280,9 @@ const Nav = {
     if (coords.length < 2) { toast('В маршруте нет точек'); return; }
     const cum = cumDist(coords);
     this.route = { ...r, coords, cum, total: cum[cum.length - 1], cues: buildCues(coords, cum, r.osrmSteps) };
-    this.progress = 0; this.offCount = 0; this.lost = true; this.said = {}; this.setAt = Date.now(); this.wrongWay = 0;
+    this.route.sb = coords.slice(0, -1).map((c, i) => bearing(c, coords[i + 1]));
+    this.lastPos = null; this.backHits = 0; this.wrongSaid = false;
+    this.progress = 0; this.offCount = 0; this.lost = true; this.said = {}; this.setAt = Date.now();
     if (this.line) map.removeLayer(this.line);
     this.line = L.polyline(coords.map(c => [c[0], c[1]]), { color: css('--route'), weight: 6, opacity: .9 }).addTo(map);
     if (this.wptLayer) { map.removeLayer(this.wptLayer); this.wptLayer = null; }
@@ -1304,36 +1307,49 @@ const Nav = {
     setupElev(); lsSet('activeNav', null); updateWake();
   },
   reverse() { if (!this.route) return; const r = this.route; this.set({ name: r.name + ' (обратно)', coords: r.coords.slice().reverse(), opts: r.opts, wpts: this.wpts }); },
-  locate(p) {
-    const { coords, cum } = this.route; const lat0 = p[0] * D2R, mx = 111320 * Math.cos(lat0), my = 110540;
+  // Match the rider to the route. With a movement bearing, prefer segments going the same way and close to the
+  // current progress — so out-and-back paths and loop start/finish never snap to the opposite direction.
+  locate(p, mv) {
+    const { coords, cum, sb } = this.route; const lat0 = p[0] * D2R, mx = 111320 * Math.cos(lat0), my = 110540;
     let lo = 0, hi = coords.length - 2;
     if (!this.lost) { lo = Math.max(0, lowerBound(cum, this.progress - 300) - 1); hi = Math.min(coords.length - 2, lowerBound(cum, this.progress + 1500)); }
-    let best = { dist: Infinity, along: 0, seg: 0 };
+    let best = { cost: Infinity, dist: Infinity, along: 0, seg: 0, sameDir: null };
     for (let i = lo; i <= hi; i++) {
       const a = coords[i], b = coords[i + 1];
       const ax = (a[1] - p[1]) * mx, ay = (a[0] - p[0]) * my, bx = (b[1] - p[1]) * mx, by = (b[0] - p[0]) * my;
       const dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy; let t = L2 ? -(ax * dx + ay * dy) / L2 : 0; t = Math.max(0, Math.min(1, t));
-      const d = Math.hypot(ax + t * dx, ay + t * dy);
-      if (d < best.dist) best = { dist: d, along: cum[i] + t * (cum[i + 1] - cum[i]), seg: i };
+      const d = Math.hypot(ax + t * dx, ay + t * dy), along = cum[i] + t * (cum[i + 1] - cum[i]);
+      let cost = d, same = null;
+      if (mv != null && L2 > 1) { same = Math.abs(norm180(mv - sb[i])) <= 100; if (!same) cost += 45; }
+      if (!this.lost) cost += Math.max(0, along - (this.progress + 150)) * 0.05 + Math.max(0, this.progress - 60 - along) * 0.05;
+      if (cost < best.cost) best = { cost, dist: d, along, seg: i, sameDir: same };
     }
     return best;
   },
   onFix(f) {
     if (!this.route) return;
-    const p = [f.lat, f.lon]; let loc = this.locate(p);
-    if (!this.lost && loc.dist > 120) { this.lost = true; loc = this.locate(p); }
+    const p = [f.lat, f.lon];
+    // Direction of travel: GPS course when moving, otherwise from our own last positions (works at walking pace too).
+    let mv = f.spd > 1 && f.hdg != null && !Number.isNaN(f.hdg) && !f.jump ? f.hdg : null;
+    if (this.lastPos && hav(this.lastPos, p) >= 6) { if (mv == null) mv = bearing(this.lastPos, p); this.lastPos = p; }
+    else if (!this.lastPos) this.lastPos = p;
+    let loc = this.locate(p, mv);
+    if (!this.lost && loc.dist > 120) { this.lost = true; loc = this.locate(p, mv); }
     const lim = 35 + Math.min(f.acc, 40) / 2;
-    // Riding a track (GPX, saved route, trail) against its drawn direction mirrors every turn — flip it automatically.
-    if (!this.route.opts && loc.dist <= lim && f.spd > 2 && f.hdg != null && !Number.isNaN(f.hdg)) {
-      const c = this.route.coords, i = Math.min(loc.seg, c.length - 2);
-      const diff = Math.abs(norm180(f.hdg - bearing(c[i], c[i + 1])));
-      this.wrongWay = diff > 120 ? this.wrongWay + 1 : 0;
-      if (this.wrongWay >= 4 && Date.now() - this.lastFlip > 60000) {
-        const name = this.route.name.endsWith(' (обратно)') ? this.route.name.slice(0, -10) : this.route.name + ' (обратно)';
-        this.lastFlip = Date.now(); const keep = this.lastFlip;
-        this.set({ name, coords: c.slice().reverse(), wpts: this.wpts, keepView: true }); this.lastFlip = keep;
-        setFollow(true); say('Маршрут развёрнут по направлению вашего движения'); toast('↺ Маршрут развёрнут по направлению движения', 4000);
-        return;
+    // Riding against the route: even the best match runs the opposite way for several fixes.
+    if (loc.dist <= lim && mv != null && loc.sameDir != null) {
+      this.backHits = loc.sameDir ? 0 : this.backHits + 1;
+      if (this.backHits >= 3) {
+        if (!this.route.opts && Date.now() - this.lastFlip > 30000) {
+          // A track from a file / saved / OSM: flip it so turns match the way you ride.
+          const c = this.route.coords;
+          const name = this.route.name.endsWith(' (обратно)') ? this.route.name.slice(0, -10) : this.route.name + ' (обратно)';
+          this.lastFlip = Date.now(); const keep = this.lastFlip;
+          this.set({ name, coords: c.slice().reverse(), wpts: this.wpts, keepView: true }); this.lastFlip = keep;
+          setFollow(true); say('Маршрут развёрнут по направлению вашего движения'); toast('↺ Маршрут развёрнут по направлению движения', 4000);
+          return;
+        }
+        if (this.route.opts && !this.wrongSaid) { this.wrongSaid = true; say('Вы едете в обратную сторону. Развернитесь'); toast('⚠ Вы едете в обратную сторону — развернитесь', 5000); }
       }
     }
     if (loc.dist <= lim) { this.lost = false; this.offCount = 0; if (loc.along > this.progress - 50) this.progress = loc.along; }
