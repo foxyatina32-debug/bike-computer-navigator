@@ -240,7 +240,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 .ask .opt b{font-size:16px}.ask .opt span{font-size:13px;font-weight:500;opacity:.8}
 .ask .cancel{width:100%;background:none;border:0;color:var(--muted);font:inherit;font-size:15px;padding:8px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--top) + 136px);background:var(--glass-hi);border:1px solid var(--line);color:var(--ink);padding:11px 18px;border-radius:16px;z-index:100;width:max-content;max-width:calc(100% - 32px);box-shadow:0 8px 30px rgba(0,0,0,.5);font-size:15px;font-weight:600}
-.me{width:30px;height:30px}
+.me{width:30px;height:30px;position:relative}
 .wp{width:28px;height:28px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--route);border:2px solid #fff;display:grid;place-items:center}
 .wp span{transform:rotate(45deg);color:#fff;font-weight:800;font-size:13px}
 @media (max-height:740px){.card{min-height:96px;padding:10px 14px}.cb.lg{width:70px;height:70px}.cb.sm{width:46px;height:46px}.ctrls{gap:16px}}
@@ -479,7 +479,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <p class="note" id="st-quota"></p>
   <div class="row"><button class="btn" id="st-persist">Запретить автоочистку</button><button class="btn dng" id="st-clear-tiles">Очистить кэш карт</button></div>
 
-  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v9 · при запуске: возобновить или новый маршрут</p>
+  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v10 · значок велосипеда на карте</p>
   <h3>iPhone</h3>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -827,14 +827,16 @@ function unlockSpeech() { try { if ('speechSynthesis' in window) speechSynthesis
 
 /* ================= GPS ================= */
 const GPS = { fix: null, spdEma: 0, watch: null, follow: true, lastT: 0 };
-// Rider marker: arrow = direction from GPS while riding; dot with a light beam = where the phone points (compass).
+// Rider marker: a bicycle badge. While riding, a pointer on its ring shows GPS direction;
+// when slow/stationary, a light beam shows where the phone points (compass).
+const bikeSvg = a => `<svg viewBox="0 0 30 30" style="position:absolute;left:0;top:0;width:30px;height:30px"><circle cx="15" cy="15" r="14.5" fill="${a}" opacity=".25"/><circle cx="15" cy="15" r="11.5" fill="${a}" stroke="#fff" stroke-width="2"/><g fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.8" cy="18" r="3.4"/><circle cx="20.2" cy="18" r="3.4"/><path d="M9.8 18 12.6 12.4 18.6 12.4 20.2 18M12.6 12.4 14.6 18 18.6 12.4M9.8 18H14.6M18.6 12.4 17.9 10.2H20.2M11.4 10.4H13.8"/></g></svg>`;
 const meIcon = st => { const a = css('--accent');
-  const html = st && st.k === 'arrow'
-    ? `<svg viewBox="0 0 30 30" style="transform:rotate(${st.h}deg)"><circle cx="15" cy="15" r="14" fill="${a}" opacity=".25"/><path d="M15 4 23 25 15 20 7 25Z" fill="${a}" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>`
+  const under = st && st.k === 'arrow'
+    ? `<svg viewBox="0 0 44 44" style="position:absolute;left:-7px;top:-7px;width:44px;height:44px;transform:rotate(${st.h}deg)"><path d="M22 0 28.5 9.5 22 7.5 15.5 9.5Z" fill="${a}" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>`
     : st && st.k === 'beam'
-    ? `<svg viewBox="0 0 64 64" style="width:84px;height:84px;margin:-27px 0 0 -27px;transform:rotate(${st.h}deg)"><defs><radialGradient id="bm" cx="32" cy="32" r="31" gradientUnits="userSpaceOnUse"><stop offset=".2" stop-color="${a}" stop-opacity=".9"/><stop offset="1" stop-color="${a}" stop-opacity=".05"/></radialGradient></defs><path d="M32 32 L15 2 A33 33 0 0 1 49 2 Z" fill="url(#bm)"/><circle cx="32" cy="32" r="14" fill="${a}" opacity=".25"/><circle cx="32" cy="32" r="8.5" fill="${a}" stroke="#fff" stroke-width="2.5"/></svg>`
-    : `<svg viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" fill="${a}" opacity=".25"/><circle cx="15" cy="15" r="8.5" fill="${a}" stroke="#fff" stroke-width="2.5"/></svg>`;
-  return L.divIcon({ className: 'me', iconSize: [30, 30], iconAnchor: [15, 15], html });
+    ? `<svg viewBox="0 0 64 64" style="position:absolute;left:-27px;top:-27px;width:84px;height:84px;transform:rotate(${st.h}deg)"><defs><radialGradient id="bm" cx="32" cy="32" r="31" gradientUnits="userSpaceOnUse"><stop offset=".2" stop-color="${a}" stop-opacity=".9"/><stop offset="1" stop-color="${a}" stop-opacity=".05"/></radialGradient></defs><path d="M32 32 L15 2 A33 33 0 0 1 49 2 Z" fill="url(#bm)"/></svg>`
+    : '';
+  return L.divIcon({ className: 'me', iconSize: [30, 30], iconAnchor: [15, 15], html: under + bikeSvg(a) });
 };
 let meMarker = null, accCircle = null, lastIconHdg = 'x';
 // ---- Phone compass (magnetometer + gyroscope), like the beam in Google Maps ----
