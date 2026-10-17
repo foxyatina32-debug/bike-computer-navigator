@@ -203,6 +203,16 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 .compass .lbl{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700;color:var(--ink);background:var(--glass-btn);border:1px solid var(--line);border-radius:8px;padding:1px 6px;white-space:nowrap}
 .compass.hu{border-color:var(--accent)}
 .compass.live svg{transition:none}
+/* Localities (Hebrew): ahead / here / behind — small, on the left under the compass */
+.locw{position:fixed;z-index:19;top:calc(var(--top) + 150px);left:max(12px,env(safe-area-inset-left,0px));max-width:min(44vw,170px);padding:6px 10px;border-radius:14px;background:rgba(18,24,33,.72);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid var(--line);pointer-events:auto;display:flex;flex-direction:column;gap:2px;font-family:system-ui,-apple-system,"Arial Hebrew",sans-serif}
+.locw .r{display:flex;align-items:center;gap:6px;min-width:0}
+.locw .n{direction:rtl;unicode-bidi:isolate;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1;text-align:right}
+.locw .i{flex:none;width:12px;text-align:center;font-size:11px;color:var(--dim)}
+.locw .d{flex:none;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.locw .cur .n{font-size:16px;font-weight:800;color:var(--ink)}
+.locw .cur .i{color:var(--accent);font-size:10px}
+.locw .nx .n,.locw .pv .n{font-size:12.5px;font-weight:600;color:var(--muted)}
+.locw .pv{opacity:.75}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{padding:9px 13px;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid var(--line);font-weight:600;font-size:14px}
 .chip.on{background:var(--accent);color:var(--accent-ink);border-color:transparent}
@@ -256,6 +266,11 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 </header>
 
 <button class="compass" id="t-compass" aria-label="Ориентация карты"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="1.5"/><path d="M18 4 23 18H13Z" fill="#ff5a4e"/><path d="M18 32 13 18h10Z" fill="#e8edf2"/><text x="18" y="12.5" text-anchor="middle" font-size="7" font-weight="800" fill="#fff" font-family="system-ui">N</text></svg><span class="lbl" id="compass-lbl">Север</span></button>
+<div class="locw" id="locw" hidden aria-live="polite">
+  <div class="r nx" id="locw-nx" hidden><span class="i">▲</span><span class="d" id="locw-nx-d"></span><span class="n" id="locw-nx-n"></span></div>
+  <div class="r cur"><span class="i">●</span><span class="n" id="locw-cur"></span></div>
+  <div class="r pv" id="locw-pv" hidden><span class="i">▼</span><span class="n" id="locw-pv-n"></span></div>
+</div>
 <button class="gpxfab addfab" id="t-gpx" aria-label="Добавить маршрут"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Маршрут</button>
 <input type="file" id="gpx-file" multiple hidden>
 <div class="drop" id="drop" hidden>Отпустите файл GPX</div>
@@ -427,6 +442,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <div id="s-wake-st" style="margin:-4px 0 8px 32px;font-size:12px;color:var(--muted)"></div>
   <label class="chk"><input type="checkbox" id="s-darkmap" checked> Тёмная карта</label>
   <label class="chk"><input type="checkbox" id="s-compactnav" checked> Сворачивать панель при навигации</label>
+  <label class="chk"><input type="checkbox" id="s-places" checked> Населённые пункты на карте (иврит): где я, впереди, позади</label>
   <h3>Поворот карты</h3>
   <div class="seg" id="s-orient"><button data-o="north">Север вверх</button><button data-o="compass">По компасу</button><button data-o="course">По GPS</button></div>
   <p class="note" style="margin:6px 0 8px">«По компасу» — карта плавно крутится вслед за телефоном (компас + гироскоп), как в Offroad. «По GPS» — по направлению езды.</p>
@@ -463,7 +479,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <p class="note" id="st-quota"></p>
   <div class="row"><button class="btn" id="st-persist">Запретить автоочистку</button><button class="btn dng" id="st-clear-tiles">Очистить кэш карт</button></div>
 
-  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v7 · карта крутится по компасу телефона</p>
+  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v8 · населённые пункты на иврите</p>
   <h3>iPhone</h3>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -566,7 +582,7 @@ const DB = {
 };
 
 /* ================= settings ================= */
-const S = Object.assign({ compass: true, headingUp: true, orient: 'compass', autopause: true, voice: true, reroute: true, wake: true, darkmap: true, extnav: 'app', urlProxy: false, compact: false, compactNav: true }, lsGet('settings', {}));
+const S = Object.assign({ compass: true, headingUp: true, orient: 'compass', autopause: true, voice: true, reroute: true, wake: true, darkmap: true, extnav: 'app', urlProxy: false, compact: false, compactNav: true, places: true }, lsGet('settings', {}));
 if (!('orient' in (lsGet('settings', {}) || {}))) S.orient = S.headingUp === false ? 'north' : 'compass'; // older builds had only on/off
 S.headingUp = S.orient !== 'north';
 const saveS = () => lsSet('settings', S);
@@ -662,6 +678,7 @@ function placeGpxBtn() {
   const nb = $('#navb');
   $('#t-gpx').style.top = nb.hidden ? '' : (nb.getBoundingClientRect().bottom + 10) + 'px';
   $('#t-compass').style.top = $('#t-gpx').style.top;
+  $('#locw').style.top = ($('#t-compass').getBoundingClientRect().bottom + 30) + 'px';
 }
 function syncSheetMax() {
   placeGpxBtn();
@@ -713,7 +730,7 @@ $$('#dots i').forEach((d, k) => d.onclick = () => pager.scrollTo({ left: k * pag
 /* ================= settings UI ================= */
 function applySettings() {
   ['autopause', 'voice', 'reroute', 'wake', 'darkmap'].forEach(k => $('#s-' + k).checked = !!S[k]);
-  $('#s-compactnav').checked = !!S.compactNav; $$('#s-orient button').forEach(b => b.classList.toggle('on', b.dataset.o === S.orient));
+  $('#s-compactnav').checked = !!S.compactNav; $('#s-places').checked = !!S.places; $$('#s-orient button').forEach(b => b.classList.toggle('on', b.dataset.o === S.orient));
   $('#map').classList.toggle('darkmap', !!S.darkmap);
   $('#c-voice').classList.toggle('on', !!S.voice); $('#c-voice').setAttribute('aria-label', S.voice ? 'Выключить звук' : 'Включить звук'); hush();
   $('#c-voice').innerHTML = S.voice
@@ -729,6 +746,7 @@ $$('#s-extnav button').forEach(b => b.onclick = () => { S.extnav = b.dataset.n; 
 // Muting stops the phrase that is being spoken right now, too.
 function hush() { try { if (!S.voice && 'speechSynthesis' in window) speechSynthesis.cancel(); } catch {} }
 $('#s-compactnav').onchange = e => { S.compactNav = e.target.checked; saveS(); };
+$('#s-places').onchange = e => { S.places = e.target.checked; saveS(); Places.render(); if (S.places && GPS.fix) Places.onFix(GPS.fix, true); };
 $$('#s-orient button').forEach(b => b.onclick = () => setOrientation(b.dataset.o));
 // Button cycles: north up → follow phone compass → follow GPS course → north up.
 $('#t-compass').onclick = () => setOrientation({ north: 'compass', compass: 'course', course: 'north' }[S.orient] || 'north');
@@ -953,8 +971,98 @@ function onFix(pos) {
     if (GPS.follow) centerOn(ll);
   }
   gpsDot(fix.acc <= 15 ? 'good' : fix.acc <= 40 ? 'weak' : 'bad');
-  Ride.onFix(fix); Nav.onFix(fix); renderDash();
+  Ride.onFix(fix); Nav.onFix(fix); renderDash(); Places.onFix(fix);
 }
+
+/* ================= localities (Hebrew names): here / ahead / behind ================= */
+// Here: OSM reverse geocoding (settlement containing the rider). Ahead: nearest settlement along the active route,
+// or — without a route — the nearest one in the direction of travel. Behind: the last settlement left.
+const Places = {
+  cur: null, prev: (() => { const v = lsGet('placePrev', null); return v && Date.now() - v.t < 6 * 3600e3 ? v.name : null; })(),
+  next: null, lastQ: null, lastQT: 0, busy: false, list: null, listAt: null, listBusy: false, listT: 0, lastNextT: 0,
+  heName: t => t && (t['name:he'] || t.name || ''),
+  async onFix(f, force) {
+    if (!S.places) return;
+    const p = [f.lat, f.lon], now = Date.now();
+    if (f.acc > 150) return;
+    if (!this.busy && (force || !this.lastQ || (hav(p, this.lastQ) > 250 && now - this.lastQT > 15000) || now - this.lastQT > 180000)) this.reverse(p);
+    if (!this.listBusy && (!this.listAt || hav(p, this.listAt) > 10000) && now - this.listT > 60000) this.loadList(p);
+    if (force || now - this.lastNextT > 4000) { this.lastNextT = now; this.findNext(p); this.render(); }
+  },
+  async reverse(p) {
+    this.busy = true; this.lastQ = p; this.lastQT = Date.now();
+    try {
+      const r = await fetchJSON(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=14&accept-language=he&lat=${p[0].toFixed(5)}&lon=${p[1].toFixed(5)}`, {}, 10000);
+      const a = (r && r.address) || {};
+      const name = a.city || a.town || a.village || a.hamlet || a.municipality || a.isolated_dwelling || '';
+      if (name && name !== this.cur) {
+        if (this.cur) { this.prev = this.cur; lsSet('placePrev', { name: this.prev, t: Date.now() }); }
+        this.cur = name;
+      } else if (!name && this.cur) { this.prev = this.cur; lsSet('placePrev', { name: this.prev, t: Date.now() }); this.cur = ''; }
+      if (this.prev && this.prev === this.cur) this.prev = null;
+      this.findNext(p); this.render();
+    } catch {} finally { this.busy = false; }
+  },
+  async loadList(p) {
+    this.listBusy = true; this.listT = Date.now();
+    try {
+      const j = await overpass(`[out:json][timeout:25];nwr["place"~"^(city|town|village)$"](around:30000,${p[0].toFixed(4)},${p[1].toFixed(4)});out center tags;`);
+      this.list = (j.elements || []).map(e => ({ name: this.heName(e.tags), kind: e.tags.place, ll: [e.lat ?? e.center?.lat, e.lon ?? e.center?.lon] }))
+        .filter(x => x.name && isFinite(x.ll[0]) && isFinite(x.ll[1]));
+      this.listAt = p; this.findNext(p); this.render();
+    } catch { this.listAt = null; } finally { this.listBusy = false; }
+  },
+  findNext(p) {
+    this.next = null; if (!this.list || !this.list.length) return;
+    const skip = n => n === this.cur;
+    const r = Nav.route;
+    if (r && !Nav.toStart) {
+      // Along the route: closest settlement to the remaining route line, first by distance along it (up to 40 km).
+      const from = Math.max(0, lowerBound(r.cum, Nav.progress) - 1), to = lowerBound(r.cum, Nav.progress + 40000);
+      const near = { city: 3000, town: 2000, village: 1200 };
+      let best = null;
+      for (const pl of this.list) {
+        if (skip(pl.name)) continue;
+        const lim = near[pl.kind] || 1200, mx = 111320 * Math.cos(pl.ll[0] * D2R), my = 110540;
+        let bd = Infinity, ba = 0;
+        for (let i = from; i < to && i < r.coords.length - 1; i += 1) {
+          const a = r.coords[i], b = r.coords[i + 1];
+          const ax = (a[1] - pl.ll[1]) * mx, ay = (a[0] - pl.ll[0]) * my, dx = (b[1] - a[1]) * mx, dy = (b[0] - a[0]) * my, L2 = dx * dx + dy * dy;
+          let t = L2 ? -(ax * dx + ay * dy) / L2 : 0; t = Math.max(0, Math.min(1, t));
+          const d = Math.hypot(ax + t * dx, ay + t * dy);
+          if (d < bd) { bd = d; ba = r.cum[i] + t * (r.cum[i + 1] - r.cum[i]); }
+        }
+        const ahead = ba - Nav.progress;
+        if (bd <= lim && ahead > 150 && (!best || ahead < best.dist)) best = { name: pl.name, dist: ahead, route: true };
+      }
+      this.next = best; return;
+    }
+    // No route: nearest settlement roughly straight ahead (±35° of travel/phone direction).
+    const rh = riderHeading(); if (!rh) return;
+    let best = null;
+    for (const pl of this.list) {
+      if (skip(pl.name)) continue;
+      const d = hav(p, pl.ll); if (d < 400 || d > 15000) continue;
+      const diff = Math.abs(norm180(bearing(p, pl.ll) - rh.h)); if (diff > 35) continue;
+      const score = d * (1 + diff / 35);
+      if (!best || score < best.score) best = { name: pl.name, dist: d, score, route: false };
+    }
+    this.next = best;
+  },
+  render() {
+    const w = $('#locw');
+    if (!S.places || !GPS.fix || !(this.cur || this.next || this.prev)) { w.hidden = true; return; }
+    w.hidden = false;
+    $('#locw-cur').textContent = this.cur || 'מחוץ ליישוב';
+    $('#locw-nx').hidden = !this.next;
+    if (this.next) {
+      $('#locw-nx-n').textContent = this.next.name;
+      const d = this.next.dist; $('#locw-nx-d').textContent = (this.next.route ? '' : '~') + (d >= 1000 ? (d / 1000).toFixed(d < 10000 ? 1 : 0) + ' км' : Math.round(d / 50) * 50 + ' м');
+    }
+    $('#locw-pv').hidden = !this.prev; if (this.prev) $('#locw-pv-n').textContent = this.prev;
+    placeGpxBtn();
+  }
+};
 $('#c-loc').onclick = () => $('#c-follow').click();
 $('#c-follow').onclick = () => { setFollow(!GPS.follow); if (GPS.follow && GPS.fix) centerOn([GPS.fix.lat, GPS.fix.lon], Math.max(map.getZoom(), 16)); startGPS(); };
 let lastMapTouch = 0;
