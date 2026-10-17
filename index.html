@@ -287,6 +287,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 
   <div id="r-plan">
     <div class="col" style="margin-top:12px">
+      <button class="btn" id="pl-gpx" style="justify-content:flex-start;gap:10px"><b style="color:var(--accent)">GPX</b> Открыть файл маршрута и ехать</button>
       <input type="search" id="geo-q" placeholder="Куда? Адрес, место, יישוב…" autocomplete="off">
       <div class="list" id="geo-res" hidden></div>
       <label class="chk"><input type="checkbox" id="pl-fromgps" checked> Старт из моего местоположения</label>
@@ -585,7 +586,12 @@ function centerOn(ll, zoom, animate = true) {
 function fitB(bounds) { const p = viewPad(); map.fitBounds(bounds, { paddingTopLeft: [24, p.top], paddingBottomRight: [24, p.bottom], maxZoom: 17 }); setFollow(false); }
 
 /* ================= tabs & sheets ================= */
+function placeGpxBtn() {
+  const nb = $('#navb');
+  $('#t-gpx').style.top = nb.hidden ? '' : (nb.getBoundingClientRect().bottom + 10) + 'px';
+}
 function syncSheetMax() {
+  placeGpxBtn();
   const top = (!$('#navb').hidden ? $('#navb') : $('.top')).getBoundingClientRect().bottom + 10;
   const bottom = $('.tabs').getBoundingClientRect().top - 8;
   document.documentElement.style.setProperty('--sheet-max', Math.max(200, bottom - top) + 'px');
@@ -1214,7 +1220,6 @@ const Nav = {
       this.wptLayer = L.featureGroup(this.wpts.map((w, i) => L.marker(w.ll, { icon: L.divIcon({ className: '', iconSize: [26, 26], iconAnchor: [13, 13], html: `<div class="wpm">${i + 1}</div>` }) }).bindPopup(`<div class="pop"><h4>${esc(w.name || 'Точка ' + (i + 1))}</h4></div>`))).addTo(map);
     }
     if (previewLayer) { map.removeLayer(previewLayer); previewLayer = null; }
-    $('#t-gpx').hidden = true;
     clearCandidate();
     $('#navb').hidden = false; $('#nav-ctl').hidden = false; $('#nav-name').textContent = r.name || 'Маршрут';
     renderExt(coords[coords.length - 1], coords, r.name);
@@ -1227,7 +1232,6 @@ const Nav = {
   stop() {
     if (this.line) map.removeLayer(this.line); this.line = null; this.route = null;
     if (this.wptLayer) { map.removeLayer(this.wptLayer); this.wptLayer = null; } this.wpts = [];
-    $('#t-gpx').hidden = false;
     $('#navb').hidden = true; $('#nav-ctl').hidden = true; $('#d-rem').textContent = '—'; $('#m-rem-c').hidden = true; if (S.compactNav) setCompact(S.compact); syncSheetMax();
     setupElev(); lsSet('activeNav', null); updateWake();
   },
@@ -1515,6 +1519,7 @@ async function saveRoute(name, coords, source, wpts) {
 $('#imp-file').onchange = e => { const f = [...e.target.files]; e.target.value = ''; openRouteFiles(f); };
 $('#gpx-file').onchange = e => { const f = [...e.target.files]; e.target.value = ''; openRouteFiles(f); };
 $('#t-gpx').onclick = () => $('#gpx-file').click();
+$('#pl-gpx').onclick = () => $('#gpx-file').click();
 // Open GPX/KML/… files: save them and show a card with «Ехать» / «Обратно».
 async function openRouteFiles(files) {
   if (!files.length) return;
