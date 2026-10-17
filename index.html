@@ -216,7 +216,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 .nojs a.chrome{background:#1f2a38;color:#f3f5f8;border:1px solid #3a4758}
 .nojs a{display:inline-block;background:#e2e08a;color:#1c1d08;font-weight:800;font-size:19px;padding:16px 26px;border-radius:16px;text-decoration:none}
 .nojs code{background:#1f2a38;padding:4px 8px;border-radius:8px;font-size:14px;word-break:break-all;-webkit-user-select:all;user-select:all}
-.toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--top) + 64px);background:var(--glass-hi);border:1px solid var(--line);color:var(--ink);padding:11px 18px;border-radius:16px;z-index:100;width:max-content;max-width:calc(100% - 152px);box-shadow:0 8px 30px rgba(0,0,0,.5);font-size:15px;font-weight:600}
+.toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--top) + 136px);background:var(--glass-hi);border:1px solid var(--line);color:var(--ink);padding:11px 18px;border-radius:16px;z-index:100;width:max-content;max-width:calc(100% - 32px);box-shadow:0 8px 30px rgba(0,0,0,.5);font-size:15px;font-weight:600}
 .me{width:30px;height:30px}
 .wp{width:28px;height:28px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--route);border:2px solid #fff;display:grid;place-items:center}
 .wp span{transform:rotate(45deg);color:#fff;font-weight:800;font-size:13px}
@@ -414,6 +414,8 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <label class="chk"><input type="checkbox" id="s-darkmap" checked> Тёмная карта</label>
   <label class="chk"><input type="checkbox" id="s-compactnav" checked> Сворачивать панель при навигации</label>
   <label class="chk"><input type="checkbox" id="s-headingup" checked> Карта по ходу движения (поворачивается за вами)</label>
+  <label class="chk"><input type="checkbox" id="s-compass" checked> Компас телефона — направление, когда стоите или едете медленно</label>
+  <p class="note" id="compass-state" style="margin:0 0 6px"></p>
   <h3>Навигатор по умолчанию</h3>
   <div class="seg" id="s-extnav"><button data-n="app">Это приложение</button><button data-n="google">Google Maps</button><button data-n="waze">Waze</button></div>
   <p class="note">Кнопка «Навигация» откроет выбранный навигатор. Google Maps ведёт в велорежиме; Waze прокладывает автомобильный маршрут — подходит, чтобы доехать до старта трассы на машине.</p>
@@ -445,7 +447,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <p class="note" id="st-quota"></p>
   <div class="row"><button class="btn" id="st-persist">Запретить автоочистку</button><button class="btn dng" id="st-clear-tiles">Очистить кэш карт</button></div>
 
-  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v3 · компас</p>
+  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v4 · компас телефона</p>
   <h3>iPhone</h3>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -536,7 +538,7 @@ const DB = {
 };
 
 /* ================= settings ================= */
-const S = Object.assign({ headingUp: true, autopause: true, voice: true, reroute: true, wake: true, darkmap: true, extnav: 'app', urlProxy: false, compact: false, compactNav: true }, lsGet('settings', {}));
+const S = Object.assign({ compass: true, headingUp: true, autopause: true, voice: true, reroute: true, wake: true, darkmap: true, extnav: 'app', urlProxy: false, compact: false, compactNav: true }, lsGet('settings', {}));
 const saveS = () => lsSet('settings', S);
 
 /* ================= map, layers, view padding ================= */
@@ -649,7 +651,7 @@ function showTab(t, fromHistory) {
     else if (t === 'rec' && wasOpen && !fromHistory && history.state && history.state.sheet) history.back();
   } catch {}
   if (t === 'history') renderRides();
-  if (t === 'profile') { refreshOffline(); renderRegions(); regionEstimate(); }
+  if (t === 'profile') { refreshOffline(); renderRegions(); regionEstimate(); renderCompassState(); }
   if (t === 'layers') renderLayers();
   if (t === 'routes' && !$('#r-mine').hidden) renderRoutes();
   if (t === 'rec') setTimeout(drawElev, 50);
@@ -699,6 +701,16 @@ function hush() { try { if (!S.voice && 'speechSynthesis' in window) speechSynth
 $('#s-compactnav').onchange = e => { S.compactNav = e.target.checked; saveS(); };
 $('#s-headingup').onchange = e => setOrientation(e.target.checked);
 $('#t-compass').onclick = () => setOrientation(!S.headingUp);
+$('#s-compass').onchange = async e => {
+  S.compass = e.target.checked; saveS();
+  if (S.compass) { const ok = await enableCompass(true); toast(ok ? '🧭 Компас телефона включён' : 'Компас недоступен на этом устройстве'); }
+  else { window.removeEventListener('deviceorientation', onOrient, true); window.removeEventListener('deviceorientationabsolute', onOrientAbs, true); Compass.on = false; Compass.hdg = null; }
+  renderCompassState();
+};
+function renderCompassState() {
+  $('#s-compass').checked = !!S.compass;
+  $('#compass-state').textContent = !S.compass ? 'Направление только по GPS.' : compassFresh() ? `Компас работает: ${Math.round(Compass.hdg)}° (${compass(Compass.hdg)}).` + (Compass.acc > 25 ? ' Точность низкая — покрутите телефон восьмёркой.' : '') : 'Компас включится после первого нажатия на экран (на iPhone потребуется разрешение).';
+}
 // Compact HUD: one thin bar instead of buttons + cards, so the map stays visible.
 let hudCompact = false;
 function setCompact(on, remember) {
@@ -740,10 +752,64 @@ function unlockSpeech() { try { if ('speechSynthesis' in window) speechSynthesis
 
 /* ================= GPS ================= */
 const GPS = { fix: null, spdEma: 0, watch: null, follow: true, lastT: 0 };
-const meIcon = hdg => L.divIcon({ className: 'me', iconSize: [30, 30], iconAnchor: [15, 15], html: hdg == null
-  ? `<svg viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" fill="${css('--accent')}" opacity=".25"/><circle cx="15" cy="15" r="8.5" fill="${css('--accent')}" stroke="#fff" stroke-width="2.5"/></svg>`
-  : `<svg viewBox="0 0 30 30" style="transform:rotate(${hdg}deg)"><circle cx="15" cy="15" r="14" fill="${css('--accent')}" opacity=".25"/><path d="M15 4 23 25 15 20 7 25Z" fill="${css('--accent')}" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>` });
+// Rider marker: arrow = direction from GPS while riding; dot with a light beam = where the phone points (compass).
+const meIcon = st => { const a = css('--accent');
+  const html = st && st.k === 'arrow'
+    ? `<svg viewBox="0 0 30 30" style="transform:rotate(${st.h}deg)"><circle cx="15" cy="15" r="14" fill="${a}" opacity=".25"/><path d="M15 4 23 25 15 20 7 25Z" fill="${a}" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>`
+    : st && st.k === 'beam'
+    ? `<svg viewBox="0 0 64 64" style="width:84px;height:84px;margin:-27px 0 0 -27px;transform:rotate(${st.h}deg)"><defs><radialGradient id="bm" cx="32" cy="32" r="31" gradientUnits="userSpaceOnUse"><stop offset=".2" stop-color="${a}" stop-opacity=".9"/><stop offset="1" stop-color="${a}" stop-opacity=".05"/></radialGradient></defs><path d="M32 32 L15 2 A33 33 0 0 1 49 2 Z" fill="url(#bm)"/><circle cx="32" cy="32" r="14" fill="${a}" opacity=".25"/><circle cx="32" cy="32" r="8.5" fill="${a}" stroke="#fff" stroke-width="2.5"/></svg>`
+    : `<svg viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" fill="${a}" opacity=".25"/><circle cx="15" cy="15" r="8.5" fill="${a}" stroke="#fff" stroke-width="2.5"/></svg>`;
+  return L.divIcon({ className: 'me', iconSize: [30, 30], iconAnchor: [15, 15], html });
+};
 let meMarker = null, accCircle = null, lastIconHdg = 'x';
+// ---- Phone compass (magnetometer + gyroscope), like the beam in Google Maps ----
+const DECL = 5; // magnetic declination in Israel ≈ +5° (east): converts magnetic to true north
+const Compass = { on: false, hdg: null, t: 0, acc: null };
+function screenAngle() { try { return (screen.orientation && screen.orientation.angle) || window.orientation || 0; } catch { return 0; } }
+function feedCompass(h, acc) {
+  if (h == null || Number.isNaN(h)) return;
+  h = ((h + screenAngle()) % 360 + 360) % 360;
+  Compass.hdg = Compass.hdg == null ? h : (Compass.hdg + norm180(h - Compass.hdg) * 0.3 + 360) % 360; // smoothing
+  Compass.t = Date.now(); if (acc != null) Compass.acc = acc;
+}
+function onOrient(e) { if (e.webkitCompassHeading != null && !Number.isNaN(e.webkitCompassHeading)) feedCompass(e.webkitCompassHeading + DECL, e.webkitCompassAccuracy); }
+function onOrientAbs(e) { if (e.alpha != null && !('webkitCompassHeading' in e && e.webkitCompassHeading != null)) feedCompass(360 - e.alpha, null); }
+async function enableCompass(fromGesture) {
+  if (Compass.on || !S.compass) return Compass.on;
+  try {
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+      if (!fromGesture || Compass.asked) return false; // iPhone asks only after a tap, once per launch
+      Compass.asked = true;
+      const r = await DeviceOrientationEvent.requestPermission();
+      if (r !== 'granted') { toast('Компас не разрешён — направление только по GPS. Включить: Профиль → Компас телефона', 5000); return false; }
+    }
+    window.addEventListener('deviceorientation', onOrient, true);
+    window.addEventListener('deviceorientationabsolute', onOrientAbs, true);
+    Compass.on = true; return true;
+  } catch { return false; }
+}
+// iPhone needs a tap before the compass may be used: ask on the first touch anywhere.
+['touchend', 'click'].forEach(ev => document.addEventListener(ev, () => { if (S.compass && !Compass.on) enableCompass(true); }, { once: false, passive: true, capture: true }));
+const compassFresh = () => Compass.on && Compass.hdg != null && Date.now() - Compass.t < 2000;
+// Where the rider is facing: GPS course while moving, phone compass when standing or slow.
+function riderHeading() {
+  const f = GPS.fix;
+  if (f && !f.jump && f.spd > 2 && f.hdg != null && !Number.isNaN(f.hdg)) return { h: f.hdg, src: 'gps' };
+  if (compassFresh()) return { h: Compass.hdg, src: 'compass' };
+  if (f && f.spd > 1.2 && f.hdg != null && !Number.isNaN(f.hdg)) return { h: f.hdg, src: 'gps' };
+  return null;
+}
+function markerState() {
+  const rh = riderHeading(); if (!rh) return null;
+  return { k: rh.src === 'gps' ? 'arrow' : 'beam', h: Math.round(((rh.h - mapHdg) % 360 + 360) % 360 / 4) * 4 };
+}
+// Smooth updates between GPS fixes (compass changes many times per second).
+setInterval(() => {
+  if (!meMarker || !GPS.fix) return;
+  const rh = riderHeading();
+  if (rh && S.headingUp && GPS.follow && Math.abs(norm180(rh.h - mapHdg)) > (rh.src === 'compass' ? 6 : 10)) { setMapBearing(rh.h); centerOn([GPS.fix.lat, GPS.fix.lon], undefined, false); }
+  refreshMe();
+}, 200);
 let mapHdg = 0; // heading the map is turned to (0 = north up)
 function renderCompass() {
   const svg = $('#t-compass svg'); if (svg) svg.style.transform = `rotate(${-mapHdg}deg)`;
@@ -754,7 +820,7 @@ function renderCompass() {
 function setOrientation(headingUp) {
   S.headingUp = headingUp; saveS(); $('#s-headingup').checked = headingUp;
   if (!headingUp) setMapBearing(0);
-  else if (GPS.fix && GPS.fix.spd > 1.5 && GPS.fix.hdg != null && !Number.isNaN(GPS.fix.hdg)) setMapBearing(GPS.fix.hdg);
+  else { const rh = riderHeading(); if (rh) setMapBearing(rh.h); }
   renderCompass();
   toast(headingUp ? '🧭 Карта по ходу движения' : '🧭 Север всегда вверх');
 }
@@ -764,9 +830,9 @@ function setMapBearing(h) {
   lastIconHdg = 'x'; if (GPS.fix) refreshMe();
 }
 function refreshMe() {
-  const f = GPS.fix; if (!meMarker || !f) return;
-  const hdg = f.spd > 1.2 && f.hdg != null && !Number.isNaN(f.hdg) ? Math.round(((f.hdg - mapHdg) % 360 + 360) % 360 / 5) * 5 : null;
-  if (hdg !== lastIconHdg) { meMarker.setIcon(meIcon(hdg)); lastIconHdg = hdg; }
+  if (!meMarker || !GPS.fix) return;
+  const st = markerState(), key = st ? st.k + st.h : 'dot';
+  if (key !== lastIconHdg) { meMarker.setIcon(meIcon(st)); lastIconHdg = key; }
 }
 function setFollow(on) { GPS.follow = on; $('#c-follow').classList.toggle('on', on); $('#c-loc').classList.toggle('off', !on); }
 function gpsDot(cls) { $('#gps-dot').className = 'dot ' + cls; }
@@ -794,17 +860,16 @@ function onFix(pos) {
   GPS.spdEma = GPS.spdEma * 0.4 + fix.spd * 0.6;
   const ll = [fix.lat, fix.lon];
   // Heading-up: turn the map with the rider (only while following and actually moving).
-  if (S.headingUp && GPS.follow && !fix.jump && fix.spd > 1.5 && fix.hdg != null && !Number.isNaN(fix.hdg)) {
-    if (Math.abs(norm180(fix.hdg - mapHdg)) > 10) setMapBearing(fix.hdg);
-  }
-  const hdg = fix.spd > 1.2 && fix.hdg != null && !Number.isNaN(fix.hdg) ? Math.round(((fix.hdg - mapHdg) % 360 + 360) % 360 / 5) * 5 : null;
+  const rh0 = riderHeading();
+  if (S.headingUp && GPS.follow && rh0 && Math.abs(norm180(rh0.h - mapHdg)) > 10) setMapBearing(rh0.h);
+  const hdg = markerState();
   if (!meMarker) {
     accCircle = L.circle(ll, { radius: fix.acc, weight: 0, color: css('--accent'), fillOpacity: .12, interactive: false }).addTo(map);
-    meMarker = L.marker(ll, { icon: meIcon(hdg), interactive: false, zIndexOffset: 1000 }).addTo(map);
+    meMarker = L.marker(ll, { icon: meIcon(hdg), interactive: false, zIndexOffset: 1000 }).addTo(map); lastIconHdg = hdg ? hdg.k + hdg.h : 'dot';
     if (GPS.follow) centerOn(ll, Math.max(map.getZoom(), 16), false);
   } else {
     meMarker.setLatLng(ll); accCircle.setLatLng(ll).setRadius(fix.acc);
-    if (hdg !== lastIconHdg) { meMarker.setIcon(meIcon(hdg)); lastIconHdg = hdg; }
+    refreshMe();
     if (GPS.follow) centerOn(ll);
   }
   gpsDot(fix.acc <= 15 ? 'good' : fix.acc <= 40 ? 'weak' : 'bad');
@@ -2078,7 +2143,7 @@ async function renderMb() {
 
 /* ================= boot ================= */
 (async function boot() {
-  applySettings(); renderRouteOpts(); renderCompass(); if (S.compact) setCompact(true); renderWps(); renderRecUI(); renderDash(); renderTicks(); setupElev();
+  applySettings(); renderRouteOpts(); renderCompass(); enableCompass(false); if (S.compact) setCompact(true); renderWps(); renderRecUI(); renderDash(); renderTicks(); setupElev();
   try { await DB.open(); } catch { toast('Хранилище недоступно (приватный режим?) — данные не сохранятся', 5000); }
   if (String(baseKey).startsWith('mb:')) {
     try { const rec = await DB.get('mbtiles', baseKey.slice(3)); if (rec) await openMb(rec); } catch {}
