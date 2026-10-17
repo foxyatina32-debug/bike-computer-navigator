@@ -216,6 +216,13 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 .nojs a.chrome{background:#1f2a38;color:#f3f5f8;border:1px solid #3a4758}
 .nojs a{display:inline-block;background:#e2e08a;color:#1c1d08;font-weight:800;font-size:19px;padding:16px 26px;border-radius:16px;text-decoration:none}
 .nojs code{background:#1f2a38;padding:4px 8px;border-radius:8px;font-size:14px;word-break:break-all;-webkit-user-select:all;user-select:all}
+.ask{position:fixed;inset:0;z-index:90;background:rgba(5,8,12,.55);display:flex;align-items:flex-end;justify-content:center;padding:0 12px calc(var(--tabs-b) + 12px)}
+.ask .box{width:100%;max-width:440px;background:#161d28;border:1px solid var(--line);border-radius:26px;padding:18px 16px 14px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.ask h2{margin:0 0 4px;font-size:21px;font-weight:800}
+.ask p{margin:0 0 14px;color:var(--muted);font-size:14px}
+.ask .opt{width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;margin-bottom:8px;padding:12px 14px;font-family:inherit;cursor:pointer}
+.ask .opt b{font-size:16px}.ask .opt span{font-size:13px;font-weight:500;opacity:.8}
+.ask .cancel{width:100%;background:none;border:0;color:var(--muted);font:inherit;font-size:15px;padding:8px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--top) + 136px);background:var(--glass-hi);border:1px solid var(--line);color:var(--ink);padding:11px 18px;border-radius:16px;z-index:100;width:max-content;max-width:calc(100% - 32px);box-shadow:0 8px 30px rgba(0,0,0,.5);font-size:15px;font-weight:600}
 .me{width:30px;height:30px}
 .wp{width:28px;height:28px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--route);border:2px solid #fff;display:grid;place-items:center}
@@ -464,6 +471,14 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <div id="ly-over"></div>
 </section>
 
+<div class="ask" id="ask-start" hidden><div class="box">
+  <h2>Вы на маршруте</h2>
+  <p id="ask-info"></p>
+  <button class="btn pri opt" id="ask-cont"><b>Продолжить отсюда</b><span id="ask-cont-s">Навигация с этой точки до финиша</span></button>
+  <button class="btn opt" id="ask-goto"><b>Проложить путь до начала</b><span id="ask-goto-s">Доехать до старта, затем весь маршрут</span></button>
+  <button class="btn opt" id="ask-restart"><b>Начать маршрут заново</b><span>Весь маршрут с начала; подсказки начнутся на старте</span></button>
+  <button class="cancel" id="ask-x">Закрыть</button>
+</div></div>
 <div class="toast" id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1380,6 +1395,8 @@ const Nav = {
     this.route.sb = coords.slice(0, -1).map((c, i) => bearing(c, coords[i + 1]));
     this.lastPos = null; this.backHits = 0; this.wrongSaid = false;
     this.progress = 0; this.offCount = 0; this.lost = true; this.said = {}; this.setAt = Date.now();
+    // A route started by the rider (not a reroute, auto-flip or restore): if they are already somewhere on it, ask how to start.
+    this.askPending = !r.keepView && !r.restore && !r.noAsk; this.toStart = false; this.startAt = 0; this.choosing = false; $('#ask-start').hidden = true;
     if (this.line) map.removeLayer(this.line);
     this.line = L.polyline(coords.map(c => [c[0], c[1]]), { color: css('--route'), weight: 6, opacity: .9 }).addTo(map);
     if (this.wptLayer) { map.removeLayer(this.wptLayer); this.wptLayer = null; }
@@ -1398,6 +1415,7 @@ const Nav = {
     lsSet('activeNav', { name: r.name, coords: coords.map(c => [+c[0].toFixed(6), +c[1].toFixed(6), c[2] != null ? Math.round(c[2]) : null]), opts: r.opts || null, wpts: this.wpts });
   },
   stop() {
+    this.askPending = false; this.toStart = false; this.choosing = false; $('#ask-start').hidden = true;
     if (this.line) map.removeLayer(this.line); this.line = null; this.route = null;
     if (this.wptLayer) { map.removeLayer(this.wptLayer); this.wptLayer = null; } this.wpts = [];
     $('#navb').hidden = true; $('#nav-ctl').hidden = true; $('#d-rem').textContent = '—'; $('#m-rem-c').hidden = true; if (S.compactNav) setCompact(S.compact); syncSheetMax();
@@ -1423,9 +1441,74 @@ const Nav = {
     }
     return best;
   },
+  // Rider is on the route but away from its start → offer: continue from here / route to the start / restart.
+  checkStart(p) {
+    const r = this.route, loc = this.locate(p, null), toStart = hav(p, r.coords[0]);
+    if (loc.dist > 60 || toStart <= 80 || loc.along < 100) return false;
+    const seg = loc.seg, a = r.coords[seg], b = r.coords[seg + 1], sl = r.cum[seg + 1] - r.cum[seg];
+    const t = sl > 0 ? Math.max(0, Math.min(1, (loc.along - r.cum[seg]) / sl)) : 0;
+    this.askAt = { p, along: loc.along, seg, pt: [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] != null && b[2] != null ? a[2] + (b[2] - a[2]) * t : null] };
+    $('#ask-info').textContent = `Пройдено ${fmtKm(loc.along)} из ${fmtKm(r.total)} км · до старта ${toStart >= 1000 ? fmtKm(toStart) + ' км' : Math.round(toStart) + ' м'} по прямой`;
+    $('#ask-cont-s').textContent = `Осталось ${fmtKm(r.total - loc.along)} км до финиша`;
+    this.choosing = true; $('#ask-start').hidden = false;
+    $('#nv-icon').innerHTML = ARROW(0); $('#nv-dist').textContent = '—'; $('#nv-txt').textContent = 'Выберите, как начать маршрут';
+    return true;
+  },
+  choose(kind) {
+    const r = this.route, at = this.askAt; $('#ask-start').hidden = true; this.choosing = false;
+    if (!r || !at) return;
+    const base = { name: r.name, opts: r.opts, wpts: this.wpts, noAsk: true };
+    if (kind === 'cont') {
+      this.set({ ...base, coords: [at.pt].concat(r.coords.slice(at.seg + 1)), keepView: true });
+      setFollow(true); say('Продолжаем маршрут с этой точки'); toast('▶ Продолжаем с этой точки');
+    } else if (kind === 'restart') {
+      this.set({ ...base, keepView: true, coords: r.coords }); this.toStart = true; this.lost = false;
+      setFollow(true); say('Маршрут начнётся на старте. Доберитесь до начала маршрута'); toast('⟲ Маршрут сначала — подсказки начнутся на старте', 4000);
+      if (GPS.fix) this.onFix(GPS.fix);
+    } else if (kind === 'goto') this.routeToStart();
+  },
+  async routeToStart() {
+    const r = this.route; if (!r || !GPS.fix) { toast('Нужен сигнал GPS'); return; }
+    const me = [GPS.fix.lat, GPS.fix.lon], s = r.coords[0];
+    $('#nv-txt').textContent = 'Строю путь до начала маршрута…'; $('#nv-dist').textContent = '…'; toast('Строю путь до начала маршрута…');
+    try {
+      const opts = r.opts && r.opts.engine !== 'osrm' ? r.opts : curOpts();
+      const res = await routeVia([me, [s[0], s[1]]], opts, { quiet: true });
+      if (!res || !res.coords || res.coords.length < 2) throw new Error('нет пути');
+      const c = res.coords.slice(); if (hav(me, c[0]) > 3) c.unshift([me[0], me[1], null]);
+      const len = cumDist(c).pop();
+      if (this.route !== r) return;
+      this.set({ name: r.name, opts: r.opts, wpts: this.wpts, noAsk: true, keepView: true, coords: c.concat(r.coords) });
+      this.startAt = len; this.said.startMark = 0;
+      setFollow(true); fitB(L.polyline(c.map(x => [x[0], x[1]])).getBounds());
+      say('Путь до начала маршрута построен'); toast(`↪ До старта ${len >= 1000 ? fmtKm(len) + ' км' : Math.round(len) + ' м'}, затем весь маршрут`, 4000);
+    } catch (e) { toast('Не удалось построить путь до старта: ' + e.message, 5000); this.render(); }
+  },
   onFix(f) {
     if (!this.route) return;
     const p = [f.lat, f.lon];
+    if (this.choosing) return;
+    if (this.askPending) {
+      if (f.acc > 60 && Date.now() - this.setAt < 20000) return this.render();  // wait for a usable fix
+      this.askPending = false;
+      if (this.checkStart(p)) return;
+    }
+    if (this.toStart) {
+      // "Restart": ignore the route until the rider reaches its start; point straight at it meanwhile.
+      const s = this.route.coords[0], d = hav(p, s);
+      if (d > 40) {
+        if (this.lastPos && hav(this.lastPos, p) >= 6) { this.lastMv = bearing(this.lastPos, p); this.lastPos = p; } else if (!this.lastPos) this.lastPos = p;
+        const ang = this.lastMv != null ? norm180(bearing(p, s) - this.lastMv) : 0;
+        $('#navb').classList.remove('off'); $('#nv-act').hidden = true;
+        $('#nv-icon').innerHTML = ARROW(Math.abs(ang) > 150 ? (ang > 0 ? 'uturn-r' : 'uturn-l') : ang);
+        $('#nv-dist').textContent = d >= 1000 ? fmtKm(d) + ' км' : Math.round(d / 10) * 10 + ' м'; $('#nv-txt').textContent = 'До начала маршрута (по прямой)';
+        $('#nv-rem').textContent = fmtKm(this.route.total) + ' км'; $('#d-rem').textContent = fmtKm(this.route.total); $('#m-rem').textContent = fmtKm(this.route.total);
+        return;
+      }
+      this.toStart = false; this.lost = false; this.progress = 0; this.lastPos = p;
+      say('Старт маршрута. Поехали'); toast('🏁 Старт маршрута');
+    }
+    if (this.startAt && this.progress >= this.startAt - 15 && !this.said.startMark) { this.said.startMark = 1; this.startAt = 0; say('Начало маршрута'); toast('🏁 Начало маршрута'); }
     // Direction of travel: GPS course when moving, otherwise from our own last positions (works at walking pace too).
     let mv = f.spd > 1 && f.hdg != null && !Number.isNaN(f.hdg) && !f.jump ? f.hdg : null;
     if (this.lastPos && hav(this.lastPos, p) >= 6) { if (mv == null) mv = bearing(this.lastPos, p); this.lastPos = p; }
@@ -1524,6 +1607,10 @@ const Nav = {
   }
 };
 $('#nv-rejoin').onclick = () => Nav.rejoin(false);
+$('#ask-cont').onclick = () => Nav.choose('cont');
+$('#ask-goto').onclick = () => Nav.choose('goto');
+$('#ask-restart').onclick = () => Nav.choose('restart');
+$('#ask-x').onclick = () => { $('#ask-start').hidden = true; Nav.choosing = false; if (GPS.fix) Nav.onFix(GPS.fix); };
 $('#nv-ignore').onclick = () => { Nav.ignoreOffUntil = Date.now() + 120000; Nav.offCount = 0; Nav.render(); };
 $('#nav-stop').onclick = () => { Nav.stop(); toast('Навигация завершена'); };
 $('#nav-rev').onclick = () => Nav.reverse();
@@ -2204,7 +2291,7 @@ async function renderMb() {
       renderRecUI(); renderDash(); toast('Восстановлена незавершённая поездка: ▶ — продолжить, ■ — завершить', 5000);
     }
   } catch {}
-  const an = lsGet('activeNav', null); if (an && an.coords && an.coords.length > 1) Nav.set({ name: an.name, coords: an.coords, opts: an.opts, wpts: an.wpts });
+  const an = lsGet('activeNav', null); if (an && an.coords && an.coords.length > 1) Nav.set({ name: an.name, coords: an.coords, opts: an.opts, wpts: an.wpts, restore: true });
   if (location.hash === '#add') { openAdd(); try { history.replaceState(null, '', location.pathname + location.search); } catch {} }
   const impQ = new URLSearchParams(location.search).get('import') || decodeURIComponent((location.hash.match(/^#import=(.+)$/) || [])[1] || '');
   if (impQ) { showTab('routes'); routeSeg('mine'); $('#url-in').value = impQ; importInput(impQ); try { history.replaceState(null, '', location.pathname); } catch {} }
