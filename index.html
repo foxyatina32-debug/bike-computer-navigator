@@ -479,7 +479,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <p class="note" id="st-quota"></p>
   <div class="row"><button class="btn" id="st-persist">Запретить автоочистку</button><button class="btn dng" id="st-clear-tiles">Очистить кэш карт</button></div>
 
-  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v10 · значок велосипеда на карте</p>
+  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v11 · запись не встаёт на паузу после перезапуска</p>
   <h3>iPhone</h3>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -1083,12 +1083,12 @@ const Ride = {
   status: 'idle', startTs: 0, movingMs: 0, dist: 0, max: 0, asc: 0, desc: 0, altRef: null, track: [], autoPaused: false, slowSince: 0, lastTick: 0, line: null,
   start() {
     if (this.status === 'idle') Object.assign(this, { startTs: Date.now(), movingMs: 0, dist: 0, max: 0, asc: 0, desc: 0, altRef: null, track: [], autoPaused: false });
-    this.status = 'rec'; this.lastTick = Date.now(); startGPS(); unlockSpeech();
+    this.status = 'rec'; this.restored = false; this.moveSince = 0; this.lastTick = Date.now(); startGPS(); unlockSpeech();
     if (!this.line) this.line = L.polyline([], { color: css('--track'), weight: 5, opacity: .9 }).addTo(map);
     this.line.setLatLngs(this.track.map(p => [p[0], p[1]]));
     renderRecUI(); updateWake();
   },
-  pause() { this.status = 'paused'; renderRecUI(); this.persist(); },
+  pause() { this.status = 'paused'; this.restored = false; renderRecUI(); this.persist(); },
   async stop() {
     if (this.status === 'idle') return;
     const ride = { id: uid(), name: 'Поездка ' + new Date(this.startTs).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }),
@@ -1104,6 +1104,11 @@ const Ride = {
     this.lastTick = now;
   },
   onFix(f) {
+    // A ride restored after the page was reloaded (iOS does this in the background) must not stay paused while riding.
+    if (this.status === 'paused' && this.restored) {
+      if (f.spd > 2.5 && !f.jump && f.acc <= 35) { if (!this.moveSince) this.moveSince = f.t; if (f.t - this.moveSince > 8000) { this.start(); toast('▶ Запись поездки продолжена', 4000); say('Запись поездки продолжена'); } }
+      else this.moveSince = 0;
+    }
     if (this.status !== 'rec') return;
     const spd = f.spd;
     if (S.autopause) {
@@ -1126,7 +1131,7 @@ const Ride = {
   },
   persist() {
     if (this.status === 'idle') return;
-    DB.put('kv', { id: 'currentRide', v: { startTs: this.startTs, movingMs: this.movingMs, dist: this.dist, max: this.max, asc: this.asc, desc: this.desc, track: this.track } }).catch(() => {});
+    DB.put('kv', { id: 'currentRide', v: { status: this.status, savedAt: Date.now(), startTs: this.startTs, movingMs: this.movingMs, dist: this.dist, max: this.max, asc: this.asc, desc: this.desc, track: this.track } }).catch(() => {});
   }
 };
 const PLAY = '<svg viewBox="0 0 24 24"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.2-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z" fill="currentColor"/></svg>';
@@ -2513,9 +2518,11 @@ async function renderMb() {
   try {
     const cur = await DB.get('kv', 'currentRide');
     if (cur && cur.v && cur.v.track && cur.v.track.length) {
-      Object.assign(Ride, cur.v, { status: 'paused' });
+      const wasRec = cur.v.status === 'rec' && Date.now() - (cur.v.savedAt || 0) < 3 * 3600e3;
+      Object.assign(Ride, cur.v, { status: 'paused', restored: cur.v.status !== 'paused', moveSince: 0 });
       Ride.line = L.polyline(Ride.track.map(p => [p[0], p[1]]), { color: css('--track'), weight: 5, opacity: .9 }).addTo(map);
-      renderRecUI(); renderDash(); toast('Восстановлена незавершённая поездка: ▶ — продолжить, ■ — завершить', 5000);
+      if (wasRec) { Ride.start(); renderDash(); toast(`▶ Запись поездки продолжается (${fmtKm(Ride.dist)} км)`, 5000); }
+      else { renderRecUI(); renderDash(); toast('Восстановлена незавершённая поездка: ▶ — продолжить, ■ — завершить. Начнёте ехать — запись продолжится сама', 6000); }
     }
   } catch {}
   const an = lsGet('activeNav', null);
