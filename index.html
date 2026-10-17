@@ -169,7 +169,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 .gpxfab svg{width:22px;height:22px;margin-bottom:-4px}
 .drop{position:fixed;inset:0;z-index:200;background:rgba(13,19,27,.8);display:grid;place-items:center;font-size:24px;font-weight:800;color:var(--accent);border:4px dashed var(--accent)}
 .wpm{width:26px;height:26px;border-radius:50%;background:#4aa3ff;border:2px solid #fff;color:#fff;font-weight:800;font-size:12px;display:grid;place-items:center;box-shadow:0 2px 6px rgba(0,0,0,.4)}
-.grab{justify-self:center;width:64px;height:22px;border-radius:11px;background:var(--glass-btn);border:1px solid var(--line);display:grid;place-items:center;margin-bottom:-4px}
+.grab{justify-self:center;width:72px;height:32px;border-radius:16px;background:var(--glass-btn);border:1px solid var(--line);display:grid;place-items:center;margin-bottom:-4px}
 .grab svg{width:18px;height:18px;color:var(--muted)}
 .mini{display:none;border-radius:24px;padding:8px 10px 6px 8px;grid-template-columns:44px repeat(4,auto) 34px;justify-content:space-between;align-items:center;gap:4px 6px}
 .mini .mp{width:44px;height:44px;border-radius:50%;background:var(--glass-btn);border:1px solid var(--line);display:grid;place-items:center}
@@ -184,6 +184,11 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 .mini .ma{grid-column:1/-1;font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
 .hud.compact .ctrls,.hud.compact .pager,.hud.compact .foot,.hud.compact .grab{display:none}
 .hud.compact .mini{display:grid}
+.locfab{position:absolute;right:0;top:-62px;width:52px;height:52px;border-radius:50%;display:none;place-items:center;background:var(--glass-btn);border:1px solid var(--line);box-shadow:0 4px 16px rgba(0,0,0,.4)}
+.locfab svg{width:26px;height:26px;color:var(--accent)}
+.hud.compact .locfab{display:grid}
+.locfab.off{background:var(--accent)}
+.locfab.off svg{color:var(--accent-ink)}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{padding:9px 13px;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid var(--line);font-weight:600;font-size:14px}
 .chip.on{background:var(--accent);color:var(--accent-ink);border-color:transparent}
@@ -235,6 +240,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 </section>
 
 <section class="hud" id="hud">
+  <button class="locfab" id="c-loc" aria-label="Где я — вернуться к моему местоположению"><svg viewBox="0 0 24 24"><path d="M20.5 3.5 3.5 10.6l7.2 2.7 2.7 7.2Z" fill="currentColor"/></svg></button>
   <button class="grab" id="hud-min" aria-label="Свернуть панель — больше карты"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></button>
   <div class="mini glass" id="mini">
     <button class="mp" id="m-play" aria-label="Старт"></button>
@@ -379,6 +385,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <label class="chk"><input type="checkbox" id="s-wake" checked> Не гасить экран</label>
   <label class="chk"><input type="checkbox" id="s-darkmap" checked> Тёмная карта</label>
   <label class="chk"><input type="checkbox" id="s-compactnav" checked> Сворачивать панель при навигации</label>
+  <label class="chk"><input type="checkbox" id="s-headingup" checked> Карта по ходу движения (поворачивается за вами)</label>
   <h3>Навигатор по умолчанию</h3>
   <div class="seg" id="s-extnav"><button data-n="app">Это приложение</button><button data-n="google">Google Maps</button><button data-n="waze">Waze</button></div>
   <p class="note">Кнопка «Навигация» откроет выбранный навигатор. Google Maps ведёт в велорежиме; Waze прокладывает автомобильный маршрут — подходит, чтобы доехать до старта трассы на машине.</p>
@@ -429,6 +436,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 <div class="toast" id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet-rotate@0.2.8/dist/leaflet-rotate.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sql.js@1.8.0/dist/sql-wasm.js"></script>
 <script>
 "use strict";
@@ -499,7 +507,7 @@ const DB = {
 };
 
 /* ================= settings ================= */
-const S = Object.assign({ autopause: true, voice: true, reroute: true, wake: true, darkmap: true, extnav: 'app', urlProxy: false, compact: false, compactNav: true }, lsGet('settings', {}));
+const S = Object.assign({ headingUp: true, autopause: true, voice: true, reroute: true, wake: true, darkmap: true, extnav: 'app', urlProxy: false, compact: false, compactNav: true }, lsGet('settings', {}));
 const saveS = () => lsSet('settings', S);
 
 /* ================= map, layers, view padding ================= */
@@ -537,7 +545,7 @@ const CachedTileLayer = L.TileLayer.extend({
   }
 });
 const tileLayers = {};
-const map = L.map('map', { zoomControl: false, attributionControl: false, maxZoom: 19, minZoom: 7, tapHold: true })
+const map = L.map('map', { zoomControl: false, attributionControl: false, maxZoom: 19, minZoom: 7, tapHold: true, rotate: true, bearing: 0, rotateControl: false, touchRotate: false, shiftKeyRotate: false })
   .setView(lsGet('view', [32.09, 34.88]), lsGet('zoom', 14));
 for (const [k, d] of Object.entries(BASES)) tileLayers[k] = new CachedTileLayer(d.url, { maxZoom: 19, className: d.noDark ? '' : 'tl-base', ...d.o });
 for (const [k, d] of Object.entries(OVERS)) tileLayers[k] = new CachedTileLayer(d.url, { maxZoom: 19, ...d.o });
@@ -580,7 +588,10 @@ function viewPad() {
 }
 function centerOn(ll, zoom, animate = true) {
   const z = zoom ?? map.getZoom(); const p = viewPad();
-  const target = map.unproject(map.project(L.latLng(ll), z).add([0, (p.bottom - p.top) / 2]), z);
+  // Screen-down offset converted into map pixels (correct also when the map is rotated).
+  const c = map.getSize().divideBy(2), dy = (p.bottom - p.top) / 2;
+  const v = map.project(map.containerPointToLatLng(c.add([0, dy])), z).subtract(map.project(map.containerPointToLatLng(c), z));
+  const target = map.unproject(map.project(L.latLng(ll), z).add(v), z);
   if (zoom != null && zoom !== map.getZoom()) map.setView(target, z, { animate }); else map.panTo(target, { animate, duration: .4 });
 }
 function fitB(bounds) { const p = viewPad(); map.fitBounds(bounds, { paddingTopLeft: [24, p.top], paddingBottomRight: [24, p.bottom], maxZoom: 17 }); setFollow(false); }
@@ -627,7 +638,7 @@ $$('#dots i').forEach((d, k) => d.onclick = () => pager.scrollTo({ left: k * pag
 /* ================= settings UI ================= */
 function applySettings() {
   ['autopause', 'voice', 'reroute', 'wake', 'darkmap'].forEach(k => $('#s-' + k).checked = !!S[k]);
-  $('#s-compactnav').checked = !!S.compactNav;
+  $('#s-compactnav').checked = !!S.compactNav; $('#s-headingup').checked = !!S.headingUp;
   $('#map').classList.toggle('darkmap', !!S.darkmap);
   $('#c-voice').classList.toggle('on', !!S.voice); $('#c-voice').setAttribute('aria-label', S.voice ? 'Выключить звук' : 'Включить звук'); hush();
   $('#c-voice').innerHTML = S.voice
@@ -643,6 +654,7 @@ $$('#s-extnav button').forEach(b => b.onclick = () => { S.extnav = b.dataset.n; 
 // Muting stops the phrase that is being spoken right now, too.
 function hush() { try { if (!S.voice && 'speechSynthesis' in window) speechSynthesis.cancel(); } catch {} }
 $('#s-compactnav').onchange = e => { S.compactNav = e.target.checked; saveS(); };
+$('#s-headingup').onchange = e => { S.headingUp = e.target.checked; saveS(); if (!S.headingUp) setMapBearing(0); };
 // Compact HUD: one thin bar instead of buttons + cards, so the map stays visible.
 let hudCompact = false;
 function setCompact(on, remember) {
@@ -688,7 +700,18 @@ const meIcon = hdg => L.divIcon({ className: 'me', iconSize: [30, 30], iconAncho
   ? `<svg viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" fill="${css('--accent')}" opacity=".25"/><circle cx="15" cy="15" r="8.5" fill="${css('--accent')}" stroke="#fff" stroke-width="2.5"/></svg>`
   : `<svg viewBox="0 0 30 30" style="transform:rotate(${hdg}deg)"><circle cx="15" cy="15" r="14" fill="${css('--accent')}" opacity=".25"/><path d="M15 4 23 25 15 20 7 25Z" fill="${css('--accent')}" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>` });
 let meMarker = null, accCircle = null, lastIconHdg = 'x';
-function setFollow(on) { GPS.follow = on; $('#c-follow').classList.toggle('on', on); }
+let mapHdg = 0; // heading the map is turned to (0 = north up)
+function setMapBearing(h) {
+  if (!map.setBearing) return;
+  mapHdg = ((h % 360) + 360) % 360; map.setBearing((360 - mapHdg) % 360);
+  lastIconHdg = 'x'; if (GPS.fix) refreshMe();
+}
+function refreshMe() {
+  const f = GPS.fix; if (!meMarker || !f) return;
+  const hdg = f.spd > 1.2 && f.hdg != null && !Number.isNaN(f.hdg) ? Math.round(((f.hdg - mapHdg) % 360 + 360) % 360 / 5) * 5 : null;
+  if (hdg !== lastIconHdg) { meMarker.setIcon(meIcon(hdg)); lastIconHdg = hdg; }
+}
+function setFollow(on) { GPS.follow = on; $('#c-follow').classList.toggle('on', on); $('#c-loc').classList.toggle('off', !on); }
 function gpsDot(cls) { $('#gps-dot').className = 'dot ' + cls; }
 function startGPS() {
   if (!('geolocation' in navigator)) { gpsDot('bad'); return; }
@@ -713,7 +736,11 @@ function onFix(pos) {
   GPS.fix = fix; GPS.lastT = Date.now();
   GPS.spdEma = GPS.spdEma * 0.4 + fix.spd * 0.6;
   const ll = [fix.lat, fix.lon];
-  const hdg = fix.spd > 1.2 && fix.hdg != null && !Number.isNaN(fix.hdg) ? Math.round(fix.hdg / 5) * 5 : null;
+  // Heading-up: turn the map with the rider (only while following and actually moving).
+  if (S.headingUp && GPS.follow && fix.spd > 1.5 && fix.hdg != null && !Number.isNaN(fix.hdg)) {
+    if (Math.abs(norm180(fix.hdg - mapHdg)) > 10) setMapBearing(fix.hdg);
+  }
+  const hdg = fix.spd > 1.2 && fix.hdg != null && !Number.isNaN(fix.hdg) ? Math.round(((fix.hdg - mapHdg) % 360 + 360) % 360 / 5) * 5 : null;
   if (!meMarker) {
     accCircle = L.circle(ll, { radius: fix.acc, weight: 0, color: css('--accent'), fillOpacity: .12, interactive: false }).addTo(map);
     meMarker = L.marker(ll, { icon: meIcon(hdg), interactive: false, zIndexOffset: 1000 }).addTo(map);
@@ -726,8 +753,11 @@ function onFix(pos) {
   gpsDot(fix.acc <= 15 ? 'good' : fix.acc <= 40 ? 'weak' : 'bad');
   Ride.onFix(fix); Nav.onFix(fix); renderDash();
 }
+$('#c-loc').onclick = () => $('#c-follow').click();
 $('#c-follow').onclick = () => { setFollow(!GPS.follow); if (GPS.follow && GPS.fix) centerOn([GPS.fix.lat, GPS.fix.lon], Math.max(map.getZoom(), 16)); startGPS(); };
-map.on('dragstart', () => setFollow(false));
+let lastMapTouch = 0;
+map.on('dragstart', () => { setFollow(false); lastMapTouch = Date.now(); if (mapHdg) setMapBearing(0); });
+map.on('zoomstart', () => { lastMapTouch = Date.now(); });
 
 /* ================= ride computer ================= */
 const Ride = {
@@ -828,6 +858,8 @@ setInterval(() => {
   spdHist.shift(); spdHist.push(curSpeed()); renderTicks();
   $('#d-clock').textContent = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
   if (GPS.fix && Date.now() - GPS.lastT > 15000) gpsDot('weak');
+  // During navigation return to the rider 15 s after the map was last touched.
+  if (Nav.route && !GPS.follow && GPS.fix && Date.now() - lastMapTouch > 15000 && Date.now() - Nav.setAt > 8000) { setFollow(true); centerOn([GPS.fix.lat, GPS.fix.lon], Math.max(map.getZoom(), 16)); }
   renderDash();
 }, 1000);
 setInterval(() => Ride.persist(), 20000);
@@ -1205,13 +1237,13 @@ function buildCues(coords, cum, osrmSteps) {
   return cues;
 }
 const Nav = {
-  route: null, line: null, wptLayer: null, progress: 0, offCount: 0, lost: false, lastReroute: 0, ignoreOffUntil: 0, said: {},
+  route: null, line: null, wptLayer: null, setAt: 0, wrongWay: 0, lastFlip: 0, progress: 0, offCount: 0, lost: false, lastReroute: 0, ignoreOffUntil: 0, said: {},
   set(r) {
     const coords = r.coords.filter(c => c && isFinite(c[0]) && isFinite(c[1]));
     if (coords.length < 2) { toast('В маршруте нет точек'); return; }
     const cum = cumDist(coords);
     this.route = { ...r, coords, cum, total: cum[cum.length - 1], cues: buildCues(coords, cum, r.osrmSteps) };
-    this.progress = 0; this.offCount = 0; this.lost = true; this.said = {};
+    this.progress = 0; this.offCount = 0; this.lost = true; this.said = {}; this.setAt = Date.now(); this.wrongWay = 0;
     if (this.line) map.removeLayer(this.line);
     this.line = L.polyline(coords.map(c => [c[0], c[1]]), { color: css('--route'), weight: 6, opacity: .9 }).addTo(map);
     if (this.wptLayer) { map.removeLayer(this.wptLayer); this.wptLayer = null; }
@@ -1225,7 +1257,7 @@ const Nav = {
     renderExt(coords[coords.length - 1], coords, r.name);
     $('#m-rem-c').hidden = false; if (S.compactNav) setCompact(true);
     setupElev(); unlockSpeech(); startGPS(); updateWake();
-    fitB(this.line.getBounds());
+    if (!r.keepView) fitB(this.line.getBounds());
     if (GPS.fix) this.onFix(GPS.fix); else this.render();
     lsSet('activeNav', { name: r.name, coords: coords.map(c => [+c[0].toFixed(6), +c[1].toFixed(6), c[2] != null ? Math.round(c[2]) : null]), opts: r.opts || null, wpts: this.wpts });
   },
@@ -1255,6 +1287,19 @@ const Nav = {
     const p = [f.lat, f.lon]; let loc = this.locate(p);
     if (!this.lost && loc.dist > 120) { this.lost = true; loc = this.locate(p); }
     const lim = 35 + Math.min(f.acc, 40) / 2;
+    // Riding a track (GPX, saved route, trail) against its drawn direction mirrors every turn — flip it automatically.
+    if (!this.route.opts && loc.dist <= lim && f.spd > 2 && f.hdg != null && !Number.isNaN(f.hdg)) {
+      const c = this.route.coords, i = Math.min(loc.seg, c.length - 2);
+      const diff = Math.abs(norm180(f.hdg - bearing(c[i], c[i + 1])));
+      this.wrongWay = diff > 120 ? this.wrongWay + 1 : 0;
+      if (this.wrongWay >= 4 && Date.now() - this.lastFlip > 60000) {
+        const name = this.route.name.endsWith(' (обратно)') ? this.route.name.slice(0, -10) : this.route.name + ' (обратно)';
+        this.lastFlip = Date.now(); const keep = this.lastFlip;
+        this.set({ name, coords: c.slice().reverse(), wpts: this.wpts, keepView: true }); this.lastFlip = keep;
+        setFollow(true); say('Маршрут развёрнут по направлению вашего движения'); toast('↺ Маршрут развёрнут по направлению движения', 4000);
+        return;
+      }
+    }
     if (loc.dist <= lim) { this.lost = false; this.offCount = 0; if (loc.along > this.progress - 50) this.progress = loc.along; }
     else this.offCount++;
     const off = this.offCount >= 3 && Date.now() > this.ignoreOffUntil;
@@ -1289,7 +1334,7 @@ const Nav = {
     try {
       if (!auto) toast('Прокладываю путь к маршруту…');
       const res = await routeVia([me, [r.coords[target][0], r.coords[target][1]]], r.opts && r.opts.engine !== 'osrm' ? r.opts : curOpts());
-      this.set({ name: r.name, coords: res.coords.concat(r.coords.slice(target + 1)), opts: r.opts, wpts: this.wpts });
+      this.set({ name: r.name, coords: res.coords.concat(r.coords.slice(target + 1)), opts: r.opts, wpts: this.wpts, keepView: true });
       setFollow(true); centerOn(me);
       if (auto) say('Маршрут перестроен');
     } catch (e) { if (!auto) toast('Не удалось перестроить: ' + e.message, 5000); }
