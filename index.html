@@ -169,6 +169,21 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 .gpxfab svg{width:22px;height:22px;margin-bottom:-4px}
 .drop{position:fixed;inset:0;z-index:200;background:rgba(13,19,27,.8);display:grid;place-items:center;font-size:24px;font-weight:800;color:var(--accent);border:4px dashed var(--accent)}
 .wpm{width:26px;height:26px;border-radius:50%;background:#4aa3ff;border:2px solid #fff;color:#fff;font-weight:800;font-size:12px;display:grid;place-items:center;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.grab{justify-self:center;width:64px;height:22px;border-radius:11px;background:var(--glass-btn);border:1px solid var(--line);display:grid;place-items:center;margin-bottom:-4px}
+.grab svg{width:18px;height:18px;color:var(--muted)}
+.mini{display:none;border-radius:24px;padding:8px 10px 6px 8px;grid-template-columns:44px repeat(4,auto) 34px;justify-content:space-between;align-items:center;gap:4px 6px}
+.mini .mp{width:44px;height:44px;border-radius:50%;background:var(--glass-btn);border:1px solid var(--line);display:grid;place-items:center}
+.mini .mp svg{width:22px;height:22px}
+.mini .mp.rec{background:var(--accent);color:var(--accent-ink)}
+.mini .c{min-width:0;text-align:center;line-height:1.05}
+.mini .c b{display:block;font-size:clamp(16px,5.2vw,22px);letter-spacing:-.02em;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mini .c span{font-size:11px;color:var(--muted);font-weight:600}
+.mini .c.sp b{font-size:clamp(22px,7vw,28px);color:var(--accent)}
+.mini .ex{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.08)}
+.mini .ex svg{width:18px;height:18px}
+.mini .ma{grid-column:1/-1;font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+.hud.compact .ctrls,.hud.compact .pager,.hud.compact .foot,.hud.compact .grab{display:none}
+.hud.compact .mini{display:grid}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{padding:9px 13px;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid var(--line);font-weight:600;font-size:14px}
 .chip.on{background:var(--accent);color:var(--accent-ink);border-color:transparent}
@@ -220,6 +235,16 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 </section>
 
 <section class="hud" id="hud">
+  <button class="grab" id="hud-min" aria-label="Свернуть панель — больше карты"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></button>
+  <div class="mini glass" id="mini">
+    <button class="mp" id="m-play" aria-label="Старт"></button>
+    <div class="c sp"><b id="m-speed">0</b><span>км/ч</span></div>
+    <div class="c"><b id="m-dist">0.00</b><span>км</span></div>
+    <div class="c"><b id="m-time">00:00</b><span>время</span></div>
+    <div class="c" id="m-rem-c" hidden><b id="m-rem">—</b><span>осталось</span></div>
+    <button class="ex" id="hud-max" aria-label="Развернуть панель"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m6 15 6-6 6 6"/></svg></button>
+    <div class="ma" id="m-attr"></div>
+  </div>
   <div class="ctrls">
     <button class="cb sm on" id="c-follow" aria-label="Следовать за мной"><svg viewBox="0 0 24 24"><path d="M20.5 3.5 3.5 10.6l7.2 2.7 2.7 7.2Z" fill="currentColor"/></svg></button>
     <button class="cb lg" id="c-play" aria-label="Старт"></button>
@@ -352,6 +377,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <label class="chk"><input type="checkbox" id="s-reroute" checked> Автоматически возвращать на маршрут</label>
   <label class="chk"><input type="checkbox" id="s-wake" checked> Не гасить экран</label>
   <label class="chk"><input type="checkbox" id="s-darkmap" checked> Тёмная карта</label>
+  <label class="chk"><input type="checkbox" id="s-compactnav" checked> Сворачивать панель при навигации</label>
   <h3>Навигатор по умолчанию</h3>
   <div class="seg" id="s-extnav"><button data-n="app">Это приложение</button><button data-n="google">Google Maps</button><button data-n="waze">Waze</button></div>
   <p class="note">Кнопка «Навигация» откроет выбранный навигатор. Google Maps ведёт в велорежиме; Waze прокладывает автомобильный маршрут — подходит, чтобы доехать до старта трассы на машине.</p>
@@ -472,7 +498,7 @@ const DB = {
 };
 
 /* ================= settings ================= */
-const S = Object.assign({ autopause: true, voice: true, reroute: true, wake: true, darkmap: true, extnav: 'app', urlProxy: false }, lsGet('settings', {}));
+const S = Object.assign({ autopause: true, voice: true, reroute: true, wake: true, darkmap: true, extnav: 'app', urlProxy: false, compact: false, compactNav: true }, lsGet('settings', {}));
 const saveS = () => lsSet('settings', S);
 
 /* ================= map, layers, view padding ================= */
@@ -521,7 +547,7 @@ function setBase(k) {
   if (!tileLayers[k]) return;
   for (const key of Object.keys(tileLayers)) if (!OVERS[key] && map.hasLayer(tileLayers[key])) map.removeLayer(tileLayers[key]);
   tileLayers[k].addTo(map); tileLayers[k].bringToBack(); baseKey = k; lsSet('base', k);
-  const b = BASES[k]; $('#attr-name').textContent = b ? b.o.attribution : (MB.layers[k] ? MB.layers[k].name + ' (офлайн)' : '');
+  const b = BASES[k]; $('#attr-name').textContent = b ? b.o.attribution : (MB.layers[k] ? MB.layers[k].name + ' (офлайн)' : ''); $('#m-attr').textContent = 'Карты: ' + $('#attr-name').textContent;
   renderLayers();
 }
 function toggleOver(k, on) {
@@ -595,6 +621,7 @@ $$('#dots i').forEach((d, k) => d.onclick = () => pager.scrollTo({ left: k * pag
 /* ================= settings UI ================= */
 function applySettings() {
   ['autopause', 'voice', 'reroute', 'wake', 'darkmap'].forEach(k => $('#s-' + k).checked = !!S[k]);
+  $('#s-compactnav').checked = !!S.compactNav;
   $('#map').classList.toggle('darkmap', !!S.darkmap);
   $('#c-voice').classList.toggle('on', !!S.voice); $('#c-voice').setAttribute('aria-label', S.voice ? 'Выключить звук' : 'Включить звук'); hush();
   $('#c-voice').innerHTML = S.voice
@@ -609,6 +636,28 @@ $$('#s-extnav button').forEach(b => b.onclick = () => { S.extnav = b.dataset.n; 
 ['autopause', 'voice', 'reroute', 'wake', 'darkmap'].forEach(k => $('#s-' + k).onchange = e => { S[k] = e.target.checked; saveS(); applySettings(); updateWake(); });
 // Muting stops the phrase that is being spoken right now, too.
 function hush() { try { if (!S.voice && 'speechSynthesis' in window) speechSynthesis.cancel(); } catch {} }
+$('#s-compactnav').onchange = e => { S.compactNav = e.target.checked; saveS(); };
+// Compact HUD: one thin bar instead of buttons + cards, so the map stays visible.
+let hudCompact = false;
+function setCompact(on, remember) {
+  hudCompact = !!on; $('#hud').classList.toggle('compact', hudCompact);
+  if (remember) { S.compact = hudCompact; saveS(); }
+  syncSheetMax();
+  if (GPS.follow && GPS.fix) setTimeout(() => centerOn([GPS.fix.lat, GPS.fix.lon]), 30);
+}
+$('#hud-min').onclick = () => setCompact(true, true);
+$('#hud-max').onclick = () => setCompact(false, true);
+$('#m-play').onclick = () => $('#c-play').click();
+// Swipe down on the cards to collapse, swipe up on the bar to expand.
+(() => {
+  let y0 = null, x0 = null;
+  const start = e => { y0 = e.touches[0].clientY; x0 = e.touches[0].clientX; };
+  const end = (e, dir) => { if (y0 == null) return; const dy = e.changedTouches[0].clientY - y0, dx = e.changedTouches[0].clientX - x0; y0 = null;
+    if (Math.abs(dy) > 40 && Math.abs(dy) > Math.abs(dx) * 1.5) { if (dir === 'down' && dy > 0) setCompact(true, true); if (dir === 'up' && dy < 0) setCompact(false, true); } };
+  $('#pager').addEventListener('touchstart', start, { passive: true }); $('#pager').addEventListener('touchend', e => end(e, 'down'));
+  $('.ctrls').addEventListener('touchstart', start, { passive: true }); $('.ctrls').addEventListener('touchend', e => end(e, 'down'));
+  $('#mini').addEventListener('touchstart', start, { passive: true }); $('#mini').addEventListener('touchend', e => end(e, 'up'));
+})();
 $('#c-voice').onclick = () => { S.voice = !S.voice; saveS(); applySettings(); toast(S.voice ? '🔊 Звук включён' : '🔇 Звук выключен'); if (S.voice) unlockSpeech(); };
 
 /* ================= wake lock & speech ================= */
@@ -731,6 +780,7 @@ let stopArmed = 0;
 function renderRecUI() {
   const p = $('#c-play');
   p.innerHTML = Ride.status === 'rec' ? PAUSE : PLAY; p.classList.toggle('rec', Ride.status === 'rec');
+  const mp = $('#m-play'); mp.innerHTML = p.innerHTML; mp.classList.toggle('rec', Ride.status === 'rec'); mp.setAttribute('aria-label', p.getAttribute('aria-label') || 'Старт');
   p.setAttribute('aria-label', Ride.status === 'rec' ? 'Пауза' : Ride.status === 'paused' ? 'Продолжить' : 'Старт');
   $('#c-stop').disabled = Ride.status === 'idle';
   const a = $('#h-auto');
@@ -751,7 +801,7 @@ $('#ticks').innerHTML = '<i></i>'.repeat(10);
 function curSpeed() { return GPS.fix && Date.now() - GPS.lastT < 6000 && GPS.spdEma >= 0.4 ? GPS.spdEma : 0; }
 function renderDash() {
   const f = GPS.fix, v = curSpeed();
-  $('#d-speed').textContent = kmh0(v);
+  $('#d-speed').textContent = kmh0(v); $('#m-speed').textContent = kmh0(v); $('#m-dist').textContent = fmtKm(Ride.dist); $('#m-time').textContent = fmtClock(Ride.movingMs);
   $('#d-dist').textContent = fmtKm(Ride.dist);
   $('#d-time').textContent = fmtClock(Ride.movingMs);
   const avg = Ride.movingMs > 5000 ? Ride.dist / (Ride.movingMs / 1000) : 0;
@@ -1168,6 +1218,7 @@ const Nav = {
     clearCandidate();
     $('#navb').hidden = false; $('#nav-ctl').hidden = false; $('#nav-name').textContent = r.name || 'Маршрут';
     renderExt(coords[coords.length - 1], coords, r.name);
+    $('#m-rem-c').hidden = false; if (S.compactNav) setCompact(true);
     setupElev(); unlockSpeech(); startGPS(); updateWake();
     fitB(this.line.getBounds());
     if (GPS.fix) this.onFix(GPS.fix); else this.render();
@@ -1177,7 +1228,7 @@ const Nav = {
     if (this.line) map.removeLayer(this.line); this.line = null; this.route = null;
     if (this.wptLayer) { map.removeLayer(this.wptLayer); this.wptLayer = null; } this.wpts = [];
     $('#t-gpx').hidden = false;
-    $('#navb').hidden = true; $('#nav-ctl').hidden = true; $('#d-rem').textContent = '—'; syncSheetMax();
+    $('#navb').hidden = true; $('#nav-ctl').hidden = true; $('#d-rem').textContent = '—'; $('#m-rem-c').hidden = true; if (S.compactNav) setCompact(S.compact); syncSheetMax();
     setupElev(); lsSet('activeNav', null); updateWake();
   },
   reverse() { if (!this.route) return; const r = this.route; this.set({ name: r.name + ' (обратно)', coords: r.coords.slice().reverse(), opts: r.opts, wpts: this.wpts }); },
@@ -1212,7 +1263,7 @@ const Nav = {
     const r = this.route; if (!r) return;
     $('#navb').classList.toggle('off', !!off); $('#nv-act').hidden = !off; syncSheetMax();
     const remaining = Math.max(0, r.total - this.progress);
-    $('#nv-rem').textContent = fmtKm(remaining) + ' км'; $('#d-rem').textContent = fmtKm(remaining);
+    $('#nv-rem').textContent = fmtKm(remaining) + ' км'; $('#d-rem').textContent = fmtKm(remaining); $('#m-rem').textContent = fmtKm(remaining);
     const v = Ride.movingMs > 60000 ? Ride.dist / (Ride.movingMs / 1000) : 0; const spd = v > 2 ? v : 4.2;
     $('#nv-eta').textContent = new Date(Date.now() + remaining / spd * 1000).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
     if (off) { $('#nv-icon').innerHTML = ARROW(0); $('#nv-dist').textContent = Math.round(offDist) + ' м'; $('#nv-txt').textContent = 'Вы в стороне от маршрута'; drawElev(); return; }
@@ -1892,7 +1943,7 @@ async function renderMb() {
 
 /* ================= boot ================= */
 (async function boot() {
-  applySettings(); renderRouteOpts(); renderWps(); renderRecUI(); renderDash(); renderTicks(); setupElev();
+  applySettings(); renderRouteOpts(); if (S.compact) setCompact(true); renderWps(); renderRecUI(); renderDash(); renderTicks(); setupElev();
   try { await DB.open(); } catch { toast('Хранилище недоступно (приватный режим?) — данные не сохранятся', 5000); }
   if (String(baseKey).startsWith('mb:')) {
     try { const rec = await DB.get('mbtiles', baseKey.slice(3)); if (rec) await openMb(rec); } catch {}
