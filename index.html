@@ -216,6 +216,27 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{padding:9px 13px;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid var(--line);font-weight:600;font-size:14px}
 .chip.on{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.rideit{cursor:pointer}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.pgrid div{background:rgba(255,255,255,.07);border-radius:16px;padding:12px;min-width:0}
+.pgrid span{display:block;font-size:12px;color:var(--muted);font-weight:600}
+.pgrid b{display:block;font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;margin:2px 0}
+.pgrid b small{font-size:14px;color:var(--muted)}
+.pgrid em{display:block;font-style:normal;font-size:12px;color:var(--muted)}
+.wk{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;height:150px;align-items:end}
+.wk div{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;min-width:0}
+.wk b{font-size:10px;color:var(--muted);font-weight:700;min-height:13px}
+.wk i{width:100%;background:rgba(226,224,138,.55);border-radius:6px 6px 2px 2px}
+.wk i.cur{background:var(--accent)}
+.wk span{font-size:9px;color:var(--muted);margin-top:4px;white-space:nowrap}
+.rd-elev{width:100%;height:110px;display:block;background:rgba(255,255,255,.05);border-radius:14px}
+.spl{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.spl th{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;text-align:right;padding:0 4px 6px}
+.spl td{padding:7px 4px;border-top:1px solid var(--line);text-align:right;white-space:nowrap}
+.spl td:first-child,.spl th:first-child{text-align:left}
+.spl td.bar{width:34%}
+.spl td.bar i{display:block;height:8px;border-radius:4px;background:var(--accent);margin-left:auto}
+#s-act button,#rd-type button{font-size:13px}
 .mixbar{display:flex;height:10px;border-radius:5px;overflow:hidden;gap:2px;margin:10px 0 6px}
 .mixleg{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 .mixleg b{display:inline-block;width:9px;height:9px;border-radius:3px;margin-inline-end:5px;vertical-align:-1px}
@@ -396,7 +417,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
       <p class="note" style="margin:0">Понимает: прямые ссылки на файлы (свой сайт, GitHub, Dropbox, Google Drive*), Komoot (публичный тур или ссылка «Поделиться»*), OpenStreetMap relation/way, bikerouter.de, Google Maps «маршрут из A в B» — перестраивается под ваш велосипед. Можно вставить и сам текст GPX/KML. Strava, Wikiloc, Trailforks, AllTrails требуют входа — скачайте у них GPX и добавьте файлом.<br>* может понадобиться «Через прокси»: ссылка тогда проходит через сторонний сервис (corsproxy.io / allorigins).</p>
     </div>
     <h3>Сохранённые маршруты (офлайн)</h3>
-    <div class="row"><label class="btn" for="imp-file">Импорт файла GPX / KML / KMZ / TCX / GeoJSON</label></div>
+    <div class="row"><label class="btn" for="imp-file">Импорт файла GPX / KML / KMZ / TCX / FIT / GeoJSON</label></div>
     <input type="file" id="imp-file" multiple hidden>
     <div class="list" id="rt-list" style="margin-top:10px"></div>
   </div>
@@ -406,7 +427,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 <section class="sheet" id="sheet-add" hidden>
   <header><button class="back" data-close aria-label="Назад к карте"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg>Карта</button><h2>Добавить маршрут</h2><button class="close" data-close aria-label="Закрыть">×</button></header>
   <div class="qa">
-    <button id="qa-file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5M12 11v6m-3-3 3 3 3-3"/></svg><b>Файл GPX</b><span>GPX, KML, KMZ, TCX из «Файлов»</span></button>
+    <button id="qa-file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5M12 11v6m-3-3 3 3 3-3"/></svg><b>Файл GPX</b><span>GPX, KML, KMZ, TCX, FIT из «Файлов»</span></button>
     <button id="qa-plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="10" r="3"/><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11Z"/></svg><b>Построить</b><span>До адреса или точки на карте</span></button>
     <button id="qa-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><b>По ссылке</b><span>Komoot, OSM, bikerouter, файл</span></button>
     <button id="qa-trails"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m3 20 6-12 4 7 3-5 5 10H3Z"/></svg><b>Трассы рядом</b><span>MTB и веломаршруты на карте</span></button>
@@ -427,14 +448,29 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 <!-- HISTORY -->
 <section class="sheet" id="sheet-history" hidden>
   <header><button class="back" data-close aria-label="Назад к карте"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg>Карта</button><h2>История</h2><button class="close" data-close aria-label="Закрыть">×</button></header>
-  <div class="stats" id="hist-sum"></div>
-  <div class="list" id="ride-list"></div>
+  <div class="seg" id="hseg"><button data-h="list" class="on">Поездки</button><button data-h="prog">Прогресс</button></div>
+  <div class="chips" id="h-types" style="margin-top:10px" hidden></div>
+  <div id="h-list">
+    <div class="stats" id="hist-sum"></div>
+    <div class="list" id="ride-list"></div>
+    <div class="row" style="margin-top:10px"><label class="btn" for="act-file">Импорт тренировки: GPX / FIT / TCX</label></div>
+    <input type="file" id="act-file" multiple hidden>
+    <p class="note">Тренировки из Strava, Garmin, Wahoo, Apple Watch и других приложений — файлы с записанным временем.</p>
+  </div>
+  <div id="h-prog" hidden></div>
+</section>
+
+<!-- RIDE DETAILS -->
+<section class="sheet" id="sheet-ride" hidden>
+  <header><button class="back" id="rd-back" aria-label="Назад к истории"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg>История</button><h2 id="rd-title" style="font-size:20px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></h2><button class="close" data-close aria-label="Закрыть">×</button></header>
+  <div id="rd-body"></div>
 </section>
 
 <!-- PROFILE: settings + offline -->
 <section class="sheet" id="sheet-profile" hidden>
   <header><button class="back" data-close aria-label="Назад к карте"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg>Карта</button><h2>Профиль</h2><button class="close" data-close aria-label="Закрыть">×</button></header>
   <h3>Поездка</h3>
+  <div class="seg" id="s-act" style="margin-bottom:8px"><button data-a="bike">🚴 Вело</button><button data-a="run">🏃 Бег</button><button data-a="walk">🚶 Ходьба</button><button data-a="hike">🥾 Поход</button></div>
   <label class="chk"><input type="checkbox" id="s-autopause" checked> Автопауза на остановках</label>
   <label class="chk"><input type="checkbox" id="s-voice" checked> Звук (голосовые подсказки навигации)</label>
   <label class="chk"><input type="checkbox" id="s-reroute" checked> Сбился — автоматически перестраивать маршрут</label>
@@ -476,11 +512,16 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <div class="list" id="mb-list" style="margin-top:10px"></div>
   <p class="note">Растровые MBTiles (PNG/JPG/WebP), например из MOBAC. Векторные не поддерживаются. На iPhone комфортно до ~300 МБ.</p>
 
+  <h3>Данные</h3>
+  <p class="note" style="margin-top:0">Все поездки, маршруты и настройки одним файлом — для переноса на другой телефон или в другой браузер.</p>
+  <div class="row"><button class="btn" id="bk-exp">Экспорт всех данных</button><label class="btn" for="bk-file">Восстановить из файла</label></div>
+  <input type="file" id="bk-file" hidden>
+
   <h3>Хранилище</h3>
   <p class="note" id="st-quota"></p>
   <div class="row"><button class="btn" id="st-persist">Запретить автоочистку</button><button class="btn dng" id="st-clear-tiles">Очистить кэш карт</button></div>
 
-  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v12 · при сходе — маршрут к финишу</p>
+  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v13 · прогресс, карточки, FIT, виды активности</p>
   <h3>iPhone</h3>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -1093,7 +1134,7 @@ const Ride = {
   async stop() {
     if (this.status === 'idle') return;
     const ride = { id: uid(), name: 'Поездка ' + new Date(this.startTs).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }),
-      start: this.startTs, end: Date.now(), dist: this.dist, movingMs: this.movingMs, max: this.max, asc: this.asc, desc: this.desc, track: this.track };
+      start: this.startTs, end: Date.now(), type: S.act || 'bike', dist: this.dist, movingMs: this.movingMs, max: this.max, asc: this.asc, desc: this.desc, track: this.track };
     if (this.track.length > 1) { try { await DB.put('rides', ride); toast(`Сохранено: ${fmtKm(this.dist)} км, ${fmtDur(this.movingMs)}`); } catch { toast('Не удалось сохранить поездку'); } }
     else toast('Поездка без трека — не сохранена');
     this.status = 'idle'; this.track = []; Object.assign(this, { movingMs: 0, dist: 0, max: 0, asc: 0, desc: 0, autoPaused: false }); if (this.line) this.line.setLatLngs([]);
@@ -2038,13 +2079,13 @@ function renderExt(dest, coords, name) {
 
 /* ================= GPX / import / lists ================= */
 let previewLayer = null;
-function toGpx(name, coords, withTime) {
+function toGpx(name, coords, withTime, type) {
   const pts = coords.map(c => `<trkpt lat="${(+c[0]).toFixed(7)}" lon="${(+c[1]).toFixed(7)}">${c[2] != null ? `<ele>${(+c[2]).toFixed(1)}</ele>` : ''}${withTime && c[3] ? `<time>${new Date(c[3]).toISOString()}</time>` : ''}</trkpt>`).join('\n');
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="Velokomp Israel" xmlns="http://www.topografix.com/GPX/1/1">\n<metadata><name>${esc(name)}</name></metadata>\n<trk><name>${esc(name)}</name><type>cycling</type><trkseg>\n${pts}\n</trkseg></trk>\n</gpx>`;
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="Velokomp Israel" xmlns="http://www.topografix.com/GPX/1/1">\n<metadata><name>${esc(name)}</name></metadata>\n<trk><name>${esc(name)}</name><type>${(ACTS[type] || ACTS.bike).gpx}</type><trkseg>\n${pts}\n</trkseg></trk>\n</gpx>`;
 }
-async function shareGpx(name, coords, withTime) {
+async function shareGpx(name, coords, withTime, type) {
   const fname = (name || 'route').replace(/[\\/:*?"<>|]+/g, '_').slice(0, 60) + '.gpx';
-  const file = new File([toGpx(name, coords, withTime)], fname, { type: 'application/gpx+xml' });
+  const file = new File([toGpx(name, coords, withTime, type)], fname, { type: 'application/gpx+xml' });
   try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: name }); return; } } catch (e) { if (e.name === 'AbortError') return; }
   const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = fname; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
 }
@@ -2164,16 +2205,290 @@ async function renderRoutes() {
   $$('#rt-list [data-gpx]').forEach(b => b.onclick = () => { const r = get(b.dataset.gpx); shareGpx(r.name, r.coords); });
   $$('#rt-list [data-del]').forEach(b => b.onclick = () => armDelete(b, async () => { await DB.del('routes', b.dataset.del); renderRoutes(); }));
 }
-async function renderRides() {
-  const list = (await DB.all('rides')).sort((a, b) => b.start - a.start);
-  const tot = list.reduce((s, r) => ({ d: s.d + r.dist, t: s.t + r.movingMs, a: s.a + r.asc }), { d: 0, t: 0, a: 0 });
-  $('#hist-sum').innerHTML = `<div><b>${fmtKm(tot.d)}</b><span>км всего</span></div><div><b>${tot.t < 3600000 ? Math.round(tot.t / 60000) + ' мин' : Math.floor(tot.t / 3600000) + ' ч ' + Math.round(tot.t % 3600000 / 60000) + ' м'}</b><span>в движении</span></div><div><b>${Math.round(tot.a)}</b><span>набор, м</span></div>`;
-  $('#ride-list').innerHTML = list.length ? list.map(r => `<div class="item"><span class="t">${esc(r.name)}</span><span class="s">${fmtKm(r.dist)} км · ${fmtDur(r.movingMs)} · ср ${r.movingMs ? kmh(r.dist / (r.movingMs / 1000)) : '0'} · макс ${kmh(r.max)} км/ч · ↑${Math.round(r.asc)} м</span><span class="a"><button class="btn sm" data-show="${r.id}">Карта</button><button class="btn sm" data-gpx="${r.id}">GPX</button><button class="btn sm dng" data-del="${r.id}">×</button></span></div>`).join('') : '<div class="empty">Записанных поездок нет. Нажмите ▶ на главном экране.</div>';
-  const get = id => list.find(r => r.id === id);
-  $$('#ride-list [data-show]').forEach(b => b.onclick = () => preview(get(b.dataset.show).track, css('--track')));
-  $$('#ride-list [data-gpx]').forEach(b => b.onclick = () => { const r = get(b.dataset.gpx); shareGpx(r.name, r.track, true); });
-  $$('#ride-list [data-del]').forEach(b => b.onclick = () => armDelete(b, async () => { await DB.del('rides', b.dataset.del); renderRides(); }));
+/* ================= activities: types, progress, ride details, cards, workout import, backup ================= */
+const ACTS = { bike: { n: 'Вело', ic: '🚴', pace: false, gpx: 'cycling' }, run: { n: 'Бег', ic: '🏃', pace: true, gpx: 'running' }, walk: { n: 'Ходьба', ic: '🚶', pace: true, gpx: 'walking' }, hike: { n: 'Поход', ic: '🥾', pace: true, gpx: 'hiking' } };
+const actOf = r => ACTS[r && r.type] ? r.type : 'bike';
+const fmtPace = v => { if (!v || v < 0.3) return '—'; const s = Math.round(1000 / v); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+const rideAvg = r => r.movingMs > 0 ? r.dist / (r.movingMs / 1000) : 0;
+const speedTxt = (r, v) => ACTS[actOf(r)].pace ? fmtPace(v) + ' /км' : kmh(v) + ' км/ч';
+const fmtDay = ts => new Date(ts).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+const fmtHrs = ms => ms < 3600000 ? Math.round(ms / 60000) + ' мин' : Math.floor(ms / 3600000) + ' ч ' + Math.round(ms % 3600000 / 60000) + ' мин';
+const plural = (n, a, b, c) => { const m = n % 100, k = n % 10; return m > 10 && m < 20 ? c : k === 1 ? a : k >= 2 && k <= 4 ? b : c; };
+const HS = { seg: 'list', type: 'all', list: [], cur: null };
+
+async function shareFile(file, title) {
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title }); return; } } catch (e) { if (e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = file.name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
 }
+
+async function renderRides() {
+  const all = (await DB.all('rides')).sort((a, b) => b.start - a.start);
+  HS.list = all;
+  const types = Object.keys(ACTS).filter(k => all.some(r => actOf(r) === k));
+  if (HS.type !== 'all' && !types.includes(HS.type)) HS.type = 'all';
+  $('#h-types').innerHTML = types.length > 1 ? ['all', ...types].map(k => `<button class="chip${HS.type === k ? ' on' : ''}" data-ht="${k}">${k === 'all' ? 'Все' : ACTS[k].ic + ' ' + ACTS[k].n}</button>`).join('') : '';
+  $('#h-types').hidden = types.length < 2;
+  $$('#h-types [data-ht]').forEach(b => b.onclick = () => { HS.type = b.dataset.ht; renderRides(); });
+  $$('#hseg button').forEach(b => b.classList.toggle('on', b.dataset.h === HS.seg));
+  $('#h-list').hidden = HS.seg !== 'list'; $('#h-prog').hidden = HS.seg !== 'prog';
+  const list = HS.type === 'all' ? all : all.filter(r => actOf(r) === HS.type);
+  if (HS.seg === 'prog') return renderProgress(list);
+  const tot = list.reduce((s, r) => ({ d: s.d + r.dist, t: s.t + r.movingMs, a: s.a + (r.asc || 0) }), { d: 0, t: 0, a: 0 });
+  $('#hist-sum').innerHTML = `<div><b>${fmtKm(tot.d)}</b><span>км всего</span></div><div><b>${fmtHrs(tot.t)}</b><span>в движении</span></div><div><b>${Math.round(tot.a)}</b><span>набор, м</span></div>`;
+  $('#ride-list').innerHTML = list.length ? list.map(r => `<div class="item rideit" data-open="${r.id}"><span class="t">${ACTS[actOf(r)].ic} ${esc(r.name)}</span><span class="s">${fmtKm(r.dist)} км · ${fmtDur(r.movingMs)} · ${speedTxt(r, rideAvg(r))} · ↑${Math.round(r.asc || 0)} м</span><span class="a"><button class="btn sm" data-card="${r.id}">Карточка</button><button class="btn sm pri" data-open="${r.id}">Подробно</button></span></div>`).join('') : '<div class="empty">Записанных поездок нет. Нажмите ▶ на главном экране или импортируйте тренировку файлом.</div>';
+  $$('#ride-list [data-card]').forEach(b => b.onclick = e => { e.stopPropagation(); shareCard(all.find(r => r.id === b.dataset.card), b); });
+  $$('#ride-list .rideit').forEach(el => el.onclick = e => { if (!e.target.closest('[data-card]')) openRide(el.dataset.open); });
+}
+
+function renderProgress(list) {
+  const now = new Date(), Y = now.getFullYear(), M = now.getMonth(), D = now.getDate(), wd = now.getDay(); // week starts on Sunday (Israel)
+  const weekStart = i => new Date(Y, M, D - wd - 7 * i).getTime();
+  const sum = (from, to = Infinity) => list.filter(r => r.start >= from && r.start < to).reduce((s, r) => ({ n: s.n + 1, d: s.d + r.dist, t: s.t + r.movingMs, a: s.a + (r.asc || 0) }), { n: 0, d: 0, t: 0, a: 0 });
+  const per = [['Эта неделя', sum(weekStart(0))], ['Этот месяц', sum(new Date(Y, M, 1).getTime())], [String(Y) + ' год', sum(new Date(Y, 0, 1).getTime())], ['Всего', sum(0)]];
+  const weeks = []; for (let i = 11; i >= 0; i--) weeks.push({ from: weekStart(i), s: sum(weekStart(i), weekStart(i - 1)) });
+  const top = Math.max(1, ...weeks.map(w => w.s.d));
+  const okAvg = r => r.dist >= 5000 && r.movingMs > 0 && (HS.type !== 'all' || actOf(r) === 'bike');
+  const best = (f, ok = () => true) => list.filter(ok).reduce((b, r) => (!b || f(r) > f(b) ? r : b), null);
+  const recs = [
+    ['Самая длинная', best(r => r.dist), r => fmtKm(r.dist) + ' км'],
+    ['Больше всего набора', best(r => r.asc || 0), r => Math.round(r.asc || 0) + ' м'],
+    ['Дольше всего в движении', best(r => r.movingMs), r => fmtDur(r.movingMs)],
+    [HS.type === 'all' || !ACTS[HS.type].pace ? 'Лучшая средняя скорость (от 5 км)' : 'Лучший средний темп (от 5 км)', best(rideAvg, okAvg), r => speedTxt(r, rideAvg(r))],
+    ['Максимальная скорость', best(r => r.max || 0, r => actOf(r) === 'bike' && r.max > 0), r => kmh(r.max) + ' км/ч'],
+  ].filter(x => x[1]);
+  $('#h-prog').innerHTML = list.length ? `
+    <div class="pgrid">${per.map(([t, s]) => `<div><span>${t}</span><b>${fmtKm(s.d)} <small>км</small></b><em>${s.n} ${plural(s.n, 'поездка', 'поездки', 'поездок')} · ${fmtHrs(s.t)} · ↑${Math.round(s.a)} м</em></div>`).join('')}</div>
+    <h3>Последние 12 недель, км</h3>
+    <div class="wk">${weeks.map((w, i) => `<div title="${fmtKm(w.s.d)} км"><b>${w.s.d >= 1000 ? Math.round(w.s.d / 1000) : ''}</b><i style="height:${Math.max(2, w.s.d / top * 100)}%" class="${i === 11 ? 'cur' : ''}"></i><span>${new Date(w.from).toLocaleDateString('ru-RU', { day: 'numeric', month: 'numeric' })}</span></div>`).join('')}</div>
+    <h3>Рекорды</h3>
+    <div class="list">${recs.map(([t, r, f]) => `<div class="item rideit" data-open="${r.id}"><span class="t">${t}: ${f(r)}</span><span class="s">${ACTS[actOf(r)].ic} ${esc(r.name)} · ${fmtDay(r.start)}</span></div>`).join('')}</div>`
+    : '<div class="empty">Пока нечего показать — запишите или импортируйте первую тренировку.</div>';
+  $$('#h-prog .rideit').forEach(el => el.onclick = () => openRide(el.dataset.open));
+}
+
+// Kilometre splits by moving time (stops and auto-pauses are left out).
+function splits(tr) {
+  if (!tr || tr.length < 2 || !tr[0][3] || !tr[tr.length - 1][3]) return [];
+  const out = []; let d = 0, mt = 0, km = 1, t0 = 0, e0 = tr[0][2];
+  for (let i = 1; i < tr.length; i++) {
+    const a = tr[i - 1], b = tr[i], seg = hav(a, b), dt = (b[3] - a[3]) / 1000;
+    const moving = dt > 0 && dt <= 30 && seg / dt >= 0.5 && seg / dt < 28;
+    const dtm = moving ? dt * 1000 : 0;
+    while (seg > 0 && d + seg >= km * 1000) {
+      const f = (km * 1000 - d) / seg, t = mt + f * dtm, e = a[2] != null && b[2] != null ? a[2] + f * (b[2] - a[2]) : null;
+      out.push({ km, len: 1000, ms: t - t0, de: e != null && e0 != null ? e - e0 : null }); t0 = t; if (e != null) e0 = e; km++;
+    }
+    d += seg; mt += dtm;
+  }
+  const rem = d - (km - 1) * 1000, last = tr[tr.length - 1][2];
+  if (rem >= 100 && mt - t0 > 0) out.push({ km: km - 1 + rem / 1000, len: rem, ms: mt - t0, de: last != null && e0 != null ? last - e0 : null, part: true });
+  return out.filter(s => s.ms > 0);
+}
+
+function drawProfile(cv, tr, color, opts = {}) {
+  const pts = tr.filter(p => p[2] != null); if (pts.length < 2) return false;
+  const dpr = opts.dpr || window.devicePixelRatio || 1, w = opts.w || cv.clientWidth || 340, h = opts.h || cv.clientHeight || 110;
+  if (!opts.ctx) { cv.width = w * dpr; cv.height = h * dpr; }
+  const g = opts.ctx || cv.getContext('2d'); if (!opts.ctx) g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const ox = opts.x || 0, oy = opts.y || 0, cum = cumDist(pts), len = cum[cum.length - 1] || 1;
+  let lo = Math.min(...pts.map(p => p[2])), hi = Math.max(...pts.map(p => p[2])); if (hi - lo < 20) { const m = (hi + lo) / 2; lo = m - 10; hi = m + 10; }
+  const X = i => ox + cum[i] / len * w, Yy = e => oy + h - 4 - (e - lo) / (hi - lo) * (h - 8);
+  g.beginPath(); g.moveTo(X(0), oy + h); pts.forEach((p, i) => g.lineTo(X(i), Yy(p[2]))); g.lineTo(ox + w, oy + h); g.closePath();
+  const gr = g.createLinearGradient(0, oy, 0, oy + h); gr.addColorStop(0, color + 'aa'); gr.addColorStop(1, color + '10'); g.fillStyle = gr; g.fill();
+  g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(X(i), Yy(p[2])) : g.moveTo(X(i), Yy(p[2]))); g.strokeStyle = color; g.lineWidth = opts.lw || 2; g.lineJoin = 'round'; g.stroke();
+  if (!opts.ctx) { g.fillStyle = 'rgba(255,255,255,.6)'; g.font = '11px -apple-system,system-ui,sans-serif'; g.fillText(Math.round(hi) + ' м', 4, 12); g.fillText(Math.round(lo) + ' м', 4, h - 6); }
+  return true;
+}
+
+async function openRide(id) {
+  const r = HS.list.find(x => x.id === id) || await DB.get('rides', id); if (!r) return;
+  HS.cur = r;
+  const a = ACTS[actOf(r)], tr = r.track || [], v = rideAvg(r), sp = splits(tr), hasAlt = tr.filter(p => p[2] != null).length > 1;
+  $('#rd-title').textContent = r.name;
+  const fast = sp.length ? Math.max(...sp.map(s => s.len / s.ms)) : 1;
+  $('#rd-body').innerHTML = `
+    <p class="note" style="margin-top:0">${fmtDay(r.start)}, ${new Date(r.start).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}${r.end ? ' · всего ' + fmtHrs(r.end - r.start) : ''}${r.imported ? ' · импорт' : ''}</p>
+    <div class="seg" id="rd-type">${Object.entries(ACTS).map(([k, x]) => `<button data-t="${k}" class="${k === actOf(r) ? 'on' : ''}">${x.ic} ${x.n}</button>`).join('')}</div>
+    <div class="stats" style="margin-top:12px">
+      <div><b>${fmtKm(r.dist)}</b><span>км</span></div><div><b>${fmtClock(r.movingMs)}</b><span>в движении</span></div>
+      <div><b>${a.pace ? fmtPace(v) : kmh(v)}</b><span>${a.pace ? 'темп, мин/км' : 'средняя, км/ч'}</span></div>
+      <div><b>${kmh(r.max || 0)}</b><span>макс, км/ч</span></div><div><b>${Math.round(r.asc || 0)}</b><span>набор, м</span></div><div><b>${Math.round(r.desc || 0)}</b><span>спуск, м</span></div>
+    </div>
+    ${hasAlt ? '<h3>Профиль высот</h3><canvas id="rd-elev" class="rd-elev"></canvas>' : ''}
+    ${sp.length ? `<h3>По километрам</h3><table class="spl"><tr><th>км</th><th>время</th><th>${a.pace ? 'темп' : 'км/ч'}</th><th></th><th>высота</th></tr>${sp.map(s => { const sv = s.len / (s.ms / 1000); return `<tr><td>${s.part ? s.km.toFixed(2) : s.km}</td><td>${fmtClock(s.ms)}</td><td>${a.pace ? fmtPace(sv) : kmh(sv)}</td><td class="bar"><i style="width:${Math.round(sv / (fast * 1000) * 100)}%"></i></td><td>${s.de == null ? '—' : (s.de >= 0 ? '+' : '−') + Math.abs(Math.round(s.de))}</td></tr>`; }).join('')}</table>` : ''}
+    <div class="row" style="margin-top:14px"><button class="btn pri" id="rd-card">Карточка</button><button class="btn" id="rd-map">На карте</button><button class="btn" id="rd-gpx">GPX</button><button class="btn" id="rd-ren">Переименовать</button><button class="btn dng" id="rd-del">Удалить</button></div>`;
+  showTab('ride');
+  if (hasAlt) requestAnimationFrame(() => drawProfile($('#rd-elev'), tr, css('--track')));
+  $$('#rd-type button').forEach(b => b.onclick = async () => { r.type = b.dataset.t; await DB.put('rides', r); openRide(r.id); });
+  $('#rd-card').onclick = () => shareCard(r, $('#rd-card'));
+  $('#rd-map').onclick = () => tr.length > 1 ? preview(tr, css('--track')) : toast('У этой поездки нет трека');
+  $('#rd-gpx').onclick = () => shareGpx(r.name, tr, true, actOf(r));
+  $('#rd-ren').onclick = async () => { const n = prompt('Название', r.name); if (n && n.trim()) { r.name = n.trim().slice(0, 80); await DB.put('rides', r); openRide(r.id); } };
+  $('#rd-del').onclick = () => armDelete($('#rd-del'), async () => { await DB.del('rides', r.id); HS.seg = 'list'; showTab('history'); toast('Поездка удалена'); });
+}
+$('#rd-back').onclick = () => showTab('history');
+$$('#hseg button').forEach(b => b.onclick = () => { HS.seg = b.dataset.h; renderRides(); });
+
+// Shareable image of a ride: track, main numbers, elevation profile.
+async function makeCard(r) {
+  const W = 1080, HH = 1350, c = document.createElement('canvas'); c.width = W; c.height = HH;
+  const g = c.getContext('2d'), acc = css('--track') || '#e2e08a', a = ACTS[actOf(r)], tr = (r.track || []).filter(p => isFinite(p[0]) && isFinite(p[1])), v = rideAvg(r);
+  const FONT = '-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif';
+  const bg = g.createLinearGradient(0, 0, W, HH); bg.addColorStop(0, '#0f1722'); bg.addColorStop(.55, '#15283a'); bg.addColorStop(1, '#1f3a3f'); g.fillStyle = bg; g.fillRect(0, 0, W, HH);
+  g.fillStyle = 'rgba(255,255,255,.55)'; g.font = `600 30px ${FONT}`; g.textBaseline = 'alphabetic';
+  g.fillText('ВЕЛОКОМП', 64, 92);
+  g.textAlign = 'right'; g.fillText(fmtDay(r.start), W - 64, 92); g.textAlign = 'left';
+  g.fillStyle = '#fff'; g.font = `800 58px ${FONT}`;
+  let title = `${a.ic} ${r.name}`; while (g.measureText(title).width > W - 128 && title.length > 4) title = title.slice(0, -2) + '…';
+  g.fillText(title, 64, 170);
+  // track
+  const box = { x: 64, y: 220, w: W - 128, h: 600 };
+  g.fillStyle = 'rgba(255,255,255,.05)'; roundRect(g, box.x, box.y, box.w, box.h, 36); g.fill();
+  if (tr.length > 1) {
+    const lat0 = tr.reduce((s, p) => s + p[0], 0) / tr.length, k = Math.cos(lat0 * D2R);
+    const xs = tr.map(p => p[1] * k), ys = tr.map(p => -p[0]);
+    const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
+    const pad = 60, sc = Math.min((box.w - 2 * pad) / Math.max(maxX - minX, 1e-9), (box.h - 2 * pad) / Math.max(maxY - minY, 1e-9));
+    const offX = box.x + (box.w - (maxX - minX) * sc) / 2, offY = box.y + (box.h - (maxY - minY) * sc) / 2;
+    const P = i => [offX + (xs[i] - minX) * sc, offY + (ys[i] - minY) * sc];
+    g.lineJoin = g.lineCap = 'round';
+    for (const [lw, col, blur] of [[22, acc + '33', 0], [9, acc, 18]]) {
+      g.save(); g.shadowColor = acc; g.shadowBlur = blur; g.beginPath(); tr.forEach((_, i) => { const [x, y] = P(i); i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.strokeStyle = col; g.lineWidth = lw; g.stroke(); g.restore();
+    }
+    const dot = (i, col) => { const [x, y] = P(i); g.beginPath(); g.arc(x, y, 16, 0, 7); g.fillStyle = col; g.fill(); g.lineWidth = 6; g.strokeStyle = '#fff'; g.stroke(); };
+    dot(tr.length - 1, '#ff5c5c'); dot(0, '#45d483');
+  } else { g.fillStyle = 'rgba(255,255,255,.4)'; g.font = `500 34px ${FONT}`; g.textAlign = 'center'; g.fillText('Без трека', W / 2, box.y + box.h / 2); g.textAlign = 'left'; }
+  // numbers
+  const cells = [['Дистанция', fmtKm(r.dist), 'км'], ['Время в движении', fmtClock(r.movingMs), ''], a.pace ? ['Средний темп', fmtPace(v), '/км'] : ['Средняя скорость', kmh(v), 'км/ч'], ['Набор высоты', String(Math.round(r.asc || 0)), 'м']];
+  cells.forEach(([lab, val, unit], i) => {
+    const x = 64 + (i % 2) * ((W - 128) / 2), y = 890 + Math.floor(i / 2) * 150;
+    g.fillStyle = 'rgba(255,255,255,.55)'; g.font = `600 28px ${FONT}`; g.fillText(lab.toUpperCase(), x, y);
+    g.fillStyle = '#fff'; g.font = `800 76px ${FONT}`; g.fillText(val, x, y + 82);
+    if (unit) { const w = g.measureText(val).width; g.fillStyle = acc; g.font = `700 34px ${FONT}`; g.fillText(unit, x + w + 12, y + 82); }
+  });
+  drawProfile(c, tr, acc.length === 7 ? acc : '#e2e08a', { ctx: g, x: 64, y: 1190, w: W - 128, h: 110, lw: 4 });
+  return await new Promise(res => c.toBlob(res, 'image/png'));
+}
+function roundRect(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+async function shareCard(r, btn) {
+  if (!r) return;
+  const t = btn && btn.textContent; if (btn) { btn.disabled = true; btn.textContent = '…'; }
+  try {
+    const blob = await makeCard(r);
+    const file = new File([blob], (r.name || 'ride').replace(/[\\/:*?"<>|]+/g, '_').slice(0, 60) + '.png', { type: 'image/png' });
+    await shareFile(file, r.name);
+  } catch (e) { toast('Не удалось сделать карточку: ' + e.message, 4000); }
+  finally { if (btn) { btn.disabled = false; btn.textContent = t; } }
+}
+
+// ---- FIT (Garmin, Wahoo, Strava, Apple Watch exports) ----
+const isFit = buf => { if (buf.byteLength < 14) return false; const b = new Uint8Array(buf, 8, 4); return b[0] === 0x2e && b[1] === 0x46 && b[2] === 0x49 && b[3] === 0x54; };
+function parseFit(buf, fname) {
+  const dv = new DataView(buf), hs = dv.getUint8(0), end = Math.min(buf.byteLength, hs + dv.getUint32(4, true));
+  const defs = {}, pts = []; let o = hs, lastTs = 0, sport = null;
+  while (o < end) {
+    const h = dv.getUint8(o++);
+    if (!(h & 0x80) && (h & 0x40)) {
+      const local = h & 0x0f, dev = h & 0x20; o++; const le = dv.getUint8(o++) === 0, gnum = dv.getUint16(o, le); o += 2;
+      const nf = dv.getUint8(o++), fields = [];
+      for (let i = 0; i < nf; i++) { fields.push({ num: dv.getUint8(o), size: dv.getUint8(o + 1), bt: dv.getUint8(o + 2) & 0x1f }); o += 3; }
+      let devSize = 0; if (dev) { const nd = dv.getUint8(o++); for (let i = 0; i < nd; i++) { devSize += dv.getUint8(o + 1); o += 3; } }
+      defs[local] = { le, gnum, fields, devSize }; continue;
+    }
+    let local, ts = null;
+    if (h & 0x80) { local = (h >> 5) & 3; ts = lastTs + (((h & 0x1f) - (lastTs & 0x1f)) & 0x1f); lastTs = ts; }
+    else local = h & 0x0f;
+    const d = defs[local]; if (!d) throw new Error('FIT-файл повреждён');
+    const v = {};
+    for (const f of d.fields) {
+      if (o + f.size > buf.byteLength) { o = end; break; }
+      let x = null;
+      if (f.size === 1) x = f.bt === 1 ? dv.getInt8(o) : dv.getUint8(o);
+      else if (f.size === 2) x = f.bt === 3 ? dv.getInt16(o, d.le) : dv.getUint16(o, d.le);
+      else if (f.size === 4) x = f.bt === 5 ? dv.getInt32(o, d.le) : dv.getUint32(o, d.le);
+      v[f.num] = { x, bt: f.bt }; o += f.size;
+    }
+    o += d.devSize;
+    const val = n => { const f = v[n]; if (!f || f.x == null) return null; const { x, bt } = f;
+      if ((bt === 5 && x === 0x7fffffff) || ((bt === 6 || bt === 12) && x === 0xffffffff) || (bt === 4 && x === 0xffff) || ((bt === 0 || bt === 2) && x === 0xff)) return null; return x; };
+    if (val(253) != null) { lastTs = val(253); ts = lastTs; }
+    if (d.gnum === 20) {
+      const la = val(0), lo = val(1);
+      if (la != null && lo != null) { const ea = val(78), al = val(2); pts.push([la * 180 / 2147483648, lo * 180 / 2147483648, ea != null ? ea / 5 - 500 : al != null ? al / 5 - 500 : null, ts != null ? (ts + 631065600) * 1000 : null]); }
+    } else if ((d.gnum === 18 && sport == null) || d.gnum === 12) { const s = val(d.gnum === 18 ? 5 : 0); if (s != null) sport = s; }
+  }
+  const type = { 1: 'run', 2: 'bike', 11: 'walk', 17: 'hike' }[sport] || null;
+  return { name: fname.replace(/\.fit$/i, ''), track: pts.filter(p => Math.abs(p[0]) <= 90 && Math.abs(p[1]) <= 180 && !(p[0] === 0 && p[1] === 0)), type };
+}
+
+// Workouts with time stamps (GPX / TCX / FIT) → rides in history.
+async function parseActivities(buf, fname) {
+  if (isFit(buf)) return [parseFit(buf, fname)];
+  const b = new Uint8Array(buf, 0, Math.min(4, buf.byteLength));
+  let text = b[0] === 0x50 && b[1] === 0x4b ? (await unzipRoute(buf)).text : new TextDecoder().decode(buf);
+  const doc = new DOMParser().parseFromString(text.replace(/^﻿/, ''), 'application/xml');
+  if (doc.querySelector('parsererror')) throw new Error('нужен файл GPX, TCX или FIT');
+  const kids = (el, n) => [...el.getElementsByTagName('*')].filter(e => e.localName === n), one = (el, n) => kids(el, n)[0], txt = (el, n) => { const e = one(el, n); return e ? e.textContent.trim() : ''; };
+  const guess = s => /run|бег/i.test(s) ? 'run' : /hik/i.test(s) ? 'hike' : /walk/i.test(s) ? 'walk' : /bik|cycl|ride|mtb/i.test(s) ? 'bike' : null;
+  const out = [];
+  kids(doc, 'trk').forEach(t => {
+    const track = kids(t, 'trkpt').map(p => { const e = txt(p, 'ele'), tm = Date.parse(txt(p, 'time')); return [+p.getAttribute('lat'), +p.getAttribute('lon'), e ? +e : null, isNaN(tm) ? null : tm]; });
+    out.push({ name: txt(t, 'name') || txt(doc, 'name') || fname.replace(/\.\w+$/, ''), track, type: guess(txt(t, 'type')) });
+  });
+  kids(doc, 'Activity').forEach(a => {
+    const track = kids(a, 'Trackpoint').filter(p => one(p, 'LatitudeDegrees')).map(p => { const e = txt(p, 'AltitudeMeters'), tm = Date.parse(txt(p, 'Time')); return [+txt(p, 'LatitudeDegrees'), +txt(p, 'LongitudeDegrees'), e ? +e : null, isNaN(tm) ? null : tm]; });
+    out.push({ name: fname.replace(/\.\w+$/, ''), track, type: guess(a.getAttribute('Sport') || '') });
+  });
+  return out;
+}
+function rideFromTrack(a) {
+  const tr = a.track.filter(p => isFinite(p[0]) && isFinite(p[1]) && p[3]).sort((x, y) => x[3] - y[3]);
+  if (tr.length < 2) throw new Error('в файле нет времени — это маршрут, а не тренировка. Добавьте его в «Маршруты → Мои»');
+  let dist = 0, mov = 0, max = 0, asc = 0, desc = 0, ref = null; const cum = [0];
+  for (let i = 1; i < tr.length; i++) {
+    const d = hav(tr[i - 1], tr[i]), dt = (tr[i][3] - tr[i - 1][3]) / 1000, ok = dt > 0 && d / dt < 28;
+    if (ok) { dist += d; if (dt <= 30 && d / dt >= 0.5) mov += dt * 1000; }
+    cum.push(dist);
+  }
+  for (let i = 1, j = 0; i < tr.length; i++) { while (j < i && tr[i][3] - tr[j + 1][3] >= 10000) j++; const dt = (tr[i][3] - tr[j][3]) / 1000; if (dt >= 8) { const s = (cum[i] - cum[j]) / dt; if (s < 28) max = Math.max(max, s); } }
+  tr.forEach(p => { if (p[2] == null) return; if (ref == null) ref = p[2]; else if (p[2] - ref >= 4) { asc += p[2] - ref; ref = p[2]; } else if (ref - p[2] >= 4) { desc += ref - p[2]; ref = p[2]; } });
+  return { id: uid(), name: a.name || 'Тренировка', start: tr[0][3], end: tr[tr.length - 1][3], dist, movingMs: mov, max, asc, desc, type: a.type || S.act || 'bike', imported: true,
+    track: tr.map(p => [+p[0].toFixed(6), +p[1].toFixed(6), p[2] != null ? Math.round(p[2] * 10) / 10 : null, p[3]]) };
+}
+$('#act-file').onchange = async e => {
+  const files = [...e.target.files]; e.target.value = '';
+  const have = (await DB.all('rides')).map(r => r.start); let n = 0, dup = 0;
+  for (const f of files) {
+    try {
+      const acts = await parseActivities(await f.arrayBuffer(), f.name);
+      if (!acts.length) throw new Error('в файле нет тренировки');
+      for (const a of acts) { const r = rideFromTrack(a); if (have.some(s => Math.abs(s - r.start) < 2000)) { dup++; continue; } await DB.put('rides', r); have.push(r.start); n++; }
+    } catch (err) { toast(`${f.name}: ${err.message}`, 5000); }
+  }
+  if (n || dup) toast(`Добавлено тренировок: ${n}${dup ? ` · уже были: ${dup}` : ''}`, 3500);
+  HS.seg = 'list'; renderRides();
+};
+
+// ---- backup: all rides, routes and settings in one file ----
+$('#bk-exp').onclick = async () => {
+  const data = { app: 'velokomp', ver: 1, exported: new Date().toISOString(), settings: S, rides: await DB.all('rides'), routes: await DB.all('routes') };
+  await shareFile(new File([JSON.stringify(data)], `velokomp-backup-${new Date().toISOString().slice(0, 10)}.json`, { type: 'application/json' }), 'Велокомп — резервная копия');
+};
+$('#bk-file').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try {
+    const d = JSON.parse(await f.text());
+    if (!d || d.app !== 'velokomp') throw new Error('это не резервная копия Велокомпа');
+    let nr = 0, nt = 0;
+    for (const r of d.rides || []) if (r && r.id) { await DB.put('rides', r); nr++; }
+    for (const r of d.routes || []) if (r && r.id) { await DB.put('routes', r); nt++; }
+    toast(`Восстановлено: ${nr} ${plural(nr, 'поездка', 'поездки', 'поездок')}, ${nt} ${plural(nt, 'маршрут', 'маршрута', 'маршрутов')}`, 4000);
+    renderRoutes();
+  } catch (err) { toast('Не удалось восстановить: ' + err.message, 5000); }
+};
+$$('#s-act button').forEach(b => b.onclick = () => { S.act = b.dataset.a; saveS(); $$('#s-act button').forEach(x => x.classList.toggle('on', x === b)); });
+$$('#s-act button').forEach(x => x.classList.toggle('on', x.dataset.a === (S.act || 'bike')));
+
 
 /* ================= trails from OSM / Overpass ================= */
 const OVERPASS = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter'];
@@ -2322,6 +2637,7 @@ async function unzipRoute(buf) {
   throw new Error('в архиве нет файла маршрута');
 }
 async function parseBuffer(buf, fname) {
+  if (isFit(buf)) { const a = parseFit(buf, fname); if (a.track.length < 2) throw new Error('в FIT-файле нет координат'); return [{ name: a.name, coords: a.track.map(p => [p[0], p[1], p[2]]) }]; }
   const b = new Uint8Array(buf, 0, Math.min(4, buf.byteLength));
   if (b[0] === 0x50 && b[1] === 0x4b) { const f = await unzipRoute(buf); return parseRouteFile(f.text, f.name); }
   return parseRouteFile(new TextDecoder().decode(buf), fname);
