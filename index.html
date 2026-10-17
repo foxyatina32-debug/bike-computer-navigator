@@ -479,7 +479,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <p class="note" id="st-quota"></p>
   <div class="row"><button class="btn" id="st-persist">Запретить автоочистку</button><button class="btn dng" id="st-clear-tiles">Очистить кэш карт</button></div>
 
-  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v8 · населённые пункты на иврите</p>
+  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v9 · при запуске: возобновить или новый маршрут</p>
   <h3>iPhone</h3>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -507,6 +507,13 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <button class="btn opt" id="ask-goto"><b>Проложить путь до начала</b><span id="ask-goto-s">Доехать до старта, затем весь маршрут</span></button>
   <button class="btn opt" id="ask-restart"><b>Начать маршрут заново</b><span>Весь маршрут с начала; подсказки начнутся на старте</span></button>
   <button class="cancel" id="ask-x">Закрыть</button>
+</div></div>
+<div class="ask" id="ask-resume" hidden><div class="box">
+  <h2>С возвращением</h2>
+  <p id="rs-info"></p>
+  <button class="btn pri opt" id="rs-cont"><b id="rs-name">Возобновить маршрут</b><span id="rs-sub">Продолжить навигацию по прошлому маршруту</span></button>
+  <button class="btn opt" id="rs-new"><b>Новый маршрут</b><span>Прошлый маршрут закроется, откроется выбор нового</span></button>
+  <button class="cancel" id="rs-x">Пока без маршрута</button>
 </div></div>
 <div class="toast" id="toast" hidden></div>
 
@@ -1585,7 +1592,7 @@ const Nav = {
     setupElev(); unlockSpeech(); startGPS(); updateWake();
     if (!r.keepView) fitB(this.line.getBounds());
     if (GPS.fix) this.onFix(GPS.fix); else this.render();
-    lsSet('activeNav', { name: r.name, coords: coords.map(c => [+c[0].toFixed(6), +c[1].toFixed(6), c[2] != null ? Math.round(c[2]) : null]), opts: r.opts || null, wpts: this.wpts });
+    lsSet('activeNav', { name: r.name, coords: coords.map(c => [+c[0].toFixed(6), +c[1].toFixed(6), c[2] != null ? Math.round(c[2]) : null]), opts: r.opts || null, wpts: this.wpts, at: Date.now() });
   },
   stop() {
     this.askPending = false; this.toStart = false; this.choosing = false; $('#ask-start').hidden = true;
@@ -2509,7 +2516,12 @@ async function renderMb() {
       renderRecUI(); renderDash(); toast('Восстановлена незавершённая поездка: ▶ — продолжить, ■ — завершить', 5000);
     }
   } catch {}
-  const an = lsGet('activeNav', null); if (an && an.coords && an.coords.length > 1) Nav.set({ name: an.name, coords: an.coords, opts: an.opts, wpts: an.wpts, restore: true });
+  const an = lsGet('activeNav', null);
+  const linkOpen = location.hash === '#add' || /[?&]import=|#import=/.test(location.search + location.hash);
+  if (an && an.coords && an.coords.length > 1) {
+    if (linkOpen) Nav.set({ name: an.name, coords: an.coords, opts: an.opts, wpts: an.wpts, restore: true });
+    else askResume(an);
+  }
   if (location.hash === '#add') { openAdd(); try { history.replaceState(null, '', location.pathname + location.search); } catch {} }
   const impQ = new URLSearchParams(location.search).get('import') || decodeURIComponent((location.hash.match(/^#import=(.+)$/) || [])[1] || '');
   if (impQ) { showTab('routes'); routeSeg('mine'); $('#url-in').value = impQ; importInput(impQ); try { history.replaceState(null, '', location.pathname); } catch {} }
@@ -2518,6 +2530,24 @@ async function renderMb() {
     try { const r = await fetch('sw.js', { method: 'HEAD' }); if (r.ok) await navigator.serviceWorker.register('sw.js'); } catch {}
   }
 })();
+// On launch with a route left from last time: resume it, or start a new one.
+function askResume(an) {
+  const total = cumDist(an.coords).pop();
+  setFollow(false); // keep the old route in view while choosing
+  const prev = L.polyline(an.coords.map(c => [c[0], c[1]]), { color: css('--route'), weight: 5, opacity: .55, dashArray: '8 8', interactive: false }).addTo(map);
+  try { const p = viewPad(); map.fitBounds(prev.getBounds(), { paddingTopLeft: [24, p.top], paddingBottomRight: [24, Math.round(innerHeight * 0.45)], maxZoom: 16, animate: false }); } catch {}
+  let when = '';
+  if (an.at) { const d = new Date(an.at), today = new Date().toDateString() === d.toDateString(), y = new Date(Date.now() - 864e5).toDateString() === d.toDateString();
+    when = ` · ${today ? 'сегодня' : y ? 'вчера' : d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })} в ${d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`; }
+  $('#rs-info').textContent = 'Прошлый маршрут ещё открыт' + when + '.';
+  $('#rs-name').textContent = 'Возобновить «' + (an.name || 'Маршрут') + '»';
+  $('#rs-sub').textContent = `${fmtKm(total)} км · навигация продолжится с того места, где вы сейчас`;
+  const done = () => { $('#ask-resume').hidden = true; map.removeLayer(prev); };
+  $('#rs-cont').onclick = () => { done(); Nav.set({ name: an.name, coords: an.coords, opts: an.opts, wpts: an.wpts, restore: true }); };
+  $('#rs-new').onclick = () => { done(); lsSet('activeNav', null); if (GPS.fix) { setFollow(true); centerOn([GPS.fix.lat, GPS.fix.lon], Math.max(map.getZoom(), 15)); } openAdd(); };
+  $('#rs-x').onclick = () => { done(); if (GPS.fix) { setFollow(true); centerOn([GPS.fix.lat, GPS.fix.lon], Math.max(map.getZoom(), 15)); } };
+  $('#ask-resume').hidden = false;
+}
 window.addEventListener('hashchange', () => { if (location.hash === '#add') { openAdd(); try { history.replaceState(null, '', location.pathname + location.search); } catch {} } });
 window.addEventListener('online', () => toast('Интернет есть'));
 window.addEventListener('offline', () => toast('Нет интернета — работают офлайн-карты и сохранённые маршруты', 4000));
