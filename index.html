@@ -81,6 +81,8 @@ svg{display:block}
 .cb.lg{width:84px;height:84px}
 .cb.lg svg{width:38px;height:38px}
 .cb.on svg{color:var(--accent)}
+#c-voice:not(.on){background:rgba(255,106,92,.22);border-color:rgba(255,106,92,.5)}
+#c-voice:not(.on) svg{color:var(--warn)}
 .cb:disabled{opacity:.45}
 #c-stop.arm{background:var(--warn)}
 #c-play.rec{background:var(--accent);color:var(--accent-ink)}
@@ -346,7 +348,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <header><h2>Профиль</h2><button class="close" data-close aria-label="Закрыть">×</button></header>
   <h3>Поездка</h3>
   <label class="chk"><input type="checkbox" id="s-autopause" checked> Автопауза на остановках</label>
-  <label class="chk"><input type="checkbox" id="s-voice" checked> Голосовые подсказки</label>
+  <label class="chk"><input type="checkbox" id="s-voice" checked> Звук (голосовые подсказки навигации)</label>
   <label class="chk"><input type="checkbox" id="s-reroute" checked> Автоматически возвращать на маршрут</label>
   <label class="chk"><input type="checkbox" id="s-wake" checked> Не гасить экран</label>
   <label class="chk"><input type="checkbox" id="s-darkmap" checked> Тёмная карта</label>
@@ -594,7 +596,7 @@ $$('#dots i').forEach((d, k) => d.onclick = () => pager.scrollTo({ left: k * pag
 function applySettings() {
   ['autopause', 'voice', 'reroute', 'wake', 'darkmap'].forEach(k => $('#s-' + k).checked = !!S[k]);
   $('#map').classList.toggle('darkmap', !!S.darkmap);
-  $('#c-voice').classList.toggle('on', !!S.voice);
+  $('#c-voice').classList.toggle('on', !!S.voice); $('#c-voice').setAttribute('aria-label', S.voice ? 'Выключить звук' : 'Включить звук'); hush();
   $('#c-voice').innerHTML = S.voice
     ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4Z" fill="currentColor"/><path d="M15.5 9a4.5 4.5 0 0 1 0 6M18 6.5a8 8 0 0 1 0 11"/></svg>'
     : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4Z" fill="currentColor"/><path d="m16 9.5 5 5M21 9.5l-5 5"/></svg>';
@@ -605,7 +607,9 @@ function applySettings() {
 }
 $$('#s-extnav button').forEach(b => b.onclick = () => { S.extnav = b.dataset.n; saveS(); applySettings(); });
 ['autopause', 'voice', 'reroute', 'wake', 'darkmap'].forEach(k => $('#s-' + k).onchange = e => { S[k] = e.target.checked; saveS(); applySettings(); updateWake(); });
-$('#c-voice').onclick = () => { S.voice = !S.voice; saveS(); applySettings(); toast(S.voice ? 'Голосовые подсказки включены' : 'Голос выключен'); if (S.voice) unlockSpeech(); };
+// Muting stops the phrase that is being spoken right now, too.
+function hush() { try { if (!S.voice && 'speechSynthesis' in window) speechSynthesis.cancel(); } catch {} }
+$('#c-voice').onclick = () => { S.voice = !S.voice; saveS(); applySettings(); toast(S.voice ? '🔊 Звук включён' : '🔇 Звук выключен'); if (S.voice) unlockSpeech(); };
 
 /* ================= wake lock & speech ================= */
 let wakeLock = null;
