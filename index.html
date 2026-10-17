@@ -377,7 +377,8 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
       <div class="stats"><div><b id="r-dist">—</b><span>км</span></div><div><b id="r-asc">—</b><span>набор, м</span></div><div><b id="r-time">—</b><span>в пути</span></div></div>
       <div id="r-mix"></div>
       <p class="note" id="r-eng"></p>
-      <div class="row"><button class="btn pri" id="r-nav">Навигация</button><button class="btn gm" id="r-gm">Google Maps</button><button class="btn wz" id="r-wz">Waze</button></div>
+      <p class="note" id="r-navwhy" hidden style="margin:0 0 8px"></p>
+      <div class="row"><button class="btn pri" id="r-nav">Навигация</button><button class="btn" id="r-app" hidden>Вести здесь</button><button class="btn gm" id="r-gm">Google Maps</button><button class="btn wz" id="r-wz">Waze</button></div>
       <div class="row" style="margin-top:8px"><button class="btn" id="r-save">Сохранить</button><button class="btn" id="r-gpx">GPX</button></div>
     </div>
     <div id="nav-ctl" hidden>
@@ -486,8 +487,8 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <label class="chk"><input type="checkbox" id="s-compass" checked> Компас телефона — направление, когда стоите или едете медленно</label>
   <p class="note" id="compass-state" style="margin:0 0 6px"></p>
   <h3>Навигатор по умолчанию</h3>
-  <div class="seg" id="s-extnav"><button data-n="app">Это приложение</button><button data-n="google">Google Maps</button><button data-n="waze">Waze</button></div>
-  <p class="note">Кнопка «Навигация» откроет выбранный навигатор. Google Maps ведёт в велорежиме; Waze прокладывает автомобильный маршрут — подходит, чтобы доехать до старта трассы на машине.</p>
+  <div class="seg" id="s-extnav"><button data-n="auto">Авто</button><button data-n="app">Это приложение</button><button data-n="google">Google Maps</button><button data-n="waze">Waze</button></div>
+  <p class="note">«Авто»: маршрут по городу (велосипед «Шоссе»/«Город», покрытие «По дорогам» или почти весь путь по асфальту) ведёт Google Maps в велорежиме, а трассы, тропы и GPX — навигация этого приложения. Кнопка «Навигация» откроет выбранный навигатор. Google Maps ведёт в велорежиме; Waze прокладывает автомобильный маршрут — подходит, чтобы доехать до старта трассы на машине.</p>
 
   <h3>Офлайн-карта видимой области</h3>
   <p class="note" id="sw-state"></p>
@@ -521,7 +522,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <p class="note" id="st-quota"></p>
   <div class="row"><button class="btn" id="st-persist">Запретить автоочистку</button><button class="btn dng" id="st-clear-tiles">Очистить кэш карт</button></div>
 
-  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v13 · прогресс, карточки, FIT, виды активности</p>
+  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v14 · город — Google, трассы — своя навигация</p>
   <h3>iPhone</h3>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -631,10 +632,11 @@ const DB = {
 };
 
 /* ================= settings ================= */
-const S = Object.assign({ compass: true, headingUp: true, orient: 'compass', autopause: true, voice: true, reroute: true, tofinish: true, wake: true, darkmap: true, extnav: 'app', urlProxy: false, compact: false, compactNav: true, places: true }, lsGet('settings', {}));
+const S = Object.assign({ compass: true, headingUp: true, orient: 'compass', autopause: true, voice: true, reroute: true, tofinish: true, wake: true, darkmap: true, extnav: 'auto', urlProxy: false, compact: false, compactNav: true, places: true }, lsGet('settings', {}));
 if (!('orient' in (lsGet('settings', {}) || {}))) S.orient = S.headingUp === false ? 'north' : 'compass'; // older builds had only on/off
 S.headingUp = S.orient !== 'north';
 const saveS = () => lsSet('settings', S);
+if (!S.extnavAuto) { S.extnavAuto = 1; if (S.extnav === 'app') S.extnav = 'auto'; saveS(); }
 
 /* ================= map, layers, view padding ================= */
 const IHM = 'https://israelhiking.osm.org.il';
@@ -787,7 +789,7 @@ function applySettings() {
     : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4Z" fill="currentColor"/><path d="m16 9.5 5 5M21 9.5l-5 5"/></svg>';
   $$('#s-extnav button').forEach(b => b.classList.toggle('on', b.dataset.n === S.extnav));
   $('#url-proxy').checked = !!S.urlProxy;
-  $('#r-nav').textContent = { app: 'Навигация', google: 'Навигация · Google', waze: 'Навигация · Waze' }[S.extnav] || 'Навигация';
+  updNavBtn();
   renderRecUI();
 }
 $$('#s-extnav button').forEach(b => b.onclick = () => { S.extnav = b.dataset.n; saveS(); applySettings(); });
@@ -1965,7 +1967,7 @@ function renderWps() {
   $$('#pl-wps [data-up]').forEach(b => b.onclick = () => { const i = +b.dataset.up; [Plan.wps[i - 1], Plan.wps[i]] = [Plan.wps[i], Plan.wps[i - 1]]; renderWps(); });
 }
 function addWp(ll, name) { Plan.wps.push({ ll, name: name || `Точка ${ll[0].toFixed(4)}, ${ll[1].toFixed(4)}` }); renderWps(); }
-function clearCandidate() { if (Plan.candLine) map.removeLayer(Plan.candLine); Plan.candLine = null; Plan.cand = null; $('#pl-result').hidden = true; }
+function clearCandidate() { if (Plan.candLine) map.removeLayer(Plan.candLine); Plan.candLine = null; Plan.cand = null; $('#pl-result').hidden = true; updNavBtn(); }
 map.on('click', e => { if (!$('#sheet-routes').hidden && !$('#r-plan').hidden && $('#pl-tap').checked) addWp([e.latlng.lat, e.latlng.lng]); });
 map.on('contextmenu', e => {
   const ll = [e.latlng.lat, e.latlng.lng];
@@ -1993,14 +1995,33 @@ async function buildPlan() {
     fitB(Plan.candLine.getBounds());
     $('#r-dist').textContent = fmtKm(r.distance); $('#r-asc').textContent = r.ascent != null ? Math.round(r.ascent) : '—';
     $('#r-time').textContent = fmtHM(rideTime(r, o.bike)); $('#r-mix').innerHTML = mixHtml(r.mix); $('#r-eng').textContent = r.engine + ' · время — оценка по типу велосипеда и покрытию';
-    $('#pl-result').hidden = false; renderExt(r.coords[r.coords.length - 1], r.coords, name);
+    $('#pl-result').hidden = false; updNavBtn(); renderExt(r.coords[r.coords.length - 1], r.coords, name);
     $('#sheet-routes').scrollTop = 1e5;
   } catch (e) { toast('Маршрут не построен: ' + (e.name === 'AbortError' ? 'нет ответа сервера' : e.message), 5000); }
   finally { $('#pl-go').disabled = false; $('#pl-go').textContent = 'Построить'; }
 }
 $('#pl-go').onclick = buildPlan;
 $('#pl-clear').onclick = () => { Plan.wps = []; renderWps(); clearCandidate(); };
-$('#r-nav').onclick = () => { if (!Plan.cand) return; if (S.extnav !== 'app') { openExt(S.extnav, Plan.cand.coords[Plan.cand.coords.length - 1], Plan.cand.coords); return; } Nav.set(Plan.cand); showTab('rec'); setFollow(true); if (GPS.fix) centerOn([GPS.fix.lat, GPS.fix.lon], 16); };
+// City ride → Google Maps (bike mode); trails, off-road and GPX → this app's navigation.
+function isCityRoute(r) {
+  if (!r) return false; const o = r.opts || {};
+  if (o.terrain === 'road' || o.bike === 'road' || o.bike === 'city') return true;
+  if (r.mix) { const t = r.mix[0] + r.mix[1] + r.mix[2]; return t > 0 && r.mix[0] / t >= 0.85; }
+  return false;
+}
+const navMode = r => S.extnav === 'auto' ? (isCityRoute(r) ? 'google' : 'app') : S.extnav;
+function updNavBtn() {
+  let cand; try { cand = Plan.cand; } catch { return; } // settings are applied before the planner exists
+  const m = navMode(cand), auto = S.extnav === 'auto' && cand;
+  $('#r-nav').textContent = { app: 'Навигация', google: 'Навигация · Google', waze: 'Навигация · Waze' }[m] || 'Навигация';
+  $('#r-app').hidden = !(cand && m !== 'app');
+  $('#r-gm').hidden = m === 'google';
+  $('#r-navwhy').hidden = !auto;
+  if (auto) $('#r-navwhy').textContent = m === 'google' ? 'Маршрут по городу — поведёт Google Maps в велорежиме. Своей навигацией — «Вести здесь».' : 'Трасса или бездорожье — поведёт навигация этого приложения.';
+}
+function navHere() { if (!Plan.cand) return; Nav.set(Plan.cand); showTab('rec'); setFollow(true); if (GPS.fix) centerOn([GPS.fix.lat, GPS.fix.lon], 16); }
+$('#r-nav').onclick = () => { if (!Plan.cand) return; const m = navMode(Plan.cand); if (m !== 'app') { openExt(m, Plan.cand.coords[Plan.cand.coords.length - 1], Plan.cand.coords); return; } navHere(); };
+$('#r-app').onclick = navHere;
 $('#r-save').onclick = async () => { if (!Plan.cand) return; try { await saveRoute(Plan.cand.name, Plan.cand.coords, 'Построенный: ' + Plan.cand.engine); toast('Маршрут сохранён офлайн'); } catch { toast('Не удалось сохранить'); } };
 $('#r-gpx').onclick = () => Plan.cand && shareGpx(Plan.cand.name, Plan.cand.coords);
 
