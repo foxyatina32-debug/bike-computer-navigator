@@ -1,14 +1,43 @@
-// ВелоНав: приложение открывается без интернета. Плитки карт хранятся отдельно, в IndexedDB.
-const V='velonav-v3';
-const SHELL=['./','./index.html','./manifest.webmanifest','./icon-180.png','./icon-512.png'];
-const LIBS=['https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css','https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js'];
-self.addEventListener('install',e=>{e.waitUntil((async()=>{const c=await caches.open(V);await c.addAll(SHELL);
-  for(const u of LIBS){try{await c.add(new Request(u,{mode:'cors'}))}catch(_){}}self.skipWaiting()})())});
-self.addEventListener('activate',e=>{e.waitUntil((async()=>{for(const k of await caches.keys())if(k!==V)await caches.delete(k);await self.clients.claim()})())});
-self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;const u=new URL(r.url);
-  const own=u.origin===location.origin,lib=LIBS.includes(r.url)||u.host==='fonts.googleapis.com'||u.host==='fonts.gstatic.com';
-  if(!own&&!lib)return;
-  if(r.mode==='navigate'||own){ // сначала сеть, чтобы обновления приходили сразу; без сети — из кэша
-    e.respondWith(fetch(r).then(res=>{if(res.ok){const cp=res.clone();caches.open(V).then(c=>c.put(r,cp))}return res})
-      .catch(()=>caches.match(r,{ignoreSearch:true}).then(m=>m||caches.match('./index.html'))));return}
-  e.respondWith(caches.match(r).then(m=>m||fetch(r).then(res=>{const cp=res.clone();caches.open(V).then(c=>c.put(r,cp));return res})))});
+// Velokomp service worker: keeps the app shell and libraries available offline.
+// Map tiles are cached by the page itself (Cache Storage "velo-tiles-v1").
+const SHELL = 'velo-shell-v3';
+const LIBS = 'velo-libs-v1';
+const SHELL_FILES = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png'];
+const LIB_HOSTS = ['cdn.jsdelivr.net'];
+// Libraries are cached at install, so the app opens with no network even on the second ever launch.
+const LIB_URLS = [
+  'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js',
+  'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css',
+  'https://cdn.jsdelivr.net/npm/sql.js@1.8.0/dist/sql-wasm.js',
+  'https://cdn.jsdelivr.net/npm/sql.js@1.8.0/dist/sql-wasm.wasm'
+];
+
+self.addEventListener('install', e => {
+  e.waitUntil(Promise.all([
+    caches.open(SHELL).then(c => c.addAll(SHELL_FILES)),
+    caches.open(LIBS).then(c => Promise.all(LIB_URLS.map(u => c.match(u).then(hit => hit || fetch(u, { mode: 'cors' }).then(r => r.ok && c.put(u, r))).catch(() => {}))))
+  ]).then(() => self.skipWaiting()));
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys()
+    .then(keys => Promise.all(keys.filter(k => k.startsWith('velo-shell') && k !== SHELL).map(k => caches.delete(k))))
+    .then(() => self.clients.claim()));
+});
+self.addEventListener('fetch', e => {
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (LIB_HOSTS.includes(url.hostname)) {
+    e.respondWith(caches.open(LIBS).then(async c => {
+      const hit = await c.match(req.url); if (hit) return hit;
+      const res = await fetch(req); if (res.ok || res.type === 'opaque') c.put(req.url, res.clone()); return res;
+    }));
+    return;
+  }
+  if (url.origin === self.location.origin) {
+    e.respondWith(fetch(req).then(res => {
+      if (res.ok) { const copy = res.clone(); caches.open(SHELL).then(c => c.put(req, copy)); }
+      return res;
+    }).catch(() => caches.match(req, { ignoreSearch: true }).then(r => r || caches.match('./index.html'))));
+  }
+});
