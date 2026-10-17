@@ -278,7 +278,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <div id="nv-icon"></div>
   <div style="min-width:0"><div class="d" id="nv-dist">—</div><div class="t" id="nv-txt">—</div></div>
   <div class="r"><span id="nv-rem">—</span><small>ОСТАЛОСЬ</small><span id="nv-eta">—</span><small>ПРИБЫТИЕ</small></div>
-  <div class="act" id="nv-act" hidden><button id="nv-rejoin">Проложить к трассе</button><button id="nv-ignore">Игнорировать</button></div>
+  <div class="act" id="nv-act" hidden><button id="nv-rejoin">Перестроить</button><button id="nv-ignore">Игнорировать</button></div>
 </section>
 
 <section class="hud" id="hud">
@@ -437,7 +437,8 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <h3>Поездка</h3>
   <label class="chk"><input type="checkbox" id="s-autopause" checked> Автопауза на остановках</label>
   <label class="chk"><input type="checkbox" id="s-voice" checked> Звук (голосовые подсказки навигации)</label>
-  <label class="chk"><input type="checkbox" id="s-reroute" checked> Сбился — автоматически искать путь назад на маршрут (параллельные дороги вперёд, без лишних разворотов)</label>
+  <label class="chk"><input type="checkbox" id="s-reroute" checked> Сбился — автоматически перестраивать маршрут</label>
+  <label class="chk"><input type="checkbox" id="s-tofinish" checked> Перестраивать сразу к финишу (выкл. — назад на трассу)</label>
   <label class="chk"><input type="checkbox" id="s-wake" checked> Не гасить экран, пока приложение открыто</label>
   <div id="s-wake-st" style="margin:-4px 0 8px 32px;font-size:12px;color:var(--muted)"></div>
   <label class="chk"><input type="checkbox" id="s-darkmap" checked> Тёмная карта</label>
@@ -479,7 +480,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <p class="note" id="st-quota"></p>
   <div class="row"><button class="btn" id="st-persist">Запретить автоочистку</button><button class="btn dng" id="st-clear-tiles">Очистить кэш карт</button></div>
 
-  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v11 · запись не встаёт на паузу после перезапуска</p>
+  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v12 · при сходе — маршрут к финишу</p>
   <h3>iPhone</h3>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -589,7 +590,7 @@ const DB = {
 };
 
 /* ================= settings ================= */
-const S = Object.assign({ compass: true, headingUp: true, orient: 'compass', autopause: true, voice: true, reroute: true, wake: true, darkmap: true, extnav: 'app', urlProxy: false, compact: false, compactNav: true, places: true }, lsGet('settings', {}));
+const S = Object.assign({ compass: true, headingUp: true, orient: 'compass', autopause: true, voice: true, reroute: true, tofinish: true, wake: true, darkmap: true, extnav: 'app', urlProxy: false, compact: false, compactNav: true, places: true }, lsGet('settings', {}));
 if (!('orient' in (lsGet('settings', {}) || {}))) S.orient = S.headingUp === false ? 'north' : 'compass'; // older builds had only on/off
 S.headingUp = S.orient !== 'north';
 const saveS = () => lsSet('settings', S);
@@ -736,7 +737,7 @@ $$('#dots i').forEach((d, k) => d.onclick = () => pager.scrollTo({ left: k * pag
 
 /* ================= settings UI ================= */
 function applySettings() {
-  ['autopause', 'voice', 'reroute', 'wake', 'darkmap'].forEach(k => $('#s-' + k).checked = !!S[k]);
+  ['autopause', 'voice', 'reroute', 'tofinish', 'wake', 'darkmap'].forEach(k => $('#s-' + k).checked = !!S[k]);
   $('#s-compactnav').checked = !!S.compactNav; $('#s-places').checked = !!S.places; $$('#s-orient button').forEach(b => b.classList.toggle('on', b.dataset.o === S.orient));
   $('#map').classList.toggle('darkmap', !!S.darkmap);
   $('#c-voice').classList.toggle('on', !!S.voice); $('#c-voice').setAttribute('aria-label', S.voice ? 'Выключить звук' : 'Включить звук'); hush();
@@ -749,7 +750,7 @@ function applySettings() {
   renderRecUI();
 }
 $$('#s-extnav button').forEach(b => b.onclick = () => { S.extnav = b.dataset.n; saveS(); applySettings(); });
-['autopause', 'voice', 'reroute', 'wake', 'darkmap'].forEach(k => $('#s-' + k).onchange = e => { S[k] = e.target.checked; saveS(); applySettings(); updateWake(); });
+['autopause', 'voice', 'reroute', 'tofinish', 'wake', 'darkmap'].forEach(k => $('#s-' + k).onchange = e => { S[k] = e.target.checked; saveS(); applySettings(); updateWake(); });
 // Muting stops the phrase that is being spoken right now, too.
 function hush() { try { if (!S.voice && 'speechSynthesis' in window) speechSynthesis.cancel(); } catch {} }
 $('#s-compactnav').onchange = e => { S.compactNav = e.target.checked; saveS(); };
@@ -1794,6 +1795,7 @@ const Nav = {
   async rejoin(auto) {
     if (!this.route || !GPS.fix) { if (!auto) toast('Нужен сигнал GPS'); return; }
     if (this.rejoining) return;
+    if (S.tofinish) return this.toFinish(auto);
     this.rejoining = true;
     const r = this.route, me = [GPS.fix.lat, GPS.fix.lon];
     const base = this.lost || this.progress < 1 ? this.locate(me, null).along : this.progress;  // where you left the route
@@ -1836,6 +1838,40 @@ const Nav = {
     } catch (e) { if (!auto) toast('Не удалось перестроить: ' + e.message, 5000); this.render(true, 0); }
     finally { this.rejoining = false; }
   }
+};
+Nav.toFinish = async function (auto) {
+  // Off the route: build a fresh way from here to the finish, preferring to keep going forward (no needless U-turn).
+  this.rejoining = true;
+  const r = this.route, me = [GPS.fix.lat, GPS.fix.lon], end = r.coords[r.coords.length - 1], fin = [end[0], end[1]];
+  const opts = r.opts && r.opts.engine !== 'osrm' ? r.opts : curOpts();
+  $('#nv-txt').textContent = 'Перестраиваю маршрут к финишу…'; $('#nv-dist').textContent = '…';
+  if (!auto) toast('Перестраиваю маршрут к финишу…');
+  try {
+    const jobs = [{ pts: [me, fin] }];
+    if (this.lastMv != null) {
+      const a = (this.lastMv + 180) * D2R, m = 30, behind = [me[0] + Math.cos(a) * m / 110540, me[1] + Math.sin(a) * m / (111320 * Math.cos(me[0] * D2R)), 22];
+      jobs.push({ pts: [me, fin], avoid: [behind] });
+    }
+    const res = await Promise.allSettled(jobs.map(j => routeVia(j.pts, opts, { quiet: true, avoid: j.avoid })));
+    let best = null;
+    res.forEach(x => {
+      if (x.status !== 'fulfilled' || !x.value || !x.value.coords || x.value.coords.length < 2) return;
+      const c = x.value.coords.slice();
+      if (hav(me, c[0]) > 3) c.unshift([me[0], me[1], null]);
+      if (hav(fin, c[c.length - 1]) > 3) c.push(end);
+      const cum = cumDist(c), len = cum[cum.length - 1];
+      const j = Math.min(c.length - 1, lowerBound(cum, 30));
+      const uturn = this.lastMv != null && len > 30 && Math.abs(norm180(bearing(me, c[j]) - this.lastMv)) > 120 ? 150 : 0;
+      const score = len + uturn;
+      if (!best || score < best.score) best = { score, coords: c, len, uturn };
+    });
+    if (!best) throw new Error('нет пути к финишу');
+    this.set({ name: r.name, coords: best.coords, opts: r.opts, wpts: this.wpts, keepView: true });
+    setFollow(true); centerOn(me);
+    const msg = best.uturn ? 'Развернитесь. Маршрут перестроен к финишу' : 'Маршрут перестроен к финишу';
+    say(msg); toast('↪ ' + msg + ` · ${fmtKm(best.len)} км`, 4000);
+  } catch (e) { if (!auto) toast('Не удалось перестроить: ' + e.message, 5000); this.render(true, 0); }
+  finally { this.rejoining = false; }
 };
 $('#nv-rejoin').onclick = () => Nav.rejoin(false);
 $('#ask-cont').onclick = () => Nav.choose('cont');
