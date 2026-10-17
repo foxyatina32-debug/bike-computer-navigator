@@ -202,6 +202,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 .compass svg{width:34px;height:34px;transition:transform .35s}
 .compass .lbl{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700;color:var(--ink);background:var(--glass-btn);border:1px solid var(--line);border-radius:8px;padding:1px 6px;white-space:nowrap}
 .compass.hu{border-color:var(--accent)}
+.compass.live svg{transition:none}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{padding:9px 13px;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid var(--line);font-weight:600;font-size:14px}
 .chip.on{background:var(--accent);color:var(--accent-ink);border-color:transparent}
@@ -426,7 +427,9 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <div id="s-wake-st" style="margin:-4px 0 8px 32px;font-size:12px;color:var(--muted)"></div>
   <label class="chk"><input type="checkbox" id="s-darkmap" checked> Тёмная карта</label>
   <label class="chk"><input type="checkbox" id="s-compactnav" checked> Сворачивать панель при навигации</label>
-  <label class="chk"><input type="checkbox" id="s-headingup" checked> Карта по ходу движения (поворачивается за вами)</label>
+  <h3>Поворот карты</h3>
+  <div class="seg" id="s-orient"><button data-o="north">Север вверх</button><button data-o="compass">По компасу</button><button data-o="course">По GPS</button></div>
+  <p class="note" style="margin:6px 0 8px">«По компасу» — карта плавно крутится вслед за телефоном (компас + гироскоп), как в Offroad. «По GPS» — по направлению езды.</p>
   <label class="chk"><input type="checkbox" id="s-compass" checked> Компас телефона — направление, когда стоите или едете медленно</label>
   <p class="note" id="compass-state" style="margin:0 0 6px"></p>
   <h3>Навигатор по умолчанию</h3>
@@ -460,7 +463,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <p class="note" id="st-quota"></p>
   <div class="row"><button class="btn" id="st-persist">Запретить автоочистку</button><button class="btn dng" id="st-clear-tiles">Очистить кэш карт</button></div>
 
-  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v6 · умный возврат на маршрут по объездным дорогам</p>
+  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v7 · карта крутится по компасу телефона</p>
   <h3>iPhone</h3>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -563,7 +566,9 @@ const DB = {
 };
 
 /* ================= settings ================= */
-const S = Object.assign({ compass: true, headingUp: true, autopause: true, voice: true, reroute: true, wake: true, darkmap: true, extnav: 'app', urlProxy: false, compact: false, compactNav: true }, lsGet('settings', {}));
+const S = Object.assign({ compass: true, headingUp: true, orient: 'compass', autopause: true, voice: true, reroute: true, wake: true, darkmap: true, extnav: 'app', urlProxy: false, compact: false, compactNav: true }, lsGet('settings', {}));
+if (!('orient' in (lsGet('settings', {}) || {}))) S.orient = S.headingUp === false ? 'north' : 'compass'; // older builds had only on/off
+S.headingUp = S.orient !== 'north';
 const saveS = () => lsSet('settings', S);
 
 /* ================= map, layers, view padding ================= */
@@ -708,7 +713,7 @@ $$('#dots i').forEach((d, k) => d.onclick = () => pager.scrollTo({ left: k * pag
 /* ================= settings UI ================= */
 function applySettings() {
   ['autopause', 'voice', 'reroute', 'wake', 'darkmap'].forEach(k => $('#s-' + k).checked = !!S[k]);
-  $('#s-compactnav').checked = !!S.compactNav; $('#s-headingup').checked = !!S.headingUp;
+  $('#s-compactnav').checked = !!S.compactNav; $$('#s-orient button').forEach(b => b.classList.toggle('on', b.dataset.o === S.orient));
   $('#map').classList.toggle('darkmap', !!S.darkmap);
   $('#c-voice').classList.toggle('on', !!S.voice); $('#c-voice').setAttribute('aria-label', S.voice ? 'Выключить звук' : 'Включить звук'); hush();
   $('#c-voice').innerHTML = S.voice
@@ -724,8 +729,9 @@ $$('#s-extnav button').forEach(b => b.onclick = () => { S.extnav = b.dataset.n; 
 // Muting stops the phrase that is being spoken right now, too.
 function hush() { try { if (!S.voice && 'speechSynthesis' in window) speechSynthesis.cancel(); } catch {} }
 $('#s-compactnav').onchange = e => { S.compactNav = e.target.checked; saveS(); };
-$('#s-headingup').onchange = e => setOrientation(e.target.checked);
-$('#t-compass').onclick = () => setOrientation(!S.headingUp);
+$$('#s-orient button').forEach(b => b.onclick = () => setOrientation(b.dataset.o));
+// Button cycles: north up → follow phone compass → follow GPS course → north up.
+$('#t-compass').onclick = () => setOrientation({ north: 'compass', compass: 'course', course: 'north' }[S.orient] || 'north');
 $('#s-compass').onchange = async e => {
   S.compass = e.target.checked; saveS();
   if (S.compass) { const ok = await enableCompass(true); toast(ok ? '🧭 Компас телефона включён' : 'Компас недоступен на этом устройстве'); }
@@ -851,22 +857,52 @@ function markerState() {
 setInterval(() => {
   if (!meMarker || !GPS.fix) return;
   const rh = riderHeading();
-  if (rh && S.headingUp && GPS.follow && Math.abs(norm180(rh.h - mapHdg)) > (rh.src === 'compass' ? 6 : 10)) { setMapBearing(rh.h); centerOn([GPS.fix.lat, GPS.fix.lon], undefined, false); }
+  if (rh && S.headingUp && !compassDrives() && GPS.follow && Math.abs(norm180(rh.h - mapHdg)) > (rh.src === 'compass' ? 6 : 10)) { setMapBearing(rh.h); centerOn([GPS.fix.lat, GPS.fix.lon], undefined, false); }
   refreshMe();
 }, 200);
 let mapHdg = 0; // heading the map is turned to (0 = north up)
+// ---- Compass-up map (like Offroad): the map turns smoothly with the phone ----
+const compassDrives = () => S.orient === 'compass' && compassFresh();
+const CompassMap = { disp: null, lastT: 0, lastSet: 0 };
+function compassMapLoop(t) {
+  requestAnimationFrame(compassMapLoop);
+  const dt = Math.min(200, t - (CompassMap.lastT || t)); CompassMap.lastT = t;
+  if (!compassDrives() || !GPS.follow || document.hidden) { CompassMap.disp = null; return; }
+  const target = Compass.hdg;
+  if (CompassMap.disp == null) CompassMap.disp = mapHdg;
+  // Critically-damped style follow: fast enough to feel live, smooth enough to hide sensor jitter.
+  const d = norm180(target - CompassMap.disp);
+  CompassMap.disp = (CompassMap.disp + d * (1 - Math.exp(-dt / 110)) + 360) % 360;
+  if (Math.abs(norm180(CompassMap.disp - mapHdg)) < 0.8 || t - CompassMap.lastSet < 40) return; // ≤25 redraws/s
+  CompassMap.lastSet = t;
+  setMapBearing(CompassMap.disp);
+  if (GPS.fix) centerOn([GPS.fix.lat, GPS.fix.lon], undefined, false);
+}
+requestAnimationFrame(compassMapLoop);
 function renderCompass() {
   const svg = $('#t-compass svg'); if (svg) svg.style.transform = `rotate(${-mapHdg}deg)`;
-  $('#t-compass').classList.toggle('hu', !!S.headingUp);
-  $('#compass-lbl').textContent = S.headingUp ? 'По ходу' : 'Север';
-  $('#t-compass').setAttribute('aria-label', S.headingUp ? 'Карта по ходу движения. Нажмите — север вверх' : 'Север вверх. Нажмите — карта по ходу движения');
+  const o = S.orient;
+  $('#t-compass').classList.toggle('hu', o !== 'north');
+  $('#t-compass').classList.toggle('live', o === 'compass');
+  $('#compass-lbl').textContent = { north: 'Север', compass: 'Компас', course: 'По ходу' }[o];
+  $('#t-compass').setAttribute('aria-label', { north: 'Север вверх. Нажмите — карта по компасу телефона', compass: 'Карта по компасу телефона. Нажмите — по направлению езды', course: 'Карта по направлению езды. Нажмите — север вверх' }[o]);
 }
-function setOrientation(headingUp) {
-  S.headingUp = headingUp; saveS(); $('#s-headingup').checked = headingUp;
-  if (!headingUp) setMapBearing(0);
-  else { const rh = riderHeading(); if (rh) setMapBearing(rh.h); }
+async function setOrientation(o, quiet) {
+  if (!['north', 'compass', 'course'].includes(o)) o = 'north';
+  S.orient = o; S.headingUp = o !== 'north'; saveS();
+  $$('#s-orient button').forEach(b => b.classList.toggle('on', b.dataset.o === o));
+  CompassMap.disp = null;
+  if (o === 'compass') {
+    if (!S.compass) { S.compass = true; saveS(); renderCompassState(); }
+    await enableCompass(true); // the tap on the button lets iPhone show its permission prompt
+  }
+  if (o !== 'north' && GPS.fix && !GPS.follow) { setFollow(true); centerOn([GPS.fix.lat, GPS.fix.lon]); }
+  if (o === 'north') setMapBearing(0);
+  else if (!compassDrives()) { const rh = riderHeading(); if (rh) setMapBearing(rh.h); }
   renderCompass();
-  toast(headingUp ? '🧭 Карта по ходу движения' : '🧭 Север всегда вверх');
+  if (quiet) return;
+  if (o === 'compass') setTimeout(() => toast(compassFresh() ? '🧭 Карта крутится по компасу телефона' : '🧭 Компас ещё не отвечает — пока карта по направлению езды (GPS)', 3500), 400);
+  else toast(o === 'course' ? '🧭 Карта по направлению езды (GPS)' : '🧭 Север всегда вверх');
 }
 function setMapBearing(h) {
   if (!map.setBearing) return;
@@ -905,7 +941,7 @@ function onFix(pos) {
   const ll = [fix.lat, fix.lon];
   // Heading-up: turn the map with the rider (only while following and actually moving).
   const rh0 = riderHeading();
-  if (S.headingUp && GPS.follow && rh0 && Math.abs(norm180(rh0.h - mapHdg)) > 10) setMapBearing(rh0.h);
+  if (S.headingUp && !compassDrives() && GPS.follow && rh0 && Math.abs(norm180(rh0.h - mapHdg)) > 10) setMapBearing(rh0.h);
   const hdg = markerState();
   if (!meMarker) {
     accCircle = L.circle(ll, { radius: fix.acc, weight: 0, color: css('--accent'), fillOpacity: .12, interactive: false }).addTo(map);
