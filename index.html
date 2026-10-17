@@ -221,6 +221,11 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 .ask h2{margin:0 0 4px;font-size:21px;font-weight:800}
 .ask p{margin:0 0 14px;color:var(--muted);font-size:14px}
 .ask .opt{width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;margin-bottom:8px;padding:12px 14px;font-family:inherit;cursor:pointer}
+.ask .credit{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:16px;padding:10px 12px;margin:-4px 0 12px;font-size:14px}
+.ask .credit label{display:flex;gap:8px;align-items:center}.ask .credit input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent)}
+.ask .crt{margin:8px 0 0 28px;color:var(--muted);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ask .crt input{font:inherit;font-size:16px;color:inherit;background:#0e141d;border:1px solid var(--line);border-radius:10px;padding:4px 8px}
+.ask .credit.off .crt{opacity:.4}
 .ask .opt b{font-size:16px}.ask .opt span{font-size:13px;font-weight:500;opacity:.8}
 .ask .cancel{width:100%;background:none;border:0;color:var(--muted);font:inherit;font-size:15px;padding:8px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--top) + 136px);background:var(--glass-hi);border:1px solid var(--line);color:var(--ink);padding:11px 18px;border-radius:16px;z-index:100;width:max-content;max-width:calc(100% - 32px);box-shadow:0 8px 30px rgba(0,0,0,.5);font-size:15px;font-weight:600}
@@ -417,7 +422,8 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <label class="chk"><input type="checkbox" id="s-autopause" checked> Автопауза на остановках</label>
   <label class="chk"><input type="checkbox" id="s-voice" checked> Звук (голосовые подсказки навигации)</label>
   <label class="chk"><input type="checkbox" id="s-reroute" checked> Сбился — автоматически искать путь назад на маршрут (параллельные дороги вперёд, без лишних разворотов)</label>
-  <label class="chk"><input type="checkbox" id="s-wake" checked> Не гасить экран</label>
+  <label class="chk"><input type="checkbox" id="s-wake" checked> Не гасить экран, пока приложение открыто</label>
+  <div id="s-wake-st" style="margin:-4px 0 8px 32px;font-size:12px;color:var(--muted)"></div>
   <label class="chk"><input type="checkbox" id="s-darkmap" checked> Тёмная карта</label>
   <label class="chk"><input type="checkbox" id="s-compactnav" checked> Сворачивать панель при навигации</label>
   <label class="chk"><input type="checkbox" id="s-headingup" checked> Карта по ходу движения (поворачивается за вами)</label>
@@ -474,6 +480,10 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 <div class="ask" id="ask-start" hidden><div class="box">
   <h2>Вы на маршруте</h2>
   <p id="ask-info"></p>
+  <div class="credit" id="ask-credit" hidden>
+    <label><input type="checkbox" id="ask-cr-on" checked> <span>Засчитать уже пройденное: <b id="ask-cr-km"></b></span></label>
+    <div class="crt">Старт был в <input type="time" id="ask-cr-t"> <span id="ask-cr-dur"></span></div>
+  </div>
   <button class="btn pri opt" id="ask-cont"><b>Продолжить отсюда</b><span id="ask-cont-s">Навигация с этой точки до финиша</span></button>
   <button class="btn opt" id="ask-goto"><b>Проложить путь до начала</b><span id="ask-goto-s">Доехать до старта, затем весь маршрут</span></button>
   <button class="btn opt" id="ask-restart"><b>Начать маршрут заново</b><span>Весь маршрут с начала; подсказки начнутся на старте</span></button>
@@ -750,15 +760,34 @@ $('#m-play').onclick = () => $('#c-play').click();
 $('#c-voice').onclick = () => { S.voice = !S.voice; saveS(); applySettings(); toast(S.voice ? '🔊 Звук включён' : '🔇 Звук выключен'); if (S.voice) unlockSpeech(); };
 
 /* ================= wake lock & speech ================= */
-let wakeLock = null;
+// Keep the screen on the whole time the app is open (setting "Не гасить экран").
+// iOS drops the lock on its own (Control Center, notifications, calls) without a visibility change,
+// and may refuse it before the first touch, so it is re-requested on release, on every touch and every few seconds.
+let wakeLock = null, wakeBusy = false, wakeErr = '';
 async function updateWake() {
-  const want = S.wake && (Ride.status !== 'idle' || Nav.route) && document.visibilityState === 'visible';
+  const want = S.wake && document.visibilityState === 'visible';
+  if (wakeBusy) return; wakeBusy = true;
   try {
-    if (want && !wakeLock && 'wakeLock' in navigator) { wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', () => wakeLock = null); }
-    if (!want && wakeLock) { await wakeLock.release(); wakeLock = null; }
-  } catch {}
+    if (want && !wakeLock) {
+      if (!('wakeLock' in navigator)) wakeErr = 'unsupported';
+      else {
+        const l = await navigator.wakeLock.request('screen'); wakeLock = l; wakeErr = '';
+        l.addEventListener('release', () => { if (wakeLock === l) wakeLock = null; setTimeout(updateWake, 300); });
+      }
+    }
+    if (!want && wakeLock) { const l = wakeLock; wakeLock = null; await l.release(); }
+  } catch (e) { wakeErr = (e && e.name) || 'error'; }
+  finally { wakeBusy = false; wakeStatus(); }
+}
+function wakeStatus() {
+  const el = $('#s-wake-st'); if (!el) return;
+  el.textContent = !S.wake ? '' : wakeLock ? 'Экран не гаснет — работает'
+    : wakeErr === 'unsupported' ? 'Этот браузер не умеет держать экран включённым. Обновите iOS (нужна 18.4+) или откройте в Safari'
+    : wakeErr ? 'Экран может погаснуть: коснитесь экрана, чтобы включить снова' : '';
 }
 document.addEventListener('visibilitychange', updateWake);
+['pointerdown', 'touchend', 'focus'].forEach(ev => (ev === 'focus' ? window : document).addEventListener(ev, () => { if (S.wake && !wakeLock) updateWake(); }, { passive: true }));
+setInterval(() => { if (S.wake && !wakeLock && document.visibilityState === 'visible') updateWake(); }, 5000);
 function say(text) {
   if (!S.voice || !('speechSynthesis' in window)) return;
   try { const u = new SpeechSynthesisUtterance(text); u.lang = 'ru-RU'; u.rate = 1.05; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch {}
@@ -1450,17 +1479,61 @@ const Nav = {
     this.askAt = { p, along: loc.along, seg, pt: [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] != null && b[2] != null ? a[2] + (b[2] - a[2]) * t : null] };
     $('#ask-info').textContent = `Пройдено ${fmtKm(loc.along)} из ${fmtKm(r.total)} км · до старта ${toStart >= 1000 ? fmtKm(toStart) + ' км' : Math.round(toStart) + ' м'} по прямой`;
     $('#ask-cont-s').textContent = `Осталось ${fmtKm(r.total - loc.along)} км до финиша`;
+    // Offer to count the part already ridden (distance from the route start + time since the start) when the ride log lacks it.
+    const need = Ride.dist < loc.along - 100;
+    $('#ask-credit').hidden = !need;
+    if (need) {
+      const b = BIKES[(r.opts && r.opts.bike) || RO.bike] || BIKES.xc, v = b.spd[1] * 0.85;
+      let st = Ride.status !== 'idle' ? Ride.startTs : Date.now() - loc.along / v * 1000;
+      st = Math.round(st / 300000) * 300000; const d = new Date(Math.min(st, Date.now() - 60000));
+      $('#ask-cr-km').textContent = fmtKm(loc.along) + ' км';
+      $('#ask-cr-t').value = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+      $('#ask-cr-on').checked = true; this.creditUI();
+    }
     this.choosing = true; $('#ask-start').hidden = false;
     $('#nv-icon').innerHTML = ARROW(0); $('#nv-dist').textContent = '—'; $('#nv-txt').textContent = 'Выберите, как начать маршрут';
     return true;
+  },
+  creditStart() {
+    const m = /^(\d{1,2}):(\d{2})$/.exec($('#ask-cr-t').value || ''); if (!m) return 0;
+    const d = new Date(); d.setHours(+m[1], +m[2], 0, 0);
+    let t = d.getTime(); if (t > Date.now()) t -= 86400000;   // a later clock time means yesterday
+    return Math.min(t, Date.now() - 60000);
+  },
+  creditUI() {
+    const on = $('#ask-cr-on').checked, t = this.creditStart();
+    $('#ask-credit').classList.toggle('off', !on);
+    $('#ask-cr-dur').textContent = t ? `· в пути ${fmtClock(Date.now() - t)}` : '';
+  },
+  // Put the ridden part of the route (start → here) into the ride: distance, climb, track with spread-out times, time since start.
+  creditRide(r, at, startTs) {
+    const cov = r.coords.slice(0, at.seg + 1).concat([at.pt]), cum = cumDist(cov), len = cum[cum.length - 1], now = Date.now();
+    if (Ride.status !== 'idle') startTs = Math.min(startTs, Ride.startTs);
+    const end = Ride.status !== 'idle' && Ride.track.length ? Math.max(startTs, Ride.track[0][3] || now) : now, span = end - startTs;
+    const tr = cov.map((c, i) => [c[0], c[1], c[2] != null ? Math.round(c[2] * 10) / 10 : null, Math.round(startTs + (len ? cum[i] / len : 0) * span)]);
+    let asc = 0, desc = 0, ref = null;
+    tr.forEach(c => { if (c[2] == null) return; if (ref == null) ref = c[2]; else if (c[2] - ref >= 4) { asc += c[2] - ref; ref = c[2]; } else if (ref - c[2] >= 4) { desc += ref - c[2]; ref = c[2]; } });
+    if (Ride.status === 'idle') {
+      Ride.start();
+      Object.assign(Ride, { startTs, movingMs: now - startTs, dist: len, asc, desc, track: tr });
+    } else {
+      // Recording was started late: add what it missed before it began.
+      Object.assign(Ride, { startTs, movingMs: Math.max(Ride.movingMs, now - startTs), dist: Math.max(Ride.dist, len), asc: Ride.asc + asc, desc: Ride.desc + desc, track: tr.concat(Ride.track) });
+      if (Ride.status === 'paused') Ride.start();
+    }
+    if (Ride.line) Ride.line.setLatLngs(Ride.track.map(p => [p[0], p[1]]));
+    Ride.persist(); renderDash();
   },
   choose(kind) {
     const r = this.route, at = this.askAt; $('#ask-start').hidden = true; this.choosing = false;
     if (!r || !at) return;
     const base = { name: r.name, opts: r.opts, wpts: this.wpts, noAsk: true };
     if (kind === 'cont') {
+      const cr = !$('#ask-credit').hidden && $('#ask-cr-on').checked ? this.creditStart() : 0;
+      if (cr) this.creditRide(r, at, cr);
       this.set({ ...base, coords: [at.pt].concat(r.coords.slice(at.seg + 1)), keepView: true });
-      setFollow(true); say('Продолжаем маршрут с этой точки'); toast('▶ Продолжаем с этой точки');
+      setFollow(true); say('Продолжаем маршрут с этой точки');
+      toast(cr ? `▶ Продолжаем. Засчитано ${fmtKm(Ride.dist)} км, ${fmtClock(Ride.movingMs)}` : '▶ Продолжаем с этой точки', cr ? 4000 : undefined);
     } else if (kind === 'restart') {
       this.set({ ...base, keepView: true, coords: r.coords }); this.toStart = true; this.lost = false;
       setFollow(true); say('Маршрут начнётся на старте. Доберитесь до начала маршрута'); toast('⟲ Маршрут сначала — подсказки начнутся на старте', 4000);
@@ -1610,6 +1683,7 @@ $('#nv-rejoin').onclick = () => Nav.rejoin(false);
 $('#ask-cont').onclick = () => Nav.choose('cont');
 $('#ask-goto').onclick = () => Nav.choose('goto');
 $('#ask-restart').onclick = () => Nav.choose('restart');
+$('#ask-cr-on').onchange = $('#ask-cr-t').oninput = () => Nav.creditUI();
 $('#ask-x').onclick = () => { $('#ask-start').hidden = true; Nav.choosing = false; if (GPS.fix) Nav.onFix(GPS.fix); };
 $('#nv-ignore').onclick = () => { Nav.ignoreOffUntil = Date.now() + 120000; Nav.offCount = 0; Nav.render(); };
 $('#nav-stop').onclick = () => { Nav.stop(); toast('Навигация завершена'); };
