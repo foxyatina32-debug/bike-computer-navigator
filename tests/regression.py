@@ -13,7 +13,7 @@ async def move(ctx, pg, lat, n):
 async def main():
     url = serve(8799); m = Mocks()
     async with async_playwright() as p:
-        b, ctx, pg, log = await open_app(p, url, m)
+        b, ctx, pg, log = await open_app(p, url + '?lang=ru', m)
         # 1. Distance ridden during a manual pause must not be added on resume (also across a reload).
         await pg.click('#c-play'); lat = await move(ctx, pg, 32.09, 6)
         await pg.click('#c-play'); d1 = await pg.evaluate('Ride.dist'); lat = await move(ctx, pg, lat, 10)
@@ -45,6 +45,22 @@ async def main():
         await pg.click('.tabs button[data-tab=profile]'); await pg.set_input_files('#bk-file', tmp); await pg.wait_for_timeout(500)
         t = await pg.evaluate('window.__lastToasts')
         check('wrong backup file message', 'не резервная копия' in t, t[-80:])
+        # 6. Point-to-point: same point refused; a search made stale by changing options or closing the sheet is discarded.
+        slow = {'on': False}
+        async def br(route):
+            if slow['on']: await asyncio.sleep(2)
+            await m.handle(route)
+        await ctx.route('https://brouter.de/**', br)
+        await pg.evaluate("openAB(); AB.a=[32.09,34.88]; AB.b=[32.09,34.88]; abRender()")
+        check('A→B: start = finish refused', await pg.evaluate("document.getElementById('ab-go').disabled"))
+        await pg.evaluate("AB.b=[32.1,34.9]; abClear(); abRender()"); slow['on'] = True
+        await pg.click('#ab-go'); await pg.wait_for_timeout(400); await pg.click('#ab-terr button[data-t=road]'); await pg.wait_for_timeout(2800)
+        check('A→B: options changed during search → old results not shown', await pg.evaluate("AB.vars.length === 0 && AB.lines.length === 0"))
+        await pg.click('#ab-go'); await pg.wait_for_timeout(400); await pg.evaluate("showTab('rec')"); await pg.wait_for_timeout(2800)
+        check('A→B: sheet closed during search → nothing left on the map', await pg.evaluate("AB.lines.length === 0"))
+        slow['on'] = False
+        await pg.evaluate("openAB()"); await pg.click('#ab-go'); await pg.wait_for_timeout(1500)
+        check('A→B: normal search shows variants', await pg.evaluate("AB.vars.length >= 1 && AB.lines.length >= 1"))
         check('no JS errors', not log['errors'], log['errors'][:3])
         await b.close()
     print(f'{sum(RES)}/{len(RES)} passed'); sys.exit(0 if all(RES) else 1)
