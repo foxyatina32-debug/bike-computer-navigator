@@ -218,6 +218,9 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 .chip{padding:9px 13px;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid var(--line);font-weight:600;font-size:14px}
 .chip.on{background:var(--accent);color:var(--accent-ink);border-color:transparent}
 .rideit{cursor:pointer}
+.selbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px;padding:8px 10px;border-radius:14px;background:rgba(255,255,255,.07)}
+.selbar span{flex:1;min-width:90px;font-weight:600;font-size:14px}
+.selit{cursor:pointer}.selit input{width:20px;height:20px;vertical-align:-4px;margin-right:6px;accent-color:var(--accent)}
 .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
 .pgrid div{background:rgba(255,255,255,.07);border-radius:16px;padding:12px;min-width:0}
 .pgrid span{display:block;font-size:12px;color:var(--muted);font-weight:600}
@@ -419,8 +422,16 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
       <label class="chk"><input type="checkbox" id="url-proxy"> Через прокси, если сайт блокирует прямую загрузку</label>
       <p class="note" style="margin:0">Понимает: прямые ссылки на файлы (свой сайт, GitHub, Dropbox, Google Drive*), Komoot (публичный тур или ссылка «Поделиться»*), OpenStreetMap relation/way, bikerouter.de, Google Maps «маршрут из A в B» — перестраивается под ваш велосипед. Можно вставить и сам текст GPX/KML. Strava, Wikiloc, Trailforks, AllTrails требуют входа — скачайте у них GPX и добавьте файлом.<br>* может понадобиться «Через прокси»: ссылка тогда проходит через сторонний сервис (corsproxy.io / allorigins).</p>
     </div>
+    <h3>Мои сайты с маршрутами</h3>
+    <div class="col">
+      <div class="row"><input type="search" id="st-q" placeholder="Найти маршрут на моих сайтах: Бен-Шемен, Кармель…" autocomplete="off" style="flex:1;min-width:0"><button class="btn" id="st-search">Искать</button></div>
+      <div class="list" id="st-list"></div>
+      <div class="row"><input type="search" id="st-url" inputmode="url" placeholder="Адрес сайта: rochvim-kavuh.com" autocomplete="off" autocapitalize="off" spellcheck="false" style="flex:1;min-width:0"><button class="btn pri" id="st-add">Добавить</button></div>
+      <p class="note" style="margin:0">Откройте сайт, найдите маршрут, скопируйте ссылку на его страницу и вставьте в поле «Добавить по ссылке» выше — приложение само найдёт на странице файл GPX/KML (может понадобиться «Через прокси»).</p>
+    </div>
     <h3>Сохранённые маршруты (офлайн)</h3>
-    <div class="row"><label class="btn" for="imp-file">Импорт файла GPX / KML / KMZ / TCX / FIT / GeoJSON</label></div>
+    <div class="row"><label class="btn" for="imp-file">Импорт файла GPX / KML / KMZ / TCX / FIT / GeoJSON</label><button class="btn" id="rt-sel">Выбрать и удалить</button></div>
+    <div class="selbar" id="rt-bar" hidden><span id="rt-cnt">Выбрано: 0</span><button class="btn sm" id="rt-all">Все</button><button class="btn sm" id="rt-old">Старше 30 дней</button><button class="btn sm dng" id="rt-delsel">Удалить</button><button class="btn sm" id="rt-done">Готово</button></div>
     <input type="file" id="imp-file" multiple hidden>
     <div class="list" id="rt-list" style="margin-top:10px"></div>
   </div>
@@ -529,7 +540,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <p class="note" id="st-quota"></p>
   <div class="row"><button class="btn" id="st-persist">Запретить автоочистку</button><button class="btn dng" id="st-clear-tiles">Очистить кэш карт</button></div>
 
-  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v20 · городская навигация по велодорожкам</p>
+  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v21 · мои сайты маршрутов, удаление старых маршрутов</p>
   <h3>iPhone</h3>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -2326,8 +2337,17 @@ function preview(coords, color) {
   showTab('rec'); setTimeout(() => fitB(previewLayer.getBounds()), 30);
 }
 function armDelete(b, fn) { if (b.dataset.armed) fn(); else { b.dataset.armed = 1; b.textContent = 'Удалить?'; } }
+const RSel = { on: false, ids: new Set(), list: [] };
 async function renderRoutes() {
-  const list = (await DB.all('routes')).sort((a, b) => b.created - a.created);
+  const list = (await DB.all('routes')).sort((a, b) => b.created - a.created); RSel.list = list;
+  for (const id of [...RSel.ids]) if (!list.some(r => r.id === id)) RSel.ids.delete(id);
+  $('#rt-bar').hidden = !RSel.on; $('#rt-sel').hidden = RSel.on || !list.length;
+  $('#rt-cnt').textContent = 'Выбрано: ' + RSel.ids.size; $('#rt-delsel').disabled = !RSel.ids.size;
+  if (RSel.on) {
+    $('#rt-list').innerHTML = list.length ? list.map(r => `<label class="item selit"><span class="t"><input type="checkbox" data-sel="${r.id}" ${RSel.ids.has(r.id) ? 'checked' : ''}> ${esc(r.name)}</span><span class="s">${fmtKm(r.dist)} км · добавлен ${new Date(r.created).toLocaleDateString('ru-RU')}</span></label>`).join('') : '<div class="empty">Пусто.</div>';
+    $$('#rt-list [data-sel]').forEach(c => c.onchange = () => { c.checked ? RSel.ids.add(c.dataset.sel) : RSel.ids.delete(c.dataset.sel); $('#rt-cnt').textContent = 'Выбрано: ' + RSel.ids.size; $('#rt-delsel').disabled = !RSel.ids.size; });
+    return;
+  }
   $('#rt-list').innerHTML = list.length ? list.map(r => `<div class="item"><span class="t">${esc(r.name)}</span><span class="s">${fmtKm(r.dist)} км${r.asc ? ' · ↑' + Math.round(r.asc) + ' м' : ''} · ${esc(r.source)}</span><span class="a"><button class="btn sm pri" data-nav="${r.id}">Ехать</button><button class="btn sm gm" data-gm="${r.id}">Google</button><button class="btn sm wz" data-wz="${r.id}">Waze</button><button class="btn sm" data-show="${r.id}">Карта</button><button class="btn sm" data-gpx="${r.id}">GPX</button><button class="btn sm dng" data-del="${r.id}">×</button></span></div>`).join('') : '<div class="empty">Пока пусто. Импортируйте GPX или сохраните маршрут.</div>';
   const get = id => list.find(r => r.id === id);
   $$('#rt-list [data-nav]').forEach(b => b.onclick = () => { const r = get(b.dataset.nav); showTab('rec'); Nav.set({ name: r.name, coords: r.coords, wpts: r.wpts }); });
@@ -2845,8 +2865,45 @@ async function routesFromInput(raw) {
   else if (/(^|\.)dropbox\.com$/.test(h)) { u.hostname = 'dl.dropboxusercontent.com'; u.searchParams.delete('dl'); }
   else if (h === 'drive.google.com' && (m = u.pathname.match(/\/file\/d\/([^/]+)/))) u = new URL(`https://drive.google.com/uc?export=download&id=${m[1]}`);
   const fname = decodeURIComponent(u.pathname.split('/').pop() || 'маршрут');
-  const items = await parseBuffer(await fetchBuf(u.href), fname);
-  return items;
+  const buf = await fetchBuf(u.href);
+  if (isHtml(buf)) return routesFromPage(u, new TextDecoder().decode(buf));
+  return parseBuffer(buf, fname);
+}
+const isHtml = buf => /^\s*(<!doctype html|<html|<head|<!--)/i.test(new TextDecoder().decode(buf.slice(0, 300)).replace(/^\uFEFF/, ''));
+const ROUTE_FILE = /\.(gpx|kml|kmz|tcx|fit)(\?|#|$)/i;
+// A route page on a website: find links to GPX/KML/… on it (or one page deeper, e.g. «скачать трек» pages) and load them.
+function pageLinks(html, base) {
+  const doc = new DOMParser().parseFromString(html, 'text/html'), out = [];
+  doc.querySelectorAll('a[href], link[href], iframe[src], embed[src]').forEach(el => {
+    const raw = el.getAttribute('href') || el.getAttribute('src'); if (!raw || /^(javascript|mailto|tel):/i.test(raw)) return;
+    try { out.push({ url: new URL(raw, base).href, text: (el.textContent || '').trim() }); } catch {}
+  });
+  // also bare URLs in scripts / text
+  for (const m of html.matchAll(/https?:\/\/[^\s"'<>]+?\.(?:gpx|kml|kmz|tcx|fit)(?:\?[^\s"'<>]*)?/gi)) out.push({ url: m[0], text: '' });
+  const title = ((doc.querySelector('meta[property="og:title"]') || {}).content || (doc.querySelector('title') || {}).textContent || '').trim();
+  return { links: out, title };
+}
+async function routesFromPage(u, html) {
+  const { links, title } = pageLinks(html, u.href);
+  let files = [...new Set(links.filter(l => ROUTE_FILE.test(new URL(l.url).pathname + new URL(l.url).search)).map(l => l.url))];
+  if (!files.length) {
+    // one level deeper: pages about the track («GPX», «трек», «מסלול», «download»)
+    const next = [...new Set(links.filter(l => l.url !== u.href && /gpx|track|trackinfo|download|מסלול|הורד|трек|скач/i.test(l.url + ' ' + l.text)).map(l => l.url))].slice(0, 6);
+    for (const n of next) {
+      try { const b = await fetchBuf(n); if (!isHtml(b)) { const it = await parseBuffer(b, decodeURIComponent(new URL(n).pathname.split('/').pop() || 'маршрут')); if (it.length) { files = [n]; break; } continue; }
+        const sub = pageLinks(new TextDecoder().decode(b), n).links.filter(l => ROUTE_FILE.test(l.url)).map(l => l.url);
+        if (sub.length) { files = [...new Set(sub)]; break; } } catch {}
+    }
+  }
+  if (!files.length) throw new Error('на странице не нашёл файла маршрута (GPX/KML). Скачайте его на сайте и импортируйте файлом');
+  const out = [];
+  for (const f of files.slice(0, 3)) {
+    try { const items = await parseBuffer(await fetchBuf(f), decodeURIComponent(new URL(f).pathname.split('/').pop() || 'маршрут'));
+      items.forEach((it, i) => { if (title && (files.length === 1 && items.length === 1 || !it.name || /^\d+|gps$/i.test(it.name))) it.name = title.slice(0, 80) + (items.length > 1 ? ' ' + (i + 1) : ''); });
+      out.push(...items.filter(it => it.coords && it.coords.length > 1)); } catch {}
+  }
+  if (!out.length) throw new Error('файл маршрута на странице найден, но не загрузился. Включите «Через прокси» или скачайте его вручную');
+  return out;
 }
 async function importInput(raw) {
   const st = $('#url-stat'), btn = $('#url-go');
@@ -2864,6 +2921,39 @@ async function importInput(raw) {
   finally { btn.disabled = false; }
 }
 $('#url-go').onclick = () => importInput($('#url-in').value);
+// --- bulk delete of saved routes
+const rtDelReset = () => { $('#rt-delsel').textContent = 'Удалить'; delete $('#rt-delsel').dataset.armed; };
+$('#rt-sel').onclick = () => { RSel.on = true; RSel.ids.clear(); rtDelReset(); renderRoutes(); };
+$('#rt-done').onclick = () => { rtDelReset(); RSel.on = false; RSel.ids.clear(); renderRoutes(); };
+$('#rt-all').onclick = () => { const all = RSel.ids.size === RSel.list.length; RSel.ids = new Set(all ? [] : RSel.list.map(r => r.id)); renderRoutes(); };
+$('#rt-old').onclick = () => { const lim = Date.now() - 30 * 864e5; RSel.ids = new Set(RSel.list.filter(r => r.created < lim).map(r => r.id)); renderRoutes(); if (!RSel.ids.size) toast('Маршрутов старше 30 дней нет'); };
+$('#rt-delsel').onclick = () => armDelete($('#rt-delsel'), async () => {
+  const n = RSel.ids.size; for (const id of RSel.ids) await DB.del('routes', id);
+  RSel.ids.clear(); RSel.on = false; $('#rt-delsel').textContent = 'Удалить'; delete $('#rt-delsel').dataset.armed;
+  toast(`Удалено маршрутов: ${n}`); renderRoutes();
+});
+// --- my route websites
+const DEF_SITES = [{ name: 'Rochvim Kavuh', url: 'https://rochvim-kavuh.com/' }, { name: 'Israel Hiking Map', url: 'https://israelhiking.osm.org.il/' }, { name: 'Groopy', url: 'https://www.groopy.co.il/' }];
+const sites = () => lsGet('sites', null) || DEF_SITES;
+function renderSites() {
+  const l = sites();
+  $('#st-list').innerHTML = l.length ? l.map((x, i) => `<div class="item"><span class="t">${esc(x.name)}</span><span class="s">${esc(x.url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''))}</span><span class="a"><a class="btn sm pri" href="${esc(x.url)}" target="_blank" rel="noopener">Открыть</a><button class="btn sm dng" data-sdel="${i}">×</button></span></div>`).join('') : '<div class="empty">Добавьте сайты, где вы берёте маршруты.</div>';
+  $$('#st-list [data-sdel]').forEach(b => b.onclick = () => armDelete(b, () => { const l2 = sites().slice(); l2.splice(+b.dataset.sdel, 1); lsSet('sites', l2); renderSites(); }));
+}
+$('#st-add').onclick = () => {
+  let v = $('#st-url').value.trim(); if (!v) return;
+  if (!/^https?:\/\//i.test(v)) v = 'https://' + v;
+  let u; try { u = new URL(v); } catch { toast('Это не адрес сайта'); return; }
+  const l = sites().slice(); const hn = x => x.replace(/^www\./, ''); if (l.some(x => hn(new URL(x.url).hostname) === hn(u.hostname))) { toast('Этот сайт уже в списке'); return; }
+  l.push({ name: u.hostname.replace(/^www\./, ''), url: u.href }); lsSet('sites', l); $('#st-url').value = ''; renderSites(); toast('Сайт добавлен');
+};
+$('#st-search').onclick = () => {
+  const q = $('#st-q').value.trim(), l = sites(); if (!q) { $('#st-q').focus(); return; }
+  const scope = l.map(x => 'site:' + new URL(x.url).hostname.replace(/^www\./, '')).join(' OR ');
+  const a = document.createElement('a'); a.href = 'https://www.google.com/search?q=' + encodeURIComponent(q + (scope ? ' (' + scope + ')' : '')); a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
+};
+$('#st-q').addEventListener('keydown', e => { if (e.key === 'Enter') $('#st-search').click(); });
+renderSites();
 $('#url-in').addEventListener('keydown', e => { if (e.key === 'Enter') importInput($('#url-in').value); });
 $('#url-paste').onclick = async () => {
   try { const t = await navigator.clipboard.readText(); if (t) { $('#url-in').value = t.length > 500 ? t : t.trim(); importInput(t); return; } } catch {}
