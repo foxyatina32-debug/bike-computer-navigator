@@ -151,6 +151,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 .seg{display:flex;background:rgba(255,255,255,.07);border-radius:14px;padding:3px;gap:3px}
 .seg button{flex:1;border-radius:11px;padding:9px 4px;font-size:14px;font-weight:600;color:var(--muted)}
 .seg button.on{background:var(--accent);color:var(--accent-ink)}
+.seg button:disabled{opacity:.3}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}
 .stats div{background:rgba(255,255,255,.07);border-radius:14px;padding:10px;min-width:0}
 .stats b{display:block;font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
@@ -366,6 +367,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
       <div class="chips" id="pl-bike"></div>
       <h3 style="margin:6px 0 0">Покрытие</h3>
       <div class="seg" id="pl-terrain"><button data-t="road">По дорогам</button><button data-t="mixed">Смешанный</button><button data-t="off">Бездорожье</button></div>
+      <p class="note" id="pl-terrain-note" style="margin:0" hidden>Городской и шоссейный велосипед — только асфальт и велодорожки, без грунта и троп. Бездорожье — у MTB и гравела.</p>
       <h3 style="margin:6px 0 0">Движок</h3>
       <div class="seg" id="pl-engine"><button data-e="auto">Авто</button><button data-e="brouter">BRouter</button><button data-e="builtin">Встроенный</button><button data-e="osrm">OSRM</button></div>
       <p class="note" id="pl-engine-note" style="margin:0"></p>
@@ -527,7 +529,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <p class="note" id="st-quota"></p>
   <div class="row"><button class="btn" id="st-persist">Запретить автоочистку</button><button class="btn dng" id="st-clear-tiles">Очистить кэш карт</button></div>
 
-  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v19 · голубая стрелка по компасу/гироскопу</p>
+  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v20 · городская навигация по велодорожкам</p>
   <h3>iPhone</h3>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -1333,10 +1335,10 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 // spd: typical speed m/s on [asphalt, gravel road, trail]; surf: cost factor per surface class; hw: penalty on busy roads;
 // maxMtb: hardest mtb:scale allowed (-1 = no unpaved trails); steps: push penalty or false; br: BRouter profiles per terrain, tried in order.
 const BIKES = {
-  road:   { name: 'Шоссе',      spd: [8, 4, 2],       surf: [1, 3.5, 12], maxMtb: -1, steps: false, hw: { trunk: 2.5, primary: 1.4, secondary: 1.15, tertiary: 1.05 }, mapy: 'bike_road',
+  road:   { name: 'Шоссе',      spd: [8, 4, 2],       surf: [1, 3.5, 12], maxMtb: -1, steps: false, paved: true, hw: { trunk: 2.5, primary: 1.4, secondary: 1.15, tertiary: 1.05 }, mapy: 'bike_road',
             br: { road: ['fastbike'], mixed: ['fastbike-lowtraffic', 'fastbike'], off: ['trekking'] } },
-  city:   { name: 'Город',      spd: [5, 3.6, 2.2],   surf: [1, 1.3, 2.6], maxMtb: 0, steps: false, hw: { trunk: 6, primary: 3, secondary: 2, tertiary: 1.4 }, mapy: 'bike_road',
-            br: { road: ['safety', 'trekking'], mixed: ['trekking'], off: ['trekking'] } },
+  city:   { name: 'Город · велодорожки', short: 'Город', spd: [5, 3.6, 2.2], surf: [1, 5, 30], maxMtb: 0, steps: false, paved: true, hw: { trunk: 8, primary: 3.5, secondary: 2, tertiary: 1.4 }, mapy: 'bike_road',
+            br: { road: ['safety', 'fastbike-lowtraffic', 'trekking'], mixed: ['safety', 'fastbike-lowtraffic', 'trekking'], off: ['safety', 'fastbike-lowtraffic', 'trekking'] } },
   gravel: { name: 'Гравел',     spd: [6.5, 5, 3],     surf: [1, 1, 1.6], maxMtb: 1, steps: false, hw: { trunk: 6, primary: 3, secondary: 2, tertiary: 1.3 }, mapy: 'bike_mountain',
             br: { road: ['trekking'], mixed: ['gravel', 'trekking'], off: ['gravel', 'trekking'] } },
   xc:     { name: 'MTB XC',     spd: [5.5, 4.6, 3.4], surf: [1.1, 1, 1.1], maxMtb: 2, steps: 12, hw: { trunk: 6, primary: 3, secondary: 2, tertiary: 1.4 }, mapy: 'bike_mountain',
@@ -1350,7 +1352,8 @@ const TERRAINS = { road: 'По дорогам', mixed: 'Смешанный', off
 const CLS = ['Асфальт', 'Грунтовка', 'Тропа'];
 const RO = Object.assign({ bike: 'xc', terrain: 'mixed', engine: 'auto' }, lsGet('routeOpts', {}));
 if (!BIKES[RO.bike]) RO.bike = 'xc';
-const curOpts = () => ({ bike: RO.bike, terrain: RO.terrain, engine: RO.engine });
+const effTerrain = (bk = RO.bike) => BIKES[bk].paved ? 'road' : RO.terrain; // city & road bikes: asphalt and cycleways only
+const curOpts = () => ({ bike: RO.bike, terrain: effTerrain(), engine: RO.engine });
 
 const PAVED = /^(asphalt|concrete|concrete:plates|concrete:lanes|paved|paving_stones|sett|chipseal|metal|wood)$/;
 const COMPACT = /^(compacted|fine_gravel|gravel|cobblestone|unhewn_cobblestone)$/;
@@ -1378,11 +1381,11 @@ function wayCost(t, bk, terrain) {
   const sc = surfClass(t); const ms = t['mtb:scale'] != null ? parseInt(t['mtb:scale']) : null;
   if (ms != null && !isNaN(ms) && ms > B.maxMtb) return null;
   if (t.sac_scale && /alpine|demanding_mountain/.test(t.sac_scale) && B.maxMtb < 4) return null;
-  if (bk === 'road' && sc === 2) return null;
+  if (B.paved && sc === 2) return null;
   let f = B.surf[sc];
   if (h === 'steps') { if (!B.steps) return null; f = B.steps; }
   f *= B.hw[h.replace('_link', '')] || 1;
-  if (h === 'cycleway' || bic === 'designated') f *= 0.85;
+  if (h === 'cycleway' || bic === 'designated') f *= bk === 'city' ? 0.6 : 0.85;
   if ((h === 'footway' || h === 'pedestrian') && !bikeOk) f *= 1.6;
   if ((h === 'path' || h === 'bridleway') && B.maxMtb < 1 && !bikeOk && sc > 0) f *= 3;
   if (/^(bad|very_bad|horrible|very_horrible|impassable)$/.test(t.smoothness || '') && (bk === 'road' || bk === 'city')) f *= t.smoothness === 'bad' ? 2 : 6;
@@ -1544,14 +1547,24 @@ function brMix(pr) {
   } catch { return null; }
 }
 async function brouterRoute(points, bk, terrain, x = {}) {
+  if (BIKES[bk].paved && !x.single) {
+    // City / road: several BRouter profiles in parallel, keep the one with the least dirt (each unpaved metre counts ×6).
+    const profs = BIKES[bk].br.road, res = await Promise.allSettled(profs.map(pf => brouterRoute(points, bk, terrain, { ...x, single: pf })));
+    let best = null, err;
+    res.forEach(r => { if (r.status !== 'fulfilled') { err = r.reason; return; }
+      const v = r.value, len = v.distance || cumDist(v.coords).pop(), dirt = v.mix ? v.mix[1] + v.mix[2] : 0, score = len + 5 * dirt;
+      if (!best || score < best.score) best = { score, v }; });
+    if (!best) throw err || new Error('BRouter не ответил');
+    return best.v;
+  }
   const lonlats = points.map(p => `${p[1].toFixed(6)},${p[0].toFixed(6)}`).join('|');
-  const cands = BIKES[bk].br[terrain]; let lastErr;
+  const cands = x.single ? [x.single] : BIKES[bk].br[terrain]; let lastErr;
   for (const prof of cands) {
     try {
       const nogos = x.avoid && x.avoid.length ? '&nogos=' + x.avoid.map(a => `${a[1].toFixed(6)},${a[0].toFixed(6)},${Math.round(a[2])}`).join('|') : '';
       const j = await fetchJSON(`https://brouter.de/brouter?lonlats=${lonlats}${nogos}&profile=${encodeURIComponent(prof)}&alternativeidx=0&format=geojson`, {}, 45000);
       const f = j.features[0], pr = f.properties || {};
-      if (prof !== cands[0] && !x.quiet) toast(`Профиль «${cands[0]}» недоступен — построено по «${prof}»`, 4000);
+      if (prof !== cands[0] && !x.quiet && !x.single) toast(`Профиль «${cands[0]}» недоступен — построено по «${prof}»`, 4000);
       return { coords: f.geometry.coordinates.map(c => [c[1], c[0], c[2] != null ? c[2] : null]), distance: +pr['track-length'] || null,
         ascent: pr['filtered ascend'] != null ? +pr['filtered ascend'] : null, mix: brMix(pr), engine: `BRouter · ${prof} · ${BIKES[bk].name}` };
     } catch (e) { lastErr = e; if (e.name === 'AbortError') break; }
@@ -1624,7 +1637,7 @@ async function renderRegions() {
 
 /* --- route options UI --- */
 function engineNote() {
-  const B = BIKES[RO.bike], prof = B.br[RO.terrain][0];
+  const B = BIKES[RO.bike], prof = B.paved ? B.br.road.join(' / ') : B.br[RO.terrain][0];
   return {
     auto: `С интернетом — BRouter (профиль «${prof}»), без интернета — встроенный движок по скачанной области.`,
     brouter: `Сервер BRouter, профиль «${prof}» под ${B.name}. Даёт высоты и набор.`,
@@ -1635,15 +1648,17 @@ function engineNote() {
 function renderRouteOpts() {
   $('#pl-bike').innerHTML = Object.entries(BIKES).map(([k, b]) => `<button class="chip ${k === RO.bike ? 'on' : ''}" data-b="${k}">${b.name}</button>`).join('');
   $$('#pl-bike [data-b]').forEach(b => b.onclick = () => setRO({ bike: b.dataset.b }));
-  $$('#pl-terrain button').forEach(b => b.classList.toggle('on', b.dataset.t === RO.terrain));
+  const paved = BIKES[RO.bike].paved;
+  $$('#pl-terrain button').forEach(b => { b.classList.toggle('on', b.dataset.t === effTerrain()); b.disabled = paved && b.dataset.t !== 'road'; });
+  $('#pl-terrain-note').hidden = !paved;
   $$('#pl-engine button').forEach(b => b.classList.toggle('on', b.dataset.e === RO.engine));
   $('#pl-engine-note').textContent = engineNote();
-  $('#mode-name').textContent = BIKES[RO.bike].name;
+  $('#mode-name').textContent = BIKES[RO.bike].short || BIKES[RO.bike].name;
 }
 function setRO(p) { Object.assign(RO, p); lsSet('routeOpts', RO); renderRouteOpts(); }
-$$('#pl-terrain button').forEach(b => b.onclick = () => setRO({ terrain: b.dataset.t }));
+$$('#pl-terrain button').forEach(b => b.onclick = () => { if (!b.disabled) setRO({ terrain: b.dataset.t }); });
 $$('#pl-engine button').forEach(b => b.onclick = () => setRO({ engine: b.dataset.e }));
-$('#t-mode').onclick = () => { const ks = Object.keys(BIKES); setRO({ bike: ks[(ks.indexOf(RO.bike) + 1) % ks.length] }); toast(`Велосипед: ${BIKES[RO.bike].name} · ${TERRAINS[RO.terrain]}`); };
+$('#t-mode').onclick = () => { const ks = Object.keys(BIKES); setRO({ bike: ks[(ks.indexOf(RO.bike) + 1) % ks.length] }); toast(`Велосипед: ${BIKES[RO.bike].name} · ${BIKES[RO.bike].paved ? 'только асфальт и велодорожки' : TERRAINS[RO.terrain]}`, 3500); };
 
 
 /* ================= navigation ================= */
