@@ -123,6 +123,7 @@ svg{display:block}
 
 /* Sheets */
 .sheet{position:fixed;z-index:25;left:max(10px,env(safe-area-inset-left,0px));right:max(10px,env(safe-area-inset-right,0px));bottom:calc(var(--tabs-b) + 74px);max-height:var(--sheet-max,calc(100% - var(--top) - 150px));overflow:auto;-webkit-overflow-scrolling:touch;border-radius:26px;background:#161d28;border:1px solid var(--line);padding:0 16px 18px;box-shadow:0 10px 40px rgba(0,0,0,.5);-webkit-user-select:text;user-select:text}
+.sheet.tapmode{max-height:min(var(--sheet-max,60vh),38vh)}
 .sheet header{position:sticky;top:0;background:#161d28;display:flex;align-items:center;gap:10px;padding:16px 0 10px;z-index:3}
 .sheet h2{margin:0;font-size:24px;font-weight:800;flex:1}
 .sheet h3{margin:18px 0 8px;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
@@ -264,7 +265,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 .ask .credit.off .crt{opacity:.4}
 .ask .opt b{font-size:16px}.ask .opt span{font-size:13px;font-weight:500;opacity:.8}
 .ask .cancel{width:100%;background:none;border:0;color:var(--muted);font:inherit;font-size:15px;padding:8px}
-.toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--top) + 136px);background:var(--glass-hi);border:1px solid var(--line);color:var(--ink);padding:11px 18px;border-radius:16px;z-index:100;width:max-content;max-width:calc(100% - 32px);box-shadow:0 8px 30px rgba(0,0,0,.5);font-size:15px;font-weight:600}
+.toast{pointer-events:none;position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--top) + 136px);background:var(--glass-hi);border:1px solid var(--line);color:var(--ink);padding:11px 18px;border-radius:16px;z-index:100;width:max-content;max-width:calc(100% - 32px);box-shadow:0 8px 30px rgba(0,0,0,.5);font-size:15px;font-weight:600}
 .me{width:30px;height:30px;position:relative}
 .wp{width:28px;height:28px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--route);border:2px solid #fff;display:grid;place-items:center}
 .wp span{transform:rotate(45deg);color:#fff;font-weight:800;font-size:13px}
@@ -540,7 +541,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <p class="note" id="st-quota"></p>
   <div class="row"><button class="btn" id="st-persist">Запретить автоочистку</button><button class="btn dng" id="st-clear-tiles">Очистить кэш карт</button></div>
 
-  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v21 · мои сайты маршрутов, удаление старых маршрутов</p>
+  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v22 · исправления по QA-аудиту</p>
   <h3>iPhone</h3>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -626,6 +627,11 @@ async function fetchJSON(url, opts = {}, timeout = 30000) {
   try { const r = await fetch(url, { ...opts, signal: ctl.signal }); const txt = await r.text();
     if (!r.ok) throw new Error(txt.slice(0, 200) || ('HTTP ' + r.status));
     return JSON.parse(txt);
+  } catch (e) {
+    // Readable Russian messages instead of browser-English ("signal is aborted…", "Failed to fetch"); the name stays for callers.
+    if (e.name === 'AbortError') { const x = new Error('сервер не ответил'); x.name = 'AbortError'; throw x; }
+    if (e instanceof TypeError) throw new Error(navigator.onLine === false ? 'нет интернета' : 'нет связи с сервером');
+    throw e;
   } finally { clearTimeout(t); }
 }
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
@@ -843,7 +849,10 @@ map.on('click', () => {
   showTab('rec');
 });
 // Back gesture / back button returns to the map.
-window.addEventListener('popstate', () => { if ($$('.sheet').some(x => !x.hidden)) showTab('rec', true); });
+window.addEventListener('popstate', () => {
+  if (!$('#sheet-ride').hidden) { showTab('history', true); return; } // back from ride details → the list, like the «История» button
+  if ($$('.sheet').some(x => !x.hidden)) showTab('rec', true);
+});
 $('#t-layers').onclick = () => showTab($('#sheet-layers').hidden ? 'layers' : 'rec');
 $('#attr').onclick = () => showTab('layers');
 $('#t-route').onclick = () => { showTab('routes'); routeSeg('plan'); };
@@ -851,8 +860,16 @@ function routeSeg(r) {
   $$('#rseg button').forEach(b => b.classList.toggle('on', b.dataset.r === r));
   ['plan', 'trails', 'mine'].forEach(x => $('#r-' + x).hidden = x !== r);
   if (r === 'mine') renderRoutes();
+  syncTapMode();
 }
 $$('#rseg button').forEach(b => b.onclick = () => routeSeg(b.dataset.r));
+// «Add points by tapping the map»: the sheet shrinks so the map above it can actually be tapped.
+function syncTapMode() {
+  const on = $('#pl-tap').checked && !$('#r-plan').hidden, sh = $('#sheet-routes');
+  sh.classList.toggle('tapmode', on);
+  if (on) setTimeout(() => { sh.scrollTop = Math.max(0, $('#pl-wps').offsetTop - 60); }, 30);
+}
+$('#pl-tap').addEventListener('change', () => { syncTapMode(); if ($('#pl-tap').checked) toast('Нажимайте на карту над панелью — каждая точка добавится в маршрут', 3500); });
 
 const pager = $('#pager');
 pager.addEventListener('scroll', () => { const i = Math.round(pager.scrollLeft / pager.clientWidth); $$('#dots i').forEach((d, k) => d.classList.toggle('on', k === i)); if (i === 2) drawElev(); }, { passive: true });
@@ -1236,6 +1253,8 @@ const Ride = {
   status: 'idle', startTs: 0, movingMs: 0, dist: 0, max: 0, asc: 0, desc: 0, altRef: null, track: [], autoPaused: false, slowSince: 0, lastTick: 0, line: null,
   start() {
     if (this.status === 'idle') Object.assign(this, { startTs: Date.now(), movingMs: 0, dist: 0, max: 0, asc: 0, desc: 0, altRef: null, track: [], autoPaused: false });
+    // Resuming after a manual pause: what was ridden while paused must not be added as a straight line.
+    if (this.status === 'paused' && !this.restored) this.gap = true;
     this.status = 'rec'; this.restored = false; this.moveSince = 0; this.lastTick = Date.now(); startGPS(); unlockSpeech();
     if (!this.line) this.line = L.polyline([], { color: css('--track'), weight: 5, opacity: .9 }).addTo(map);
     this.line.setLatLngs(this.track.map(p => [p[0], p[1]]));
@@ -1280,11 +1299,12 @@ const Ride = {
     const last = this.track[this.track.length - 1];
     if (!last) { this.track.push(p); this.line.addLatLng([p[0], p[1]]); return; }
     const d = hav(last, p);
+    if (this.gap) { this.gap = false; this.track.push(p); this.line.addLatLng([p[0], p[1]]); return; }
     if (d >= Math.max(3, f.acc * 0.3) && !this.autoPaused) { if (!f.jump) this.dist += d; this.track.push(p); this.line.addLatLng([p[0], p[1]]); }
   },
   persist() {
     if (this.status === 'idle') return;
-    DB.put('kv', { id: 'currentRide', v: { status: this.status, savedAt: Date.now(), startTs: this.startTs, movingMs: this.movingMs, dist: this.dist, max: this.max, asc: this.asc, desc: this.desc, track: this.track } }).catch(() => {});
+    DB.put('kv', { id: 'currentRide', v: { status: this.status, gap: !!this.gap, savedAt: Date.now(), startTs: this.startTs, movingMs: this.movingMs, dist: this.dist, max: this.max, asc: this.asc, desc: this.desc, track: this.track } }).catch(() => {});
   }
 };
 const PLAY = '<svg viewBox="0 0 24 24"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.2-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z" fill="currentColor"/></svg>';
@@ -2469,16 +2489,19 @@ async function openRide(id) {
     ${hasAlt ? '<h3>Профиль высот</h3><canvas id="rd-elev" class="rd-elev"></canvas>' : ''}
     ${sp.length ? `<h3>По километрам</h3><table class="spl"><tr><th>км</th><th>время</th><th>${a.pace ? 'темп' : 'км/ч'}</th><th></th><th>высота</th></tr>${sp.map(s => { const sv = s.len / (s.ms / 1000); return `<tr><td>${s.part ? s.km.toFixed(2) : s.km}</td><td>${fmtClock(s.ms)}</td><td>${a.pace ? fmtPace(sv) : kmh(sv)}</td><td class="bar"><i style="width:${Math.round(sv / (fast * 1000) * 100)}%"></i></td><td>${s.de == null ? '—' : (s.de >= 0 ? '+' : '−') + Math.abs(Math.round(s.de))}</td></tr>`; }).join('')}</table>` : ''}
     <div class="row" style="margin-top:14px"><button class="btn pri" id="rd-card">Карточка</button><button class="btn" id="rd-map">На карте</button><button class="btn" id="rd-gpx">GPX</button><button class="btn" id="rd-ren">Переименовать</button><button class="btn dng" id="rd-del">Удалить</button></div>`;
+  const fromList = !$('#sheet-history').hidden;
   showTab('ride');
+  if (fromList && !(history.state && history.state.sheet === 'ride')) { try { history.pushState({ sheet: 'ride' }, ''); } catch {} }
   if (hasAlt) requestAnimationFrame(() => drawProfile($('#rd-elev'), tr, css('--track')));
   $$('#rd-type button').forEach(b => b.onclick = async () => { r.type = b.dataset.t; await DB.put('rides', r); openRide(r.id); });
   $('#rd-card').onclick = () => shareCard(r, $('#rd-card'));
   $('#rd-map').onclick = () => tr.length > 1 ? preview(tr, css('--track')) : toast('У этой поездки нет трека');
   $('#rd-gpx').onclick = () => shareGpx(r.name, tr, true, actOf(r));
   $('#rd-ren').onclick = async () => { const n = prompt('Название', r.name); if (n && n.trim()) { r.name = n.trim().slice(0, 80); await DB.put('rides', r); openRide(r.id); } };
-  $('#rd-del').onclick = () => armDelete($('#rd-del'), async () => { await DB.del('rides', r.id); HS.seg = 'list'; showTab('history'); toast('Поездка удалена'); });
+  $('#rd-del').onclick = () => armDelete($('#rd-del'), async () => { await DB.del('rides', r.id); HS.seg = 'list'; closeRide(); toast('Поездка удалена'); });
 }
-$('#rd-back').onclick = () => showTab('history');
+function closeRide() { if (history.state && history.state.sheet === 'ride') history.back(); else showTab('history'); }
+$('#rd-back').onclick = closeRide;
 $$('#hseg button').forEach(b => b.onclick = () => { HS.seg = b.dataset.h; renderRides(); });
 
 // Shareable image of a ride: track, main numbers, elevation profile.
@@ -2609,15 +2632,17 @@ function rideFromTrack(a) {
 }
 $('#act-file').onchange = async e => {
   const files = [...e.target.files]; e.target.value = '';
-  const have = (await DB.all('rides')).map(r => r.start); let n = 0, dup = 0;
+  const have = (await DB.all('rides')).map(r => r.start); let n = 0, dup = 0; const bad = [];
   for (const f of files) {
     try {
       const acts = await parseActivities(await f.arrayBuffer(), f.name);
       if (!acts.length) throw new Error('в файле нет тренировки');
       for (const a of acts) { const r = rideFromTrack(a); if (have.some(s => Math.abs(s - r.start) < 2000)) { dup++; continue; } await DB.put('rides', r); have.push(r.start); n++; }
-    } catch (err) { toast(`${f.name}: ${err.message}`, 5000); }
+    } catch (err) { bad.push(`${f.name}: ${err.message}`); }
   }
-  if (n || dup) toast(`Добавлено тренировок: ${n}${dup ? ` · уже были: ${dup}` : ''}`, 3500);
+  // One message with everything, so the reason a file was skipped is not hidden by the summary.
+  const msg = [n || dup ? `Добавлено тренировок: ${n}${dup ? ` · уже были: ${dup}` : ''}` : '', ...bad].filter(Boolean).join(' · ');
+  if (msg) toast(msg, bad.length ? 7000 : 3500);
   HS.seg = 'list'; renderRides();
 };
 
@@ -2629,7 +2654,7 @@ $('#bk-exp').onclick = async () => {
 $('#bk-file').onchange = async e => {
   const f = e.target.files[0]; e.target.value = ''; if (!f) return;
   try {
-    const d = JSON.parse(await f.text());
+    let d = null; try { d = JSON.parse(await f.text()); } catch {}
     if (!d || d.app !== 'velokomp') throw new Error('это не резервная копия Велокомпа');
     let nr = 0, nt = 0;
     for (const r of d.rides || []) if (r && r.id) { await DB.put('rides', r); nr++; }
@@ -2913,10 +2938,10 @@ async function importInput(raw) {
     if (!items.length) throw new Error('в файле нет треков или маршрутов');
     let host = 'вставка'; try { host = new URL(raw.trim()).hostname.replace(/^www\./, ''); } catch {}
     for (const it of items) await saveRoute(it.name, it.coords, 'Ссылка: ' + host);
-    st.textContent = `Добавлено маршрутов: ${items.length}. Нажмите «Ехать» в списке ниже.`;
+    st.textContent = `Добавлено маршрутов: ${items.length} — они в списке «Сохранённые маршруты» ниже.`;
     $('#url-in').value = '';
     preview(items[0].coords, css('--route'));
-    toast(`Маршрут «${items[0].name}» добавлен`);
+    toast(`Маршрут «${items[0].name}» добавлен и показан на карте. Ехать: Маршруты → Мои → «Ехать»`, 5000);
   } catch (e) { st.textContent = 'Не получилось: ' + e.message; }
   finally { btn.disabled = false; }
 }
