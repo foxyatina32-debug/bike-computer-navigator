@@ -90,12 +90,12 @@ class Mocks:
             return await route.fulfill(body=PNG, content_type='image/png', headers={'Access-Control-Allow-Origin': '*'})
         return await route.fulfill(status=404, body='')
 
-async def open_app(p, url, mocks, viewport=(390, 844), geo=(32.09, 34.88), storage=None, sw=False):
+async def open_app(p, url, mocks, viewport=(390, 844), geo=(32.09, 34.88), storage=None, sw=False, locale='ru-RU'):
     b = await p.chromium.launch(executable_path=CHROME if os.path.exists(CHROME) else None)
     ctx = await b.new_context(viewport={'width': viewport[0], 'height': viewport[1]}, device_scale_factor=2, is_mobile=True, has_touch=True,
                               user_agent='Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1',
                               geolocation={'latitude': geo[0], 'longitude': geo[1], 'accuracy': 5}, permissions=['geolocation'],
-                              service_workers='allow' if sw else 'block', accept_downloads=True)
+                              service_workers='allow' if sw else 'block', accept_downloads=True, locale=locale)
     if storage: await ctx.add_init_script('(' + json.dumps(storage) + ').forEach(([k,v])=>{ if(!localStorage.getItem(k)) localStorage.setItem(k,v) })')
     await ctx.route('**/*', mocks.handle)
     pg = await ctx.new_page()
