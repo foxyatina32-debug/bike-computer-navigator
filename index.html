@@ -41,6 +41,8 @@ svg{display:block}
 
 /* Map */
 #map{position:fixed;inset:0;background:#1a222c;z-index:0}
+.gl-base{position:absolute;inset:0;z-index:0;pointer-events:none}
+.gl-base .maplibregl-canvas{outline:none}
 .leaflet-container{background:#1a222c;font-family:var(--f)}
 .darkmap .tl-base{filter:invert(1) hue-rotate(180deg) brightness(.9) contrast(.86) saturate(.55)}
 .leaflet-popup-content-wrapper,.leaflet-popup-tip{background:var(--glass-hi);color:var(--ink);box-shadow:0 8px 30px rgba(0,0,0,.5)}
@@ -522,7 +524,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <p class="note" id="st-quota"></p>
   <div class="row"><button class="btn" id="st-persist">Запретить автоочистку</button><button class="btn dng" id="st-clear-tiles">Очистить кэш карт</button></div>
 
-  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v14 · город — Google, трассы — своя навигация</p>
+  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v15 · чистая карта как Apple Карты</p>
   <h3>iPhone</h3>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -642,6 +644,7 @@ if (!S.extnavAuto) { S.extnavAuto = 1; if (S.extnav === 'app') S.extnav = 'auto'
 const IHM = 'https://israelhiking.osm.org.il';
 const IHM_ATTR = 'Israel Hiking Map CC BY-NC-SA 3.0 · © OpenStreetMap';
 const BASES = {
+  clean:      { name: 'Чистая карта — как Apple Карты', src: 'OpenFreeMap · OpenStreetMap, подписи на иврите', vector: true, o: { attribution: 'OpenFreeMap © OpenMapTiles · © OpenStreetMap' }, dl: false, noDark: true },
   ihm_mtb_he: { name: 'Israel Hiking — MTB (иврит)', src: 'israelhiking.osm.org.il', url: IHM + '/Hebrew/mtbTiles/{z}/{x}/{y}.png', o: { maxNativeZoom: 16, attribution: IHM_ATTR }, dl: true },
   ihm_mtb_en: { name: 'Israel Hiking — MTB (англ.)', src: 'israelhiking.osm.org.il', url: IHM + '/English/mtbTiles/{z}/{x}/{y}.png', o: { maxNativeZoom: 16, attribution: IHM_ATTR }, dl: true },
   ihm_he:     { name: 'Israel Hiking — пешая (иврит)', src: 'israelhiking.osm.org.il', url: IHM + '/Hebrew/Tiles/{z}/{x}/{y}.png', o: { maxNativeZoom: 16, attribution: IHM_ATTR }, dl: true },
@@ -673,11 +676,101 @@ const CachedTileLayer = L.TileLayer.extend({
   }
 });
 const tileLayers = {};
+// Vector base map (MapLibre GL) drawn under Leaflet and kept in sync with it: position, zoom and rotation.
+// Light theme = OpenFreeMap «Liberty»; dark theme = the same map recoloured like Apple Maps at night. Labels in Hebrew.
+const GL_JS = 'https://cdn.jsdelivr.net/npm/maplibre-gl@4.3.2/dist/maplibre-gl.js';
+const GL_CSS = 'https://cdn.jsdelivr.net/npm/maplibre-gl@4.3.2/dist/maplibre-gl.css';
+const GL_RTL = 'https://cdn.jsdelivr.net/npm/@mapbox/mapbox-gl-rtl-text@0.2.3/mapbox-gl-rtl-text.min.js';
+const GL_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
+let glLib = null;
+function loadGL() {
+  if (window.maplibregl) return Promise.resolve(window.maplibregl);
+  if (glLib) return glLib;
+  glLib = new Promise((res, rej) => {
+    const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = GL_CSS; document.head.appendChild(l);
+    const sc = document.createElement('script'); sc.src = GL_JS; sc.onload = () => {
+      try { const r = maplibregl.setRTLTextPlugin(GL_RTL, true); if (r && r.catch) r.catch(() => {}); } catch {}
+      res(window.maplibregl);
+    }; sc.onerror = () => { glLib = null; rej(new Error('нет интернета')); }; document.head.appendChild(sc);
+  });
+  return glLib;
+}
+const NIGHT = { bg: '#363f50', block: '#3a4457', bld: '#2d3545', bldLine: '#283040', park: '#2c5244', water: '#1d3550', sand: '#4a4a46',
+  minor: '#566075', mid: '#646d81', major: '#717a8d', mw: '#857c6c', casing: '#2b3240', rail: '#4d5566', path: '#6d7689', border: '#7a7f92',
+  text: '#e8ebf1', halo: '#29303d', road: '#c3c9d4', waterText: '#8eb1d8', poi: '#e6c878' };
+function glRestyle(style, dark) {
+  const name = ['coalesce', ['get', 'name:he'], ['get', 'name']];
+  for (const ly of style.layers) {
+    const id = ly.id, sl = ly['source-layer'] || '', p = ly.paint = ly.paint || {}, lo = ly.layout = ly.layout || {};
+    if (ly.type === 'symbol' && lo['text-field'] && JSON.stringify(lo['text-field']).includes('name')) lo['text-field'] = name;
+    if (!dark) continue;
+    if (ly.type === 'background') p['background-color'] = NIGHT.bg;
+    else if (ly.type === 'raster') p['raster-opacity'] = 0.15;
+    else if (ly.type === 'hillshade') lo.visibility = 'none';
+    else if (ly.type === 'fill') {
+      delete p['fill-pattern']; delete p['fill-outline-color'];
+      p['fill-color'] = sl === 'water' ? NIGHT.water : sl === 'building' ? NIGHT.bld
+        : /wood|forest|grass|park|scrub|garden|cemetery|pitch|golf|meadow|farm|green|nature|vegetation/.test(id + ' ' + sl) ? NIGHT.park
+        : /sand|beach|bare|rock|desert/.test(id) ? NIGHT.sand : NIGHT.block;
+      if (sl === 'building') p['fill-outline-color'] = NIGHT.bldLine;
+      if (p['fill-opacity'] == null || sl === 'park' || sl === 'landcover') p['fill-opacity'] = sl === 'landcover' ? 0.7 : 1;
+    }
+    else if (ly.type === 'fill-extrusion') { p['fill-extrusion-color'] = NIGHT.bld; p['fill-extrusion-opacity'] = 0.8; }
+    else if (ly.type === 'line') {
+      delete p['line-pattern'];
+      p['line-color'] = sl === 'waterway' ? NIGHT.water : sl === 'boundary' ? NIGHT.border
+        : sl === 'transportation' || sl === 'aeroway' ? (/casing/.test(id) ? NIGHT.casing : /rail|transit|subway|tram/.test(id) ? NIGHT.rail
+          : /path|track|pedestrian|footway|cycleway|steps/.test(id) ? NIGHT.path : /motorway/.test(id) ? NIGHT.mw
+          : /trunk|primary/.test(id) ? NIGHT.major : /secondary|tertiary/.test(id) ? NIGHT.mid : NIGHT.minor)
+        : sl === 'building' ? NIGHT.bldLine : NIGHT.minor;
+    }
+    else if (ly.type === 'circle') p['circle-color'] = NIGHT.mid;
+    else if (ly.type === 'symbol' && lo['text-field']) {
+      p['text-color'] = sl === 'water_name' || sl === 'waterway' ? NIGHT.waterText : sl === 'transportation_name' ? NIGHT.road : sl === 'poi' ? NIGHT.poi : NIGHT.text;
+      p['text-halo-color'] = NIGHT.halo; p['text-halo-width'] = 1.2;
+    }
+  }
+  return style;
+}
+const GLBase = L.Layer.extend({
+  initialize(opts) { L.setOptions(this, opts); },
+  onAdd(m) {
+    this._m = m; this._on = true;
+    const el = this._el = L.DomUtil.create('div', 'gl-base');
+    m.getContainer().insertBefore(el, m.getContainer().firstChild);
+    loadGL().then(() => this._on && this._start()).catch(e => { toast('Чистая карта не загрузилась: ' + e.message + '. Включаю карту Israel Hiking', 5000); setBase('ihm_mtb_he'); });
+    m.on('move zoom rotate viewreset', this._sync, this).on('zoomanim', this._anim, this).on('resize', this._resize, this);
+  },
+  onRemove(m) {
+    this._on = false;
+    m.off('move zoom rotate viewreset', this._sync, this).off('zoomanim', this._anim, this).off('resize', this._resize, this);
+    if (this._gl) { try { this._gl.remove(); } catch {} this._gl = null; }
+    if (this._el) { this._el.remove(); this._el = null; }
+  },
+  bringToBack() { return this; },
+  _view(c = this._m.getCenter(), z = this._m.getZoom()) { return { center: [c.lng, c.lat], zoom: Math.max(0, z - 1), bearing: (360 - (this._m.getBearing ? this._m.getBearing() : 0)) % 360 }; },
+  async _start() {
+    this._gl = new maplibregl.Map({ container: this._el, style: { version: 8, sources: {}, layers: [{ id: 'bg', type: 'background', paint: { 'background-color': S.darkmap ? NIGHT.bg : '#f2efe9' } }] },
+      interactive: false, attributionControl: false, fadeDuration: 0, ...this._view() });
+    this.refreshStyle();
+  },
+  async refreshStyle() {
+    if (!this._gl) return;
+    try {
+      if (!this._raw) { const r = await fetch(GL_STYLE); if (!r.ok) throw new Error('сервер карты ответил ' + r.status); this._raw = await r.json(); }
+      if (this._gl) this._gl.setStyle(glRestyle(JSON.parse(JSON.stringify(this._raw)), !!S.darkmap));
+    } catch (e) { toast('Чистая карта: ' + e.message, 4000); }
+  },
+  _sync() { if (this._gl) this._gl.jumpTo(this._view()); },
+  _anim(e) { if (this._gl) this._gl.easeTo({ ...this._view(e.center, e.zoom), duration: 250, easing: t => 1 - Math.pow(1 - t, 3) }); },
+  _resize() { if (this._gl) { this._gl.resize(); this._sync(); } }
+});
 const map = L.map('map', { zoomControl: false, attributionControl: false, maxZoom: 19, minZoom: 7, tapHold: true, rotate: true, bearing: 0, rotateControl: false, touchRotate: false, shiftKeyRotate: false })
   .setView(lsGet('view', [32.09, 34.88]), lsGet('zoom', 14));
-for (const [k, d] of Object.entries(BASES)) tileLayers[k] = new CachedTileLayer(d.url, { maxZoom: 19, className: d.noDark ? '' : 'tl-base', ...d.o });
+for (const [k, d] of Object.entries(BASES)) tileLayers[k] = d.vector ? new GLBase(d.o) : new CachedTileLayer(d.url, { maxZoom: 19, className: d.noDark ? '' : 'tl-base', ...d.o });
 for (const [k, d] of Object.entries(OVERS)) tileLayers[k] = new CachedTileLayer(d.url, { maxZoom: 19, ...d.o });
-let baseKey = lsGet('base', 'ihm_mtb_he'); if (!BASES[baseKey] && !String(baseKey).startsWith('mb:')) baseKey = 'ihm_mtb_he';
+if (!lsGet('cleanOnce', false)) { lsSet('cleanOnce', true); lsSet('base', 'clean'); }
+let baseKey = lsGet('base', 'clean'); if (!BASES[baseKey] && !String(baseKey).startsWith('mb:')) baseKey = 'ihm_mtb_he';
 const MB = { SQL: null, layers: {} };
 
 function setBase(k) {
@@ -783,6 +876,7 @@ function applySettings() {
   ['autopause', 'voice', 'reroute', 'tofinish', 'wake', 'darkmap'].forEach(k => $('#s-' + k).checked = !!S[k]);
   $('#s-compactnav').checked = !!S.compactNav; $('#s-places').checked = !!S.places; $$('#s-orient button').forEach(b => b.classList.toggle('on', b.dataset.o === S.orient));
   $('#map').classList.toggle('darkmap', !!S.darkmap);
+  if (tileLayers.clean && tileLayers.clean._gl) tileLayers.clean.refreshStyle();
   $('#c-voice').classList.toggle('on', !!S.voice); $('#c-voice').setAttribute('aria-label', S.voice ? 'Выключить звук' : 'Включить звук'); hush();
   $('#c-voice').innerHTML = S.voice
     ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4Z" fill="currentColor"/><path d="M15.5 9a4.5 4.5 0 0 1 0 6M18 6.5a8 8 0 0 1 0 11"/></svg>'
