@@ -30,8 +30,8 @@
   if (l.startsWith('ru')) return;
   const he = l.startsWith('he') || l.startsWith('iw');
   const t = he
-    ? ['Velokomp כבוי', 'GPS, מצפן, השארת המסך דולק והקול נעצרו — האפליקציה לא עושה דבר ולא צורכת סוללה. הרכיבה והמסלול נשמרו.', 'כדי לסגור אותה לגמרי, החלק את האפליקציה למעלה במחליף האפליקציות.', 'הפעל שוב']
-    : ['Velokomp is off', 'GPS, compass, keeping the screen on and voice are stopped — the app does nothing and uses no battery. The ride and route are saved.', 'To close it completely, swipe the app up in the app switcher.', 'Turn on again'];
+    ? ['Velocomp כבוי', 'GPS, מצפן, השארת המסך דולק והקול נעצרו — האפליקציה לא עושה דבר ולא צורכת סוללה. הרכיבה והמסלול נשמרו.', 'כדי לסגור אותה לגמרי, החלק את האפליקציה למעלה במחליף האפליקציות.', 'הפעל שוב']
+    : ['Velocomp is off', 'GPS, compass, keeping the screen on and voice are stopped — the app does nothing and uses no battery. The ride and route are saved.', 'To close it completely, swipe the app up in the app switcher.', 'Turn on again'];
   document.documentElement.lang = he ? 'he' : 'en'; if (he) document.documentElement.dir = 'rtl';
   document.title = t[0]; document.querySelector('h1').textContent = t[0];
   const ps = document.querySelectorAll('p'); ps[0].textContent = t[1]; ps[1].textContent = t[2];
