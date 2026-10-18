@@ -41,7 +41,7 @@ svg{display:block}
 
 /* Map */
 #map{position:fixed;inset:0;background:#1a222c;z-index:0}
-.gl-base{position:absolute;inset:0;z-index:0;pointer-events:none}
+#map .gl-base,#map .gl-base.maplibregl-map{position:absolute!important;left:0;top:0;right:0;bottom:0;width:100%;height:100%;z-index:0;pointer-events:none}
 .gl-base .maplibregl-canvas{outline:none}
 .leaflet-container{background:#1a222c;font-family:var(--f)}
 .darkmap .tl-base{filter:invert(1) hue-rotate(180deg) brightness(.9) contrast(.86) saturate(.55)}
@@ -524,7 +524,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <p class="note" id="st-quota"></p>
   <div class="row"><button class="btn" id="st-persist">Запретить автоочистку</button><button class="btn dng" id="st-clear-tiles">Очистить кэш карт</button></div>
 
-  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v15 · чистая карта как Apple Карты</p>
+  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v16 · исправлена чистая карта</p>
   <h3>iPhone</h3>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -735,14 +735,14 @@ function glRestyle(style, dark) {
 const GLBase = L.Layer.extend({
   initialize(opts) { L.setOptions(this, opts); },
   onAdd(m) {
-    this._m = m; this._on = true;
+    this._m = m; this._active = true;
     const el = this._el = L.DomUtil.create('div', 'gl-base');
     m.getContainer().insertBefore(el, m.getContainer().firstChild);
-    loadGL().then(() => this._on && this._start()).catch(e => { toast('Чистая карта не загрузилась: ' + e.message + '. Включаю карту Israel Hiking', 5000); setBase('ihm_mtb_he'); });
+    loadGL().then(() => this._active && this._start()).catch(e => { toast('Чистая карта не загрузилась: ' + e.message + '. Включаю карту Israel Hiking', 5000); setBase('ihm_mtb_he'); });
     m.on('move zoom rotate viewreset', this._sync, this).on('zoomanim', this._anim, this).on('resize', this._resize, this);
   },
   onRemove(m) {
-    this._on = false;
+    this._active = false; clearTimeout(this._dog); this._ok = false;
     m.off('move zoom rotate viewreset', this._sync, this).off('zoomanim', this._anim, this).off('resize', this._resize, this);
     if (this._gl) { try { this._gl.remove(); } catch {} this._gl = null; }
     if (this._el) { this._el.remove(); this._el = null; }
@@ -750,8 +750,14 @@ const GLBase = L.Layer.extend({
   bringToBack() { return this; },
   _view(c = this._m.getCenter(), z = this._m.getZoom()) { return { center: [c.lng, c.lat], zoom: Math.max(0, z - 1), bearing: (360 - (this._m.getBearing ? this._m.getBearing() : 0)) % 360 }; },
   async _start() {
+    const fail = why => { if (!this._active || this._ok) return; this._ok = true; toast('Чистая карта не отрисовалась (' + why + '). Включаю Israel Hiking — её можно выбрать снова в меню карт', 6000); lsSet('base', 'ihm_mtb_he'); setBase('ihm_mtb_he'); };
+    this._dog = setTimeout(() => fail('нет ответа'), 15000);
+    try {
     this._gl = new maplibregl.Map({ container: this._el, style: { version: 8, sources: {}, layers: [{ id: 'bg', type: 'background', paint: { 'background-color': S.darkmap ? NIGHT.bg : '#f2efe9' } }] },
       interactive: false, attributionControl: false, fadeDuration: 0, ...this._view() });
+    } catch (e) { clearTimeout(this._dog); fail(/webgl/i.test(e.message) ? 'нет WebGL' : e.message); return; }
+    const ok = () => { try { const g = this._gl; if (g && g.areTilesLoaded() && Object.values(g.getStyle().sources || {}).some(x => x.type === 'vector')) { this._ok = true; clearTimeout(this._dog); } } catch {} };
+    this._gl.on('idle', ok); this._gl.on('sourcedata', ok);
     this.refreshStyle();
   },
   async refreshStyle() {
