@@ -484,6 +484,8 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 <!-- PROFILE: settings + offline -->
 <section class="sheet" id="sheet-profile" hidden>
   <header><button class="back" data-close aria-label="Назад к карте"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg>Карта</button><h2>Профиль</h2><button class="close" data-close aria-label="Закрыть">×</button></header>
+  <button class="btn dng" id="app-off" style="width:100%;margin-top:4px">⏻ Выключить приложение</button>
+  <p class="note" style="margin:6px 0 0">Сохраняет поездку и маршрут и останавливает GPS, компас, экран и голос — в фоне ничего не работает.</p>
   <h3>Поездка</h3>
   <div class="seg" id="s-act" style="margin-bottom:8px"><button data-a="bike">🚴 Вело</button><button data-a="run">🏃 Бег</button><button data-a="walk">🚶 Ходьба</button><button data-a="hike">🥾 Поход</button></div>
   <label class="chk"><input type="checkbox" id="s-autopause" checked> Автопауза на остановках</label>
@@ -541,7 +543,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <p class="note" id="st-quota"></p>
   <div class="row"><button class="btn" id="st-persist">Запретить автоочистку</button><button class="btn dng" id="st-clear-tiles">Очистить кэш карт</button></div>
 
-  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v22 · исправления по QA-аудиту</p>
+  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v23 · кнопка «Выключить приложение»</p>
   <h3>iPhone</h3>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -891,6 +893,19 @@ function applySettings() {
   renderRecUI();
 }
 $$('#s-extnav button').forEach(b => b.onclick = () => { S.extnav = b.dataset.n; saveS(); applySettings(); });
+// «Выключить»: iPhone does not let a web app close itself, so save everything, stop all sensors and
+// switch to a static page without any code. «Включить снова» there reloads the app.
+$('#app-off').onclick = async () => {
+  if (Ride.status !== 'idle') {
+    if (!confirm('Идёт запись поездки. Завершить и сохранить её и выключить приложение?')) return;
+    await Ride.stop();
+  }
+  try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch {}
+  try { if (GPS.watch != null) navigator.geolocation.clearWatch(GPS.watch); GPS.watch = null; } catch {}
+  try { window.removeEventListener('deviceorientation', onOrient, true); window.removeEventListener('deviceorientationabsolute', onOrientAbs, true); Compass.on = false; } catch {}
+  try { if (wakeLock) await wakeLock.release(); } catch {}
+  location.replace('off.html');
+};
 $('#g-key').value = gKey(); $('#g-st').textContent = gKey() ? 'Ключ сохранён.' : '';
 $('#g-save').onclick = async () => {
   const k = $('#g-key').value.trim(); lsSet('gkey', k); lsSet('gsess', null);
