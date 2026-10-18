@@ -527,7 +527,7 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
   <p class="note" id="st-quota"></p>
   <div class="row"><button class="btn" id="st-persist">Запретить автоочистку</button><button class="btn dng" id="st-clear-tiles">Очистить кэш карт</button></div>
 
-  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v18 · стрелка направления вместо велосипеда</p>
+  <p class="note" style="margin-top:14px">Версия приложения: 2026-10-17 · навигация v19 · голубая стрелка по компасу/гироскопу</p>
   <h3>iPhone</h3>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -641,6 +641,7 @@ const S = Object.assign({ compass: true, headingUp: true, orient: 'compass', aut
 if (!('orient' in (lsGet('settings', {}) || {}))) S.orient = S.headingUp === false ? 'north' : 'compass'; // older builds had only on/off
 S.headingUp = S.orient !== 'north';
 const saveS = () => lsSet('settings', S);
+if (!S.compassOn2) { S.compassOn2 = 1; S.compass = true; saveS(); }
 if (!S.extnavAuto) { S.extnavAuto = 1; if (S.extnav === 'app') S.extnav = 'auto'; saveS(); }
 
 /* ================= map, layers, view padding ================= */
@@ -946,12 +947,13 @@ function unlockSpeech() { try { if ('speechSynthesis' in window) speechSynthesis
 
 /* ================= GPS ================= */
 const GPS = { fix: null, spdEma: 0, watch: null, follow: true, lastT: 0 };
-// Rider marker: navigation arrow pointing where you go — GPS course while riding, phone compass when slow or standing.
-// A plain dot only while no direction is known yet.
-const meIcon = st => { const a = css('--accent');
-  const html = st && (st.k === 'arrow' || st.k === 'beam')
-    ? `<svg viewBox="0 0 40 40" style="position:absolute;left:-5px;top:-5px;width:40px;height:40px;transform:rotate(${st.h}deg)"><circle cx="20" cy="20" r="18" fill="${a}" opacity=".22"/><path d="M20 4.5 31 33 20 26.5 9 33Z" fill="${a}" stroke="#fff" stroke-width="2.6" stroke-linejoin="round"/></svg>`
-    : `<svg viewBox="0 0 30 30" style="position:absolute;left:0;top:0;width:30px;height:30px"><circle cx="15" cy="15" r="14" fill="${a}" opacity=".25"/><circle cx="15" cy="15" r="8.5" fill="${a}" stroke="#fff" stroke-width="2.5"/></svg>`;
+// Rider marker: blue navigation arrow. It turns with the phone (compass + gyroscope) — spin in place and it shows
+// where you are facing; without a compass it follows the GPS course. A plain dot only while no direction is known.
+const ME_BLUE = '#2f8cff';
+const meIcon = st => {
+  const html = st
+    ? `<svg class="me-arr" viewBox="0 0 40 40" style="position:absolute;left:-5px;top:-5px;width:40px;height:40px;transform:rotate(${st.h}deg)"><circle cx="20" cy="20" r="18" fill="${ME_BLUE}" opacity=".22"/><path d="M20 4.5 31 33 20 26.5 9 33Z" fill="${ME_BLUE}" stroke="#fff" stroke-width="2.6" stroke-linejoin="round"/></svg>`
+    : `<svg viewBox="0 0 30 30" style="position:absolute;left:0;top:0;width:30px;height:30px"><circle cx="15" cy="15" r="14" fill="${ME_BLUE}" opacity=".25"/><circle cx="15" cy="15" r="8.5" fill="${ME_BLUE}" stroke="#fff" stroke-width="2.5"/></svg>`;
   return L.divIcon({ className: 'me', iconSize: [30, 30], iconAnchor: [15, 15], html });
 };
 let meMarker = null, accCircle = null, lastIconHdg = 'x';
@@ -985,17 +987,38 @@ async function enableCompass(fromGesture) {
 ['touchend', 'click'].forEach(ev => document.addEventListener(ev, () => { if (S.compass && !Compass.on) enableCompass(true); }, { once: false, passive: true, capture: true }));
 const compassFresh = () => Compass.on && Compass.hdg != null && Date.now() - Compass.t < 2000;
 // Where the rider is facing: GPS course while moving, phone compass when standing or slow.
+function gpsCourse() { const f = GPS.fix; return f && !f.jump && f.spd > 2 && f.hdg != null && !Number.isNaN(f.hdg) ? { h: f.hdg, src: 'gps' } : null; }
+// Arrow on the map: the phone's compass/gyroscope whenever it answers (turning in place shows where you face), else GPS.
+function arrowHeading() {
+  if (compassFresh()) return { h: Compass.hdg, src: 'compass' };
+  return riderHeading();
+}
 function riderHeading() {
   const f = GPS.fix;
-  if (f && !f.jump && f.spd > 2 && f.hdg != null && !Number.isNaN(f.hdg)) return { h: f.hdg, src: 'gps' };
+  if (gpsCourse()) return gpsCourse();
   if (compassFresh()) return { h: Compass.hdg, src: 'compass' };
   if (f && f.spd > 1.2 && f.hdg != null && !Number.isNaN(f.hdg)) return { h: f.hdg, src: 'gps' };
   return null;
 }
 function markerState() {
-  const rh = riderHeading(); if (!rh) return null;
-  return { k: rh.src === 'gps' ? 'arrow' : 'beam', h: Math.round(((rh.h - mapHdg) % 360 + 360) % 360 / 4) * 4 };
+  const rh = arrowHeading(); if (!rh) return null;
+  if (MeRot.abs == null) MeRot.abs = rh.h;
+  return { k: 'arrow', h: (((MeRot.abs - mapHdg) % 360) + 360) % 360 };
 }
+// Smooth arrow rotation every frame (same smoothing as the compass-turned map, so they stay in step).
+const MeRot = { abs: null, t: 0 };
+function meRotLoop(t) {
+  requestAnimationFrame(meRotLoop);
+  const dt = Math.min(200, t - (MeRot.t || t)); MeRot.t = t;
+  if (!meMarker || !GPS.fix || document.hidden) return;
+  const rh = arrowHeading();
+  if (!rh) { MeRot.abs = null; if (lastIconHdg !== 'dot') refreshMe(); return; }
+  MeRot.abs = MeRot.abs == null ? rh.h : (MeRot.abs + norm180(rh.h - MeRot.abs) * (1 - Math.exp(-dt / 110)) + 360) % 360;
+  if (lastIconHdg !== 'arrow') { refreshMe(); return; }
+  const el = meMarker.getElement && meMarker.getElement(), svg = el && el.querySelector('.me-arr');
+  if (svg) svg.style.transform = `rotate(${((MeRot.abs - mapHdg) % 360 + 360) % 360}deg)`;
+}
+requestAnimationFrame(meRotLoop);
 // Smooth updates between GPS fixes (compass changes many times per second).
 setInterval(() => {
   if (!meMarker || !GPS.fix) return;
@@ -1054,8 +1077,9 @@ function setMapBearing(h) {
 }
 function refreshMe() {
   if (!meMarker || !GPS.fix) return;
-  const st = markerState(), key = st ? st.k + st.h : 'dot';
+  const st = markerState(), key = st ? 'arrow' : 'dot';
   if (key !== lastIconHdg) { meMarker.setIcon(meIcon(st)); lastIconHdg = key; }
+  else if (st) { const svg = meMarker.getElement && meMarker.getElement() && meMarker.getElement().querySelector('.me-arr'); if (svg) svg.style.transform = `rotate(${st.h}deg)`; }
 }
 function setFollow(on) { GPS.follow = on; $('#c-follow').classList.toggle('on', on); $('#c-loc').classList.toggle('off', !on); }
 function gpsDot(cls) { $('#gps-dot').className = 'dot ' + cls; }
@@ -1088,7 +1112,7 @@ function onFix(pos) {
   const hdg = markerState();
   if (!meMarker) {
     accCircle = L.circle(ll, { radius: fix.acc, weight: 0, color: css('--accent'), fillOpacity: .12, interactive: false }).addTo(map);
-    meMarker = L.marker(ll, { icon: meIcon(hdg), interactive: false, zIndexOffset: 1000 }).addTo(map); lastIconHdg = hdg ? hdg.k + hdg.h : 'dot';
+    meMarker = L.marker(ll, { icon: meIcon(hdg), interactive: false, zIndexOffset: 1000 }).addTo(map); lastIconHdg = hdg ? 'arrow' : 'dot';
     if (GPS.follow) centerOn(ll, Math.max(map.getZoom(), 16), false);
   } else {
     meMarker.setLatLng(ll); accCircle.setLatLng(ll).setRadius(fix.acc);
