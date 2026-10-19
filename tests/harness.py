@@ -60,13 +60,54 @@ def serve(port):
     return f'http://127.0.0.1:{port}/app/'
 
 # ---- mocked external services (the real ones are not reachable from this sandbox) ----
+def enc_poly(pts):
+    # Google encoded polyline (precision 5)
+    out, plat, plng = [], 0, 0
+    for lat, lng in pts:
+        for v, prev in ((round(lat * 1e5), plat), (round(lng * 1e5), plng)):
+            d = v - prev; d = ~(d << 1) if d < 0 else d << 1
+            while d >= 0x20: out.append(chr((0x20 | (d & 0x1f)) + 63)); d >>= 5
+            out.append(chr(d + 63))
+        plat, plng = round(lat * 1e5), round(lng * 1e5)
+    return ''.join(out)
+
+def g_routes(body):
+    # Fake Routes API answer: A → corner (turn) → B, densified; a second variant turns the other way.
+    o = body['origin']['location']['latLng']; d = body['destination']['location']['latLng']
+    a, b = (o['latitude'], o['longitude']), (d['latitude'], d['longitude'])
+    out = []
+    for k, (corner, man, txt) in enumerate([((b[0], a[1]), 'TURN_RIGHT', 'Поверните направо на улицу Тестовую'), ((a[0], b[1]), 'TURN_LEFT', 'Поверните налево на улицу Запасную')]):
+        if k and not body.get('computeAlternativeRoutes'): break
+        pts = []
+        for p0, p1 in ((a, corner), (corner, b)):
+            for t in range(20): pts.append((p0[0] + (p1[0] - p0[0]) * t / 20, p0[1] + (p1[1] - p0[1]) * t / 20))
+        pts.append(b)
+        out.append({'distanceMeters': 1000 + k * 50, 'duration': f'{300 + k * 20}s', 'polyline': {'encodedPolyline': enc_poly(pts)},
+                    'legs': [{'steps': [{'startLocation': {'latLng': {'latitude': a[0], 'longitude': a[1]}}, 'navigationInstruction': {'maneuver': 'DEPART', 'instructions': 'Двигайтесь на север'}},
+                                        {'startLocation': {'latLng': {'latitude': corner[0], 'longitude': corner[1]}}, 'navigationInstruction': {'maneuver': man, 'instructions': txt + '\nВпереди светофор'}}]}]})
+    return {'routes': out}
+
 class Mocks:
-    def __init__(s): s.calls = []; s.fail = set(); s.brouter = None; s.overpass = None; s.pages = {}
+    def __init__(s): s.calls = []; s.fail = set(); s.brouter = None; s.overpass = None; s.pages = {}; s.gerr = None; s.bodies = []
     async def handle(s, route):
         u = route.request.url; s.calls.append(u)
         host = re.sub(r'^https?://([^/]+).*', r'\1', u)
         if '127.0.0.1' in host: return await route.continue_()
         if any(f in u for f in s.fail): return await route.abort('failed')
+        if 'routes.googleapis.com' in u:
+            body = json.loads(route.request.post_data or '{}'); s.bodies.append((u, dict(route.request.headers), body))
+            if s.gerr: return await route.fulfill(status=s.gerr[0], json=s.gerr[1], headers={'Access-Control-Allow-Origin': '*'})
+            return await route.fulfill(json=g_routes(body), headers={'Access-Control-Allow-Origin': '*'})
+        if 'places.googleapis.com' in u:
+            s.bodies.append((u, dict(route.request.headers), json.loads(route.request.post_data or '{}')))
+            return await route.fulfill(json={'places': [{'displayName': {'text': 'Парк Яркон'}, 'formattedAddress': 'Тель-Авив, Израиль', 'location': {'latitude': 32.1, 'longitude': 34.81}}]}, headers={'Access-Control-Allow-Origin': '*'})
+        if 'api.open-meteo.com/v1/elevation' in u:
+            n = len(re.search(r'latitude=([^&]+)', u).group(1).split(','))
+            return await route.fulfill(json={'elevation': [50 + i * 0.5 for i in range(n)]}, headers={'Access-Control-Allow-Origin': '*'})
+        if 'tile.googleapis.com/v1/createSession' in u:
+            return await route.fulfill(json={'session': 'sess1', 'expiry': '9999999999'}, headers={'Access-Control-Allow-Origin': '*'})
+        if 'tile.googleapis.com/tile/v1/viewport' in u:
+            return await route.fulfill(json={'copyright': 'Map data ©2026 Google'}, headers={'Access-Control-Allow-Origin': '*'})
         if 'brouter.de' in u:
             if s.brouter: return await route.fulfill(json=s.brouter(u))
             ll = re.search(r'lonlats=([^&]+)', u).group(1).replace('%7C', '|')
