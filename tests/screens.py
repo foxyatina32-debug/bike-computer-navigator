@@ -57,6 +57,7 @@ SCREENS = [
     ('ride', "openRide('rd1')"),
     ('profile', "showTab('profile')"),
     ('layers', "showTab('layers')"),
+    ('install', "showTab('profile'); document.getElementById('app-install').click()"),
 ]
 
 async def main():

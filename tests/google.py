@@ -93,6 +93,9 @@ async def main():
         await pg.evaluate("document.getElementById('g-key').value = 'AIzaTEST'"); await pg.evaluate("document.getElementById('g-save').click()"); await pg.wait_for_timeout(1500)
         st = await pg.evaluate("document.getElementById('g-st').textContent")
         check('key check: map and routes', '✓ Ключ работает' in st and '✓ Маршруты Google работают' in st, st)
+        await pg.wait_for_timeout(1800); await pg.evaluate("showTab('profile')"); await pg.wait_for_timeout(300)
+        u = await pg.evaluate("gUse.get()"); txt = await pg.evaluate("document.getElementById('g-use').textContent")
+        check('Google usage counter counts routes, tiles and searches', u['routes'] >= 5 and u['places'] >= 1 and u['tiles'] > 0 and 'из ~10' in txt, f"{u} · {txt[:90]}")
         check('no JS errors', not log['errors'], log['errors'][:3])
         await b.close()
 
