@@ -119,6 +119,9 @@ class Mocks:
             msgs = [["Longitude","Latitude","Elevation","Distance","CostPerKm","ElevCost","TurnCost","NodeCost","InitialCost","WayTags","NodeTags","Time","Energy"],
                     [str(pts[0][0]), str(pts[0][1]), "50", "1000", "0","0","0","0","0","highway=residential surface=asphalt","","0","0"]]
             return await route.fulfill(json={"type":"FeatureCollection","features":[{"type":"Feature","properties":{"track-length":"1000","filtered ascend":"10","messages":msgs},"geometry":{"type":"LineString","coordinates":coords}}]})
+        if 'nominatim' in u and '/reverse' in u:
+            ru = 'accept-language=ru' in u
+            return await route.fulfill(json={'address': {'road': 'Тестовая улица' if ru else 'Test Street', 'city': 'Петах-Тиква' if ru else 'Petah Tikva'}}, headers={'Access-Control-Allow-Origin': '*'})
         if 'nominatim' in u:
             return await route.fulfill(json=[{"lat":"32.0853","lon":"34.7818","display_name":"Тель-Авив, Израиль","name":"Тель-Авив"}])
         if 'overpass' in u:

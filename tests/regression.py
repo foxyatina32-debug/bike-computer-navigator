@@ -91,6 +91,14 @@ async def main():
         await pg.screenshot(path=os.path.join(os.path.dirname(os.path.abspath(__file__)), '.cache', 'route-card.png'))
         check('route page fits the screen', ov == 0, ov)
         await pg.evaluate("Nav.stop()")
+        # «С возвращением» says which route it was: name, from → to, length, how much was left, its shape.
+        await pg.evaluate("showTab('rec'); Nav.set({name: 'Утренняя петля', coords: Array.from({length: 120}, (_, i) => [32.09 + i * 0.0003, 34.88 + Math.sin(i / 12) * 0.004, 40 + i]), noAsk: true})")
+        await pg.wait_for_timeout(500); await pg.evaluate("Nav.showRemaining(2500, 1500); lsSet('activeNav', {...lsGet('activeNav'), at: Date.now() - 60000})")
+        await pg.reload(); await pg.wait_for_function('window.__appReady === true'); await pg.wait_for_timeout(2500)
+        rs = await pg.evaluate("({ open: !document.getElementById('ask-resume').hidden, t: document.getElementById('rs-title').textContent, w: document.getElementById('rs-where').textContent, m: document.getElementById('rs-meta').textContent, px: (() => { const c = document.getElementById('rs-thumb'), d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i]) n++; return n; })() })")
+        check('«С возвращением»: name, from → to, km, left, shape', rs['open'] and rs['t'] == 'Утренняя петля' and 'Петах-Тиква' in rs['w'] and '→' in rs['w'] and 'км' in rs['m'] and 'осталось' in rs['m'] and rs['px'] > 300, rs)
+        await pg.screenshot(path=os.path.join(os.path.dirname(os.path.abspath(__file__)), '.cache', 'resume.png'))
+        await pg.click('#rs-x'); await pg.evaluate("Nav.stop()")
         # Profile: voice test speaks even with prompts off; install shows the iPhone steps.
         await pg.evaluate("showTab('profile'); window.__spoken = []; speechSynthesis.speak = u => window.__spoken.push(u.text); 0")
         await pg.click('#voice-test'); sp = await pg.evaluate("window.__spoken")
