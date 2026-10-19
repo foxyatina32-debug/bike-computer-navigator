@@ -59,6 +59,7 @@ SCREENS = [
     ('profile', "showTab('profile')"),
     ('layers', "showTab('layers')"),
     ('install', "showTab('profile'); document.getElementById('app-install').click()"),
+    ('off-dialog', "document.getElementById('in-ok').click(); document.getElementById('app-off').click()"),
 ]
 
 async def main():

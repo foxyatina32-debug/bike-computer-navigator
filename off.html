@@ -20,22 +20,22 @@
   <div class="ic"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#e2e08a" stroke-width="2.2" stroke-linecap="round"><path d="M12 3v8"/><path d="M6.3 6.8a8 8 0 1 0 11.4 0"/></svg></div>
   <h1>Велокомп выключен</h1>
   <p>GPS, компас, удержание экрана и голос остановлены — приложение ничего не делает и не расходует батарею. Поездка и маршрут сохранены.</p>
-  <p>Чтобы убрать его совсем, смахните приложение вверх в переключателе приложений.</p>
-  <a href="./" onclick="location.replace('./');return false">Включить снова</a>
+  <a href="./" onclick="location.replace('./');return false">Вернуться в приложение</a>
 </main>
 <script>
-/* язык телефона: русский, иврит, остальные — английский */
+/* язык: из приложения (?lang=), иначе язык телефона; русский, иврит, остальные — английский */
 (() => {
-  const l = ((navigator.languages && navigator.languages[0]) || navigator.language || 'ru').toLowerCase();
+  let q = ''; try { q = new URLSearchParams(location.search).get('lang') || ''; } catch {}
+  const l = (q || (navigator.languages && navigator.languages[0]) || navigator.language || 'ru').toLowerCase();
   if (l.startsWith('ru')) return;
   const he = l.startsWith('he') || l.startsWith('iw');
   const t = he
-    ? ['Velocomp כבוי', 'GPS, מצפן, השארת המסך דולק והקול נעצרו — האפליקציה לא עושה דבר ולא צורכת סוללה. הרכיבה והמסלול נשמרו.', 'כדי לסגור אותה לגמרי, החלק את האפליקציה למעלה במחליף האפליקציות.', 'הפעל שוב']
-    : ['Velocomp is off', 'GPS, compass, keeping the screen on and voice are stopped — the app does nothing and uses no battery. The ride and route are saved.', 'To close it completely, swipe the app up in the app switcher.', 'Turn on again'];
+    ? ['Velocomp כבוי', 'GPS, מצפן, השארת המסך דולק והקול נעצרו — האפליקציה לא עושה דבר ולא צורכת סוללה. הרכיבה והמסלול נשמרו.', 'חזרה לאפליקציה']
+    : ['Velocomp is off', 'GPS, compass, keeping the screen on and voice are stopped — the app does nothing and uses no battery. The ride and route are saved.', 'Back to the app'];
   document.documentElement.lang = he ? 'he' : 'en'; if (he) document.documentElement.dir = 'rtl';
   document.title = t[0]; document.querySelector('h1').textContent = t[0];
-  const ps = document.querySelectorAll('p'); ps[0].textContent = t[1]; ps[1].textContent = t[2];
-  document.querySelector('a').textContent = t[3];
+  document.querySelector('p').textContent = t[1];
+  document.querySelector('a').textContent = t[2];
 })();
 </script>
 </body>

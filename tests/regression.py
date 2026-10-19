@@ -99,6 +99,14 @@ async def main():
         check('«С возвращением»: name, from → to, km, left, shape', rs['open'] and rs['t'] == 'Утренняя петля' and 'Петах-Тиква' in rs['w'] and '→' in rs['w'] and 'км' in rs['m'] and 'осталось' in rs['m'] and rs['px'] > 300, rs)
         await pg.screenshot(path=os.path.join(os.path.dirname(os.path.abspath(__file__)), '.cache', 'resume.png'))
         await pg.click('#rs-x'); await pg.evaluate("Nav.stop()")
+        # «С возвращением» also shows the file the route came from.
+        await pg.evaluate("DB.put('routes', {id: 'rf1', name: 'Бен-Шемен синглы', source: 'Файл: Ben-Shemen-2026.gpx', created: Date.now(), dist: 3600, coords: Array.from({length: 40}, (_, i) => [32.09 + i * 0.0009, 34.88, null]), wpts: []})")
+        await pg.evaluate("DB.get('routes', 'rf1').then(r => Nav.set({name: r.name, coords: r.coords, rid: r.id, source: r.source, noAsk: true}))"); await pg.wait_for_timeout(500)
+        await pg.evaluate("lsSet('activeNav', {...lsGet('activeNav'), at: Date.now() - 60000})")
+        await pg.reload(); await pg.wait_for_function('window.__appReady === true'); await pg.wait_for_timeout(2000)
+        rs2 = await pg.evaluate("({ t: document.getElementById('rs-title').textContent, s: document.getElementById('rs-src').hidden ? '' : document.getElementById('rs-src').textContent })")
+        check('«С возвращением»: route name and its file name', rs2['t'] == 'Бен-Шемен синглы' and 'Ben-Shemen-2026.gpx' in rs2['s'], rs2)
+        await pg.click('#rs-x'); await pg.evaluate("Nav.stop()")
         # Profile: voice test speaks even with prompts off; install shows the iPhone steps.
         await pg.evaluate("showTab('profile'); window.__spoken = []; speechSynthesis.speak = u => window.__spoken.push(u.text); 0")
         await pg.click('#voice-test'); sp = await pg.evaluate("window.__spoken")
@@ -107,7 +115,19 @@ async def main():
         inst = await pg.evaluate("!document.getElementById('ask-install').hidden && !document.getElementById('in-ios').hidden && document.getElementById('in-and').hidden")
         await pg.click('#in-ok')
         check('«Установить» shows the iPhone steps', inst)
+        # ⏻: one dialog — «Закрыть приложение» / «Вернуться в приложение».
+        await pg.evaluate("showTab('profile')"); await pg.click('#app-off'); await pg.wait_for_timeout(200)
+        d1 = await pg.evaluate("!document.getElementById('ask-off').hidden && document.getElementById('off-close').innerText + ' | ' + document.getElementById('off-back').innerText")
+        await pg.click('#off-back'); d2 = await pg.evaluate("document.getElementById('ask-off').hidden")
+        check('power off: two buttons, «Вернуться» keeps the app', d1 and 'Закрыть приложение' in d1 and 'Вернуться в приложение' in d1 and d2, d1)
         check('no JS errors', not log['errors'], log['errors'][:3])
+        await pg.click('#app-off'); await pg.click('#off-close')
+        try:
+            await pg.wait_for_url('**/off.html*', timeout=5000)
+            txt = await pg.evaluate("document.body.innerText")
+            check('«Закрыть»: everything stopped, off screen without «swipe up», button back', 'выключен' in txt and 'смахните' not in txt and 'Вернуться в приложение' in txt, txt[:120])
+        except Exception as e:
+            check('«Закрыть»: window closed', pg.is_closed(), str(e)[:80])
         await b.close()
     print(f'{sum(RES)}/{len(RES)} passed'); sys.exit(0 if all(RES) else 1)
 asyncio.run(main())
