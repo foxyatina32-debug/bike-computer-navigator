@@ -107,6 +107,16 @@ async def main():
         rs2 = await pg.evaluate("({ t: document.getElementById('rs-title').textContent, s: document.getElementById('rs-src').hidden ? '' : document.getElementById('rs-src').textContent })")
         check('«С возвращением»: route name and its file name', rs2['t'] == 'Бен-Шемен синглы' and 'Ben-Shemen-2026.gpx' in rs2['s'], rs2)
         await pg.click('#rs-x'); await pg.evaluate("Nav.stop()")
+        # OsmAnd web links: the same points, built by our router and saved; hand-off link uses profile=bicycle.
+        n1 = await pg.evaluate("DB.all('routes').then(r => r.length)")
+        await pg.evaluate("showTab('routes'); routeSeg('mine'); importInput('https://osmand.net/map/navigate/?start=32.076000,34.891420&end=32.069975,34.856468&profile=bicycle#13/32.076000/34.891420')")
+        await pg.wait_for_timeout(2500)
+        rts = await pg.evaluate("DB.all('routes').then(r => r.filter(x => /^OsmAnd/.test(x.name)).map(x => ({n: x.name, c: x.coords.length, a: x.coords[0], b: x.coords[x.coords.length - 1]})))")
+        okr = len(rts) == 1 and abs(rts[0]['a'][0] - 32.076) < 1e-3 and abs(rts[0]['b'][1] - 34.856468) < 1e-3 and 'вело' in rts[0]['n']
+        await pg.evaluate("renderExt([32.07, 34.86], [[32.09, 34.88, null], [32.08, 34.87, null], [32.075, 34.865, null], [32.07, 34.86, null]], 'T')")
+        osm = await pg.evaluate("[...document.querySelectorAll('#ext a, #ext [data-href]')].map(a => a.href || a.dataset.href).find(h => /osmand/.test(h)) || ''")
+        check('OsmAnd link → route by our router; «OsmAnd» hand-off uses profile=bicycle', okr and 'profile=bicycle' in osm and 'finish=' in osm, f"{rts} · {osm[:90]}")
+        await pg.evaluate("showTab('rec')")
         # Profile: voice test speaks even with prompts off; install shows the iPhone steps.
         await pg.evaluate("showTab('profile'); window.__spoken = []; speechSynthesis.speak = u => window.__spoken.push(u.text); 0")
         await pg.click('#voice-test'); sp = await pg.evaluate("window.__spoken")
