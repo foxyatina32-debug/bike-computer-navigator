@@ -125,7 +125,7 @@ async def main():
         s = await pg.evaluate(ST)
         check('finish announced', any('прибыли' in x.lower() for x in s['said']), s['said'][-2:])
         if not await pg.is_visible('#c-stop'): await pg.click('#hud-max'); await pg.clock.run_for(400)
-        await pg.click('#c-stop'); await pg.click('#c-stop'); await pg.clock.run_for(1000)
+        await pg.click('#c-stop'); await pg.clock.run_for(200); await pg.click('#st-save'); await pg.clock.run_for(1000)
         rides = await pg.evaluate("DB.all('rides')")
         check('ride saved to history', len(rides) == 1 and rides[0]['dist'] > 1500, f"{len(rides)} ride(s), {rides[0]['dist']:.0f} m" if rides else 'none')
         await pg.click('.tabs button[data-tab=history]'); await pg.clock.run_for(500)

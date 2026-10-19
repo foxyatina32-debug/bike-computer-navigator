@@ -63,7 +63,7 @@ async def main():
         await pg.evaluate("Nav.toFinish(false)"); await pg.wait_for_timeout(1500)
         rr = await pg.evaluate("({cues: Nav.route.cues.map(c => c.txt), eng: Nav.route.opts && Nav.route.opts.engine})")
         check('reroute to finish uses Google', sum('routes.googleapis' in x for x in m.calls) > n0 and rr['eng'] == 'google' and 'улицу' in ' '.join(rr['cues']), rr)
-        await pg.evaluate("Nav.stop(); document.getElementById('c-stop').click(); document.getElementById('c-stop').click()")
+        await pg.evaluate("Nav.stop(); document.getElementById('c-stop').click(); document.getElementById('st-save').click()")
 
         # A→B, by roads: Google variants first.
         await pg.evaluate(f"openAB(); AB.terr = 'road'; AB.kind = 'one'; AB.a = [{A[0]},{A[1]}]; AB.b = [{B[0]},{B[1]}]; abRender()")

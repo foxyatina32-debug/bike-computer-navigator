@@ -21,7 +21,19 @@ async def main():
         await pg.reload(); await pg.wait_for_function('window.__appReady === true'); await pg.wait_for_timeout(800)
         lat = await move(ctx, pg, lat, 3); gain = await pg.evaluate('Ride.dist') - d1
         check('pause gap not counted (resume + reload)', gain < 25, f'{gain:.0f} m (≈55 m ridden while paused)')
-        await pg.click('#c-stop'); await pg.click('#c-stop'); await pg.wait_for_timeout(400)
+        # «■ Стоп» opens one dialog: keep riding / delete (asks twice) / finish and save.
+        n0 = await pg.evaluate("DB.all('rides').then(r => r.length)")
+        await pg.click('#c-stop'); await pg.wait_for_timeout(300)
+        info = await pg.evaluate("document.getElementById('ask-stop').hidden ? null : document.getElementById('ask-stop-info').textContent")
+        await pg.click('#st-cont'); await pg.wait_for_timeout(200)
+        check('stop dialog: shows the ride, «continue» keeps recording', info and 'км' in info and await pg.evaluate("Ride.status !== 'idle' && document.getElementById('ask-stop').hidden"), info)
+        await pg.click('#c-stop'); await pg.wait_for_timeout(200); await pg.click('#st-save'); await pg.wait_for_timeout(500)
+        check('stop dialog: «finish and save» saves to History', await pg.evaluate("Ride.status") == 'idle' and await pg.evaluate("DB.all('rides').then(r => r.length)") == n0 + 1)
+        await pg.click('#c-play'); lat = await move(ctx, pg, lat, 4)
+        await pg.click('#c-stop'); await pg.wait_for_timeout(200); await pg.click('#st-del'); await pg.wait_for_timeout(200)
+        armed = await pg.evaluate("Ride.status !== 'idle' && document.querySelector('#st-del b').textContent")
+        await pg.click('#st-del'); await pg.wait_for_timeout(500)
+        check('stop dialog: delete asks twice, then nothing is saved', armed and 'ещё раз' in armed and await pg.evaluate("Ride.status") == 'idle' and await pg.evaluate("DB.all('rides').then(r => r.length)") == n0 + 1, armed)
         # 2. «Add points by tapping the map» leaves enough map to tap; toasts never block taps.
         await pg.click('.tabs button[data-tab=routes]'); await pg.evaluate("routeSeg('plan')"); await pg.check('#pl-tap'); await pg.wait_for_timeout(400)
         top = await pg.evaluate("Math.max(document.querySelector('.top').getBoundingClientRect().bottom, document.getElementById('t-gpx').getBoundingClientRect().bottom)")
