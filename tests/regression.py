@@ -80,11 +80,11 @@ async def main():
         await ctx.set_geolocation({'latitude': 32.09, 'longitude': 34.88, 'accuracy': 5}); await pg.wait_for_timeout(1000)
         lat = 32.09
         for _ in range(70): lat += 0.00005; await ctx.set_geolocation({'latitude': lat, 'longitude': 34.88, 'accuracy': 5}); await pg.wait_for_timeout(1000)
-        s1 = await pg.evaluate("({done: Nav.progress, total: Nav.route.total, v: Nav.etaPace().v, climb: Nav.route.asc[200], card: [...document.querySelectorAll('.rtb b')].map(x=>x.textContent), left: document.getElementById('r-tleft').textContent, eta: document.getElementById('r-eta').textContent, nav: document.getElementById('nv-etl').textContent})")
+        s1 = await pg.evaluate("({done: Nav.progress, total: Nav.route.total, v: Nav.etaPace().v, climb: Nav.route.asc[200], card: [...document.querySelectorAll('.rtb b')].map(x=>x.textContent), left: document.querySelector('.slot[data-k=tleft]').innerText, eta: document.querySelector('.slot[data-k=eta] [data-v]').textContent, nav: document.getElementById('nv-etl').textContent})")
         check('route card shows done / left / total', abs(float(s1['card'][0][:-2]) * 1000 - s1['done']) < 20 and s1['card'][2].startswith('2.2'), f"{s1['card']} · {s1['nav']} · {s1['eta']}")
         check('pace learned from riding (~20 km/h)', 17 < s1['v'] * 3.6 < 23, f"{s1['v']*3.6:.1f} km/h, climb ahead {s1['climb']:.0f} m, left {s1['left']}")
         for _ in range(60): lat += 0.0001; await ctx.set_geolocation({'latitude': lat, 'longitude': 34.88, 'accuracy': 5}); await pg.wait_for_timeout(1000)
-        s2 = await pg.evaluate("({v: Nav.etaPace().v, left: document.getElementById('r-tleft').textContent})")
+        s2 = await pg.evaluate("({v: Nav.etaPace().v, left: document.querySelector('.slot[data-k=tleft]').innerText})")
         check('forecast reacts to faster riding', s2['v'] > s1['v'] * 1.2, f"{s1['v']*3.6:.1f} → {s2['v']*3.6:.1f} km/h, left {s2['left']}")
         await pg.evaluate("pager.scrollTo({left: 3 * pager.clientWidth})"); await pg.wait_for_timeout(500)
         ov = await pg.evaluate("[...document.querySelectorAll('.page')[3].querySelectorAll('.rtb b, .card .v')].filter(e => e.scrollWidth > e.clientWidth + 1 || e.getBoundingClientRect().right > innerWidth).length")
