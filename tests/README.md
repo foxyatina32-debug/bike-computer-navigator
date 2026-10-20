@@ -18,7 +18,10 @@ python3 tests/regression.py
 
 `gmaps.py` — Google Maps: ключевые точки поворотов в ссылках Google Maps, импорт любых ссылок Google (короткие maps.app.goo.gl, место, точка), «Что рядом / по пути» (Places Nearby) и «Заехать сюда».
 
+`look.py` — цвет маршрута и значок на карте из Профиля, сохраняются после перезапуска.
+
 ```
+python3 tests/look.py
 python3 tests/gmaps.py
 python3 tests/update.py
 python3 tests/voice.py
