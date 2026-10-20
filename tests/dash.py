@@ -23,7 +23,7 @@ async def main():
         check('fresh user: Basic, keys / Google / MBTiles hidden, Pro switch visible', not st['pro'] and not st['keys'] and not st['google'] and not st['mb'] and st['sw'], st)
         await pg.evaluate("showTab('layers')"); await pg.wait_for_timeout(300)
         bases = await pg.evaluate("[...document.querySelectorAll('#ly-base input')].map(i => i.value)")
-        check('Basic: only free base maps', sorted(bases) == sorted(['ihm_mtb_he', 'ihm_mtb_en', 'ihm_he', 'osm', 'cyclosm', 'topo']), bases)
+        check('Basic: only free base maps', sorted(bases) == sorted(['ihm_mtb_he', 'ihm_mtb_en', 'ihm_he', 'osm', 'cyclosm', 'topo', 'sat']), bases)
         await pg.evaluate("showTab('routes'); routeSeg('plan')"); g1 = await pg.evaluate(f"{VIS}('#pl-engine [data-e=google]')")
         await pg.evaluate("showTab('routes'); routeSeg('mine')"); px1 = await pg.evaluate(f"{VIS}('#url-proxy')")
         check('Basic: no Google engine, no proxy option', not g1 and not px1, (g1, px1))
