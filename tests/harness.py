@@ -88,12 +88,15 @@ def g_routes(body):
     return {'routes': out}
 
 class Mocks:
-    def __init__(s): s.calls = []; s.fail = set(); s.brouter = None; s.overpass = None; s.pages = {}; s.gerr = None; s.bodies = []; s.nominatim = None; s.photon = None
+    def __init__(s): s.calls = []; s.fail = set(); s.brouter = None; s.overpass = None; s.pages = {}; s.gerr = None; s.bodies = []; s.nominatim = None; s.photon = None; s.wk = None
     async def handle(s, route):
         u = route.request.url; s.calls.append(u)
         host = re.sub(r'^https?://([^/]+).*', r'\1', u)
         if '127.0.0.1' in host: return await route.continue_()
         if any(f in u for f in s.fail): return await route.abort('failed')
+        if s.wk and 'wk.test.workers.dev' in host:
+            st, body, hdr = s.wk(route.request)
+            return await route.fulfill(status=st, body=body if isinstance(body, (bytes, str)) else json.dumps(body), headers={'Access-Control-Allow-Origin': '*', 'Access-Control-Expose-Headers': 'X-Final-URL', **hdr})
         if 'routes.googleapis.com' in u:
             body = json.loads(route.request.post_data or '{}'); s.bodies.append((u, dict(route.request.headers), body))
             if s.gerr: return await route.fulfill(status=s.gerr[0], json=s.gerr[1], headers={'Access-Control-Allow-Origin': '*'})
