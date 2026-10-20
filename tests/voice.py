@@ -8,10 +8,10 @@ RES = []
 def check(name, ok, info=''):
     RES.append(bool(ok)); print(('PASS ' if ok else 'FAIL ') + name + (f' — {info}' if info != '' else ''))
 
-FAKE_SR = '''window.__sayNext = '';
-class FakeSR { start() { setTimeout(() => { const t = window.__sayNext; window.__sayNext = '';
+FAKE_SR = '''window.__sayNext = ''; window.__sayQ = []; window.__srStarts = 0;
+class FakeSR { start() { window.__srStarts++; setTimeout(() => { const t = window.__sayQ.length ? window.__sayQ.shift() : window.__sayNext; window.__sayNext = '';
   if (!t) { this.onerror && this.onerror({ error: 'no-speech' }); this.onend && this.onend(); return; }
-  const res = [{ transcript: t, confidence: .9 }]; res.isFinal = true; this.onresult({ results: [res] }); this.onend && this.onend(); }, 150); }
+  const res = [{ transcript: t, confidence: .9 }]; res.isFinal = true; this.onresult({ resultIndex: 0, results: [res] }); this.onend && this.onend(); }, 150); }
   abort() {} stop() {} }
 window.webkitSpeechRecognition = window.SpeechRecognition = FakeSR;'''
 NO_SR = 'window.SpeechRecognition = window.webkitSpeechRecognition = undefined;'
@@ -38,7 +38,7 @@ async def say(pg, text, wait_for):
     await pg.wait_for_function(wait_for, timeout=15000)
 
 async def main():
-    url = serve(8797); m = Mocks()
+    url = serve(8786); m = Mocks()
     async with async_playwright() as p:
         b, ctx, pg, log = await open_app(p, url + '?lang=ru', m)
         await ctx.add_init_script(FAKE_SR); await pg.reload(); await pg.wait_for_function('window.__appReady === true'); await pg.wait_for_timeout(800)
@@ -89,7 +89,35 @@ async def main():
         check('no JS errors (ru)', not log['errors'], log['errors'])
         await b.close()
 
-        # 8. Hebrew and English: panel translated, fits the screen; no recognizer → keyboard hint
+        # 8. «Привет, Вело»
+        WAKE_YES = ['привет вело', 'Привет, Вело, поехали домой', 'хей вело', 'эй, вело', 'окей вело', 'Hey Velo go home', 'היי ולו סע הביתה']
+        WAKE_NO = ['привет', 'поехали домой', 'привет велосипед', 'велосипед', 'хей']
+        b, ctx, pg, log = await open_app(p, url + '?lang=ru', m)
+        await ctx.add_init_script(FAKE_SR); await pg.reload(); await pg.wait_for_function('window.__appReady === true'); await pg.wait_for_timeout(800)
+        r = await pg.evaluate('([y, n]) => [y.filter(t => !Voice.wakeRx.test(t.toLowerCase())), n.filter(t => Voice.wakeRx.test(t.toLowerCase()))]', [WAKE_YES, WAKE_NO])
+        check('wake phrase: «Привет / Хей / Эй / Окей, Вело» yes, other speech no', r == [[], []], r)
+        idle = await pg.evaluate("Voice.waking")
+        await pg.evaluate("lsSet('home', {ll: [32.0853, 34.7818], name: 'Тель-Авив'}); document.getElementById('s-wakeword').click()")
+        await pg.wait_for_function("Voice.waking && document.getElementById('t-mic').classList.contains('wake')", timeout=5000)
+        check('off by default; switch in Profile starts listening (green dot)', idle is False and await pg.evaluate("S.wakeword === true && lsGet('settings', {}) !== null"))
+        await pg.evaluate("window.__sayQ = ['Привет, Вело, поехали домой']")
+        await pg.wait_for_function("Nav.route && Nav.route.name === 'Домой'", timeout=10000)
+        check('«Привет, Вело, поехали домой» in one phrase → navigation home', True, await status(pg))
+        await pg.wait_for_function("document.getElementById('vc').hidden && Voice.waking", timeout=10000)
+        check('panel closes by itself and listening resumes', True)
+        await pg.evaluate("window.__sayQ = ['привет вело', 'поехали 32,05 34,85']")
+        await pg.wait_for_function("Nav.route && Nav.route.name.startsWith('32.05000')", timeout=12000)
+        check('«Привет, Вело» → «Слушаю» → «поехали 32,05 34,85» → route', True, await status(pg))
+        await pg.wait_for_function("document.getElementById('vc').hidden && Voice.waking", timeout=10000)
+        await pg.evaluate("window.__sayQ = ['поехали в Тель-Авив', 'привет как дела']"); await pg.wait_for_timeout(1500)
+        check('commands without «Привет, Вело» are ignored', await pg.evaluate("Nav.route.name.startsWith('32.05000') && document.getElementById('vc').hidden"))
+        await pg.evaluate("document.getElementById('s-wakeword').click()"); await pg.wait_for_timeout(600)
+        n = await pg.evaluate("window.__srStarts"); await pg.wait_for_timeout(1500)
+        check('switch off → stops listening', await pg.evaluate(f"!Voice.waking && window.__srStarts === {n} && !document.getElementById('t-mic').classList.contains('wake')"))
+        check('no JS errors (wake)', not log['errors'], log['errors'])
+        await b.close()
+
+        # 9. Hebrew and English: panel translated, fits the screen; no recognizer → keyboard hint
         for lang, loc, home_cmd in (('he', 'he-IL', 'סע הביתה'), ('en', 'en-US', 'go home')):
             b, ctx, pg, log = await open_app(p, url + f'?lang={lang}', m, viewport=(320, 568), locale=loc)
             await ctx.add_init_script(NO_SR); await pg.reload(); await pg.wait_for_function('window.__appReady === true'); await pg.wait_for_timeout(800)
