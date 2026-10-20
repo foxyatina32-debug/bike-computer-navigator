@@ -14,7 +14,7 @@
 //   ALLOWED_ORIGINS       https://foxyatina32-debug.github.io        (comma-separated; optional, this is the default)
 //   STRAVA_CLIENT_ID      your Strava app's Client ID                 (only for Strava)
 //   STRAVA_CLIENT_SECRET  your Strava app's Client Secret — type «Secret»  (only for Strava)
-// Then paste the worker address (https://<name>.<account>.workers.dev) in Velocomp → Profile → Pro → «Свой прокси».
+// Then paste the worker address (https://<name>.<account>.workers.dev) in Velocomp → Настройки → Для продвинутых → «Свой прокси».
 
 const VERSION = '1';
 const DEFAULT_ORIGINS = 'https://foxyatina32-debug.github.io';

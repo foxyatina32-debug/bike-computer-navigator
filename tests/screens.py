@@ -43,8 +43,8 @@ async def visit(pg, name, js, lang, tag):
 
 SCREENS = [
     ('map', "showTab('rec')"),
-    ('map-pages', "showTab('rec'); setCompact(false); pager.scrollTo({left: 3 * pager.clientWidth})"),
     ('nav', "showTab('rec'); Nav.set({name: 'Бен-Шемен кольцо', coords: " + json.dumps(ROUTE) + ", rid: 'rt1', noAsk: true}); setCompact(false)"),
+    ('map-pages', "setCompact(false); syncPages(); pager.scrollTo({left: 3 * pager.clientWidth})"),
     ('nav-compact', "setCompact(true)"),
     ('stop-dialog', "Nav.stop(); Ride.start(); document.getElementById('c-stop').click()"),
     ('add', "document.getElementById('st-cont').click(); Ride.stop(false); openAdd()"),
@@ -57,6 +57,7 @@ SCREENS = [
     ('history', "document.getElementById('sh-x').click(); showTab('history')"),
     ('ride', "openRide('rd1')"),
     ('profile', "showTab('profile')"),
+    ('settings-groups', "document.querySelectorAll('#sheet-profile details.grp').forEach(d => d.open = d.dataset.g === 'ride'); document.getElementById('sheet-profile').scrollTop = 0"),
     ('layers', "showTab('layers')"),
     ('install', "showTab('profile'); document.getElementById('app-install').click()"),
     ('off-dialog', "document.getElementById('in-ok').click(); document.getElementById('app-off').click()"),
