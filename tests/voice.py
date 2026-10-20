@@ -184,10 +184,10 @@ async def main():
         # with a Google key: Google Places first (exact house numbers), map switches to Google for its results
         await pg.evaluate("lsSet('gkey', 'TEST-KEY'); Voice.close(); setBase('ihm_mtb_he')"); await pg.wait_for_timeout(300)
         n0 = sum('places.googleapis.com' in u for u in m.calls)
-        await pg.evaluate("Voice.open(false)"); await pg.fill('#vc-q', 'Шпринцак 16 Петах-Тиква')
+        await pg.evaluate("Voice.open(false)"); await pg.fill('#vc-q', 'Шпринцак 99 Петах-Тиква')
         await pg.wait_for_function("document.querySelectorAll('#vc-sug [data-go]').length > 0", timeout=8000)
         t = await pg.evaluate("document.querySelector('#vc-sug .vc-s .t').textContent")
-        check('Google key set → suggestions come from Google Places', sum('places.googleapis.com' in u for u in m.calls) > n0 and 'Яркон' in t, t)
+        check('Google key set, house number Photon lacks → Google Places suggestions', sum('places.googleapis.com' in u for u in m.calls) > n0 and 'Яркон' in t, t)
         await pg.click('#vc-sug [data-go="0"]')
         await pg.wait_for_function("Nav.route && Nav.route.name.includes('Яркон')", timeout=10000)
         check('Google result → route there, map switched to Google', await pg.evaluate("/^google/.test(baseKey)") and abs((await pg.evaluate("Nav.route.coords[Nav.route.coords.length - 1]"))[0] - 32.1) < 1e-6, await pg.evaluate("baseKey"))

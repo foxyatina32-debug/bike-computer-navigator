@@ -56,6 +56,43 @@ async def main():
         r = await imp('https://www.google.com/maps/dir/Tel+Aviv/32.1,34.9/data=!4m6!4m5!1m2!1d34.7818!2d32.0853!1m0!3e1')
         check('A→B link with a named place still works (data !1d lon !2d lat)', 'err' not in r and abs(r['a'][0] - 32.0853) < 1e-4, r)
 
+        r = await imp('https://www.google.com/url?sa=t&q=' + 'https%3A%2F%2Fwww.google.com%2Fmaps%2Fdir%2F32.09%2C34.88%2F32.12%2C34.91%2F' + '&usg=x')
+        check('Google redirect link google.com/url?q=… → the real Google Maps link', 'err' not in r and abs(r['b'][0] - 32.12) < 1e-6, r)
+
+        # ---- typing an address: no Nominatim (its rules forbid search-as-you-type); Google only for a house number Photon lacks
+        from urllib.parse import unquote
+        def photon(u):
+            q = unquote(re.search(r'q=([^&]+)', u).group(1)).replace('+', ' ')
+            if 'שפרינצק' in q:
+                return {'features': [{'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': [34.8861, 32.0927]}, 'properties': {'street': 'שפרינצק', 'housenumber': '16', 'city': 'פתח תקווה'}}]}
+            return {'features': []}
+        m.photon = photon; m.nominatim = lambda u: []
+        nom = lambda: sum('nominatim.openstreetmap.org/search' in c for c in m.calls)
+        await pg.evaluate("openAB()"); n0 = nom()
+        for part in ['Шпр', 'Шпринцак', 'Шпринцак 16', 'Шпринцак 16 Петах-Тиква']:
+            await pg.fill('#ab-qb', part); await pg.wait_for_timeout(900)
+        typed = nom() - n0
+        sug = await pg.evaluate("document.querySelector('#ab-rb [data-i] .t') ? document.querySelector('#ab-rb [data-i] .t').textContent : document.getElementById('ab-rb').textContent")
+        check('A→B: typing → suggestions from Photon, 0 Nominatim requests', typed == 0 and 'שפרינצק 16' in sug, f'{typed} requests, «{sug}»')
+        await pg.fill('#ab-qb', 'Неизвестная улица 5'); await pg.wait_for_timeout(900)
+        hint = await pg.evaluate("document.getElementById('ab-rb').textContent")
+        n1 = nom(); await pg.press('#ab-qb', 'Enter'); await pg.wait_for_timeout(1500)
+        check('A→B: nothing while typing → hint; «Найти» → full search (Nominatim)', 'нажмите «Найти»' in hint and nom() > n1, hint)
+        await pg.evaluate("abHide(); showTab('rec')")
+        n2 = nom(); await pg.click('#t-gpx'); await pg.wait_for_timeout(300)
+        has_geo = await pg.evaluate("!!document.getElementById('geo-q') && document.getElementById('geo-q').offsetParent !== null")
+        await pg.evaluate("showTab('routes'); routeSeg('plan')"); await pg.wait_for_timeout(300)
+        await pg.fill('#geo-q', 'Шпринцак 16'); await pg.wait_for_timeout(1200)
+        check('map search while typing: 0 Nominatim requests', nom() == n2 and 'שפרינצק' in await pg.evaluate("document.getElementById('geo-res').textContent"), nom() - n2)
+        await pg.evaluate("lsSet('gkey', 'TEST-KEY')"); gp = lambda: sum('places:searchText' in c for c in m.calls); g0 = gp()
+        await pg.fill('#geo-q', 'Шпринцак 16 Петах'); await pg.wait_for_timeout(1200)
+        g1 = gp()
+        await pg.fill('#geo-q', 'Шпринцак 99 Петах'); await pg.wait_for_timeout(1200)
+        g2 = gp()
+        await pg.fill('#geo-q', 'Шпринцак 99 Пет'); await pg.wait_for_timeout(1200); await pg.fill('#geo-q', 'Шпринцак 99 Петах'); await pg.wait_for_timeout(1200)
+        check('with a Google key: Google only when Photon lacks the house number, repeats cached', g1 == g0 and g2 == g1 + 1 and gp() == g2 + 1, f'{g1 - g0} / {g2 - g1} / {gp() - g2}')
+        await pg.evaluate("lsSet('gkey', ''); showTab('rec')"); m.photon = None; m.nominatim = None
+
         # ---- module 4: rider stops
         await pg.evaluate("showRiderPOIs()"); await pg.wait_for_timeout(500)
         check('stops without a Google key → asks for the key', 'ключ Google с Places API' in await pg.evaluate("window.__lastToasts"))

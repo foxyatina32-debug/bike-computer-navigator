@@ -23,9 +23,9 @@ async def main():
         await pg.evaluate("checkUpdate(true)"); await pg.wait_for_timeout(800)
         check('new build during navigation → no reload, toast', await pg.evaluate("window.__mark === 1 && Upd.pending && window.__lastToasts.includes('новая версия')"))
         async with pg.expect_navigation(timeout=10000):
-            await pg.evaluate("Nav.stop(); applyUpdate()")
+            await pg.evaluate("Nav.progress = Nav.route.total - 20; applyUpdate()")
         await pg.wait_for_function('window.__appReady === true', timeout=20000)
-        check('navigation finished → app reloads to the new version', await pg.evaluate("window.__mark === undefined"))
+        check('route ridden to the finish (no «Завершить») → app reloads to the new version', await pg.evaluate("window.__mark === undefined"))
         await pg.wait_for_timeout(500)
         await pg.wait_for_timeout(6500)
         check('still old after reload (server says 999) → no reload loop', await pg.evaluate("window.__appReady === true && !Upd.pending") and await pg.evaluate("lsGet('updTried', null)") == '999')
