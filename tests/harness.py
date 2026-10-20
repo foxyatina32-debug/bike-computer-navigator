@@ -98,6 +98,12 @@ class Mocks:
             body = json.loads(route.request.post_data or '{}'); s.bodies.append((u, dict(route.request.headers), body))
             if s.gerr: return await route.fulfill(status=s.gerr[0], json=s.gerr[1], headers={'Access-Control-Allow-Origin': '*'})
             return await route.fulfill(json=g_routes(body), headers={'Access-Control-Allow-Origin': '*'})
+        if 'places:searchNearby' in u:
+            body = json.loads(route.request.post_data or '{}'); s.bodies.append((u, dict(route.request.headers), body))
+            c = body['locationRestriction']['circle']['center']; la, lo = c['latitude'], c['longitude']
+            pl = [{'id': f'p{k}{la:.3f}', 'displayName': {'text': n}, 'location': {'latitude': la + dy, 'longitude': lo + dx}, 'primaryType': t, 'regularOpeningHours': {'openNow': op}, 'formattedAddress': 'Тестовая 1'}
+                  for k, (n, t, dy, dx, op) in enumerate([('Велосклад', 'bicycle_store', .004, .002, True), ('AM:PM', 'convenience_store', -.003, .004, True), ('Паз', 'gas_station', .006, -.003, False)])]
+            return await route.fulfill(json={'places': pl}, headers={'Access-Control-Allow-Origin': '*'})
         if 'places.googleapis.com' in u:
             s.bodies.append((u, dict(route.request.headers), json.loads(route.request.post_data or '{}')))
             return await route.fulfill(json={'places': [{'displayName': {'text': 'Парк Яркон'}, 'formattedAddress': 'Тель-Авив, Израиль', 'location': {'latitude': 32.1, 'longitude': 34.81}}]}, headers={'Access-Control-Allow-Origin': '*'})
