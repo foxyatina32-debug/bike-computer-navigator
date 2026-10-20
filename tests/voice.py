@@ -1,6 +1,6 @@
 # Voice commands: phrase parsing (ru / he / en) and the whole flow mic → route → navigation.
 # The browser's speech recognizer is replaced by a fake that "hears" window.__sayNext. Run: python3 tests/voice.py
-import asyncio, sys, os
+import asyncio, sys, os, re
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from harness import serve, Mocks, open_app
 from playwright.async_api import async_playwright
@@ -117,7 +117,48 @@ async def main():
         check('no JS errors (wake)', not log['errors'], log['errors'])
         await b.close()
 
-        # 9. Hebrew and English: panel translated, fits the screen; no recognizer → keyboard hint
+        # 9. Russian street names: Hebrew spelling, suggestions while typing, «🏠» sets home
+        from urllib.parse import unquote
+        def photon(u):
+            q = unquote(re.search(r'q=([^&]+)', u).group(1)).replace('+', ' ')
+            if 'שפרינצק' in q:
+                return {'features': [{'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': [34.8861, 32.0927]}, 'properties': {'street': 'שפרינצק', 'housenumber': '16', 'city': 'פתח תקווה', 'state': 'מחוז המרכז'}},
+                                     {'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': [34.8890, 32.0940]}, 'properties': {'name': 'שפרינצק', 'city': 'פתח תקווה'}}]}
+            return {'features': []}
+        m.photon = photon
+        m.nominatim = lambda u: []   # Nominatim does not know Russian street names
+        b, ctx, pg, log = await open_app(p, url + '?lang=ru', m)
+        he = await pg.evaluate("ruAddrHe('улица Шпринцак 16 Петах-Тиква')")
+        check('«улица Шпринцак 16 Петах-Тиква» → «שפרינצק 16 פתח תקווה»', he == ['שפרינצק 16 פתח תקווה'], he)
+        await pg.click('#t-mic'); await pg.wait_for_timeout(300)
+        await pg.fill('#vc-q', 'запомни дом улица Шпринцак 16 Петах-Тиква')
+        await pg.wait_for_function("document.querySelectorAll('#vc-sug .vc-s').length > 0", timeout=8000)
+        first = await pg.evaluate("document.querySelector('#vc-sug .vc-s .t').textContent + ' | ' + document.querySelector('#vc-sug .vc-s .s').textContent")
+        check('suggestions appear while typing a Russian address', 'שפרינצק 16' in first and 'פתח תקווה' in first, first)
+        await pg.click('#vc-sug [data-home="0"]'); await pg.wait_for_timeout(300)
+        h = await pg.evaluate("lsGet('home', null)")
+        check('🏠 on a suggestion saves it as home', h and abs(h['ll'][0] - 32.0927) < 1e-6 and 'שפרינצק 16' in h['name'], h)
+        await pg.fill('#vc-q', 'поехали на Шпринцак 16 Петах-Тиква')
+        await pg.wait_for_function("document.querySelectorAll('#vc-sug .vc-s').length > 0", timeout=8000)
+        await pg.click('#vc-sug [data-go="0"]')
+        await pg.wait_for_function("Nav.route && Nav.route.name.includes('שפרינצק')", timeout=10000)
+        end = await pg.evaluate("Nav.route.coords[Nav.route.coords.length - 1]")
+        check('➜ on a suggestion → route there', abs(end[0] - 32.0927) < 1e-6, end[:2])
+        await pg.evaluate("lsSet('home', null)")
+        if await pg.evaluate("document.getElementById('vc').hidden"): await pg.click('#t-mic')
+        await pg.fill('#vc-q', 'запомни дом Шпринцак 16, Петах-Тиква'); await pg.click('#vc-go')
+        await pg.wait_for_function("document.getElementById('vc-st').textContent.includes('Дом запомнен')", timeout=10000)
+        h = await pg.evaluate("lsGet('home', null)")
+        check('typed / spoken «запомни дом Шпринцак 16…» finds it too', h and abs(h['ll'][0] - 32.0927) < 1e-6, h)
+        await pg.click('#vc-x')
+        await pg.evaluate("openAB()"); await pg.fill('#ab-qb', 'Шпринцак 16 Петах-Тиква')
+        await pg.wait_for_function("document.querySelectorAll('#ab-rb [data-i]').length > 0", timeout=8000)
+        check('«Из точки в точку» search finds the Russian address too', 'שפרינצק' in await pg.evaluate("document.querySelector('#ab-rb [data-i] .t').textContent"))
+        check('no JS errors (addresses)', not log['errors'], log['errors'])
+        await b.close()
+        m.photon = None; m.nominatim = None
+
+        # 10. Hebrew and English: panel translated, fits the screen; no recognizer → keyboard hint
         for lang, loc, home_cmd in (('he', 'he-IL', 'סע הביתה'), ('en', 'en-US', 'go home')):
             b, ctx, pg, log = await open_app(p, url + f'?lang={lang}', m, viewport=(320, 568), locale=loc)
             await ctx.add_init_script(NO_SR); await pg.reload(); await pg.wait_for_function('window.__appReady === true'); await pg.wait_for_timeout(800)
