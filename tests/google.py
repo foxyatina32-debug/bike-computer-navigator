@@ -77,10 +77,11 @@ async def main():
         check('A→B Google variant navigates with Google steps', await pg.evaluate("Nav.route.opts.engine === 'google' && Nav.route.cues[0].txt.includes('Тестовую')"))
         await pg.evaluate("Nav.stop()")
 
-        # Places search on the Google map; Nominatim on other maps.
+        # With a key, Places search on any map (exact house numbers); without a key — Nominatim.
         r1 = await pg.evaluate("geoSearch('Яркон').then(r => r[0])")
         await pg.evaluate("setBase('ihm_mtb_he')"); r2 = await pg.evaluate("geoSearch('Яркон').then(r => r[0])")
-        check('search: Google Places on Google map, Nominatim otherwise', r1.get('src') == 'google' and 'Парк Яркон' in r1['display_name'] and r2.get('src') is None, f"{r1['display_name']} / {r2['display_name']}")
+        k = await pg.evaluate("gKey()"); await pg.evaluate("lsSet('gkey', '')"); r3 = await pg.evaluate("geoSearch('Яркон').then(r => r[0])"); await pg.evaluate(f"lsSet('gkey', {k!r})")
+        check('search: Google Places whenever a key is set, Nominatim without a key', r1.get('src') == 'google' and 'Парк Яркон' in r1['display_name'] and r2.get('src') == 'google' and r3.get('src') is None, f"{r1['display_name']} / {r2.get('src')} / {r3['display_name']}")
 
         # Readable errors.
         m.gerr = (403, {'error': {'code': 403, 'message': 'Routes API has not been used in project 1 before or it is disabled.', 'status': 'PERMISSION_DENIED'}})

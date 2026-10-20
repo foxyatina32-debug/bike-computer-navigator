@@ -88,7 +88,7 @@ def g_routes(body):
     return {'routes': out}
 
 class Mocks:
-    def __init__(s): s.calls = []; s.fail = set(); s.brouter = None; s.overpass = None; s.pages = {}; s.gerr = None; s.bodies = []
+    def __init__(s): s.calls = []; s.fail = set(); s.brouter = None; s.overpass = None; s.pages = {}; s.gerr = None; s.bodies = []; s.nominatim = None; s.photon = None
     async def handle(s, route):
         u = route.request.url; s.calls.append(u)
         host = re.sub(r'^https?://([^/]+).*', r'\1', u)
@@ -123,7 +123,10 @@ class Mocks:
             ru = 'accept-language=ru' in u
             return await route.fulfill(json={'address': {'road': 'Тестовая улица' if ru else 'Test Street', 'city': 'Петах-Тиква' if ru else 'Petah Tikva'}}, headers={'Access-Control-Allow-Origin': '*'})
         if 'nominatim' in u:
+            if s.nominatim: return await route.fulfill(json=s.nominatim(u), headers={'Access-Control-Allow-Origin': '*'})
             return await route.fulfill(json=[{"lat":"32.0853","lon":"34.7818","display_name":"Тель-Авив, Израиль","name":"Тель-Авив"}])
+        if 'photon.komoot.io' in u:
+            return await route.fulfill(json=s.photon(u) if s.photon else {'type': 'FeatureCollection', 'features': []}, headers={'Access-Control-Allow-Origin': '*'})
         if 'overpass' in u:
             return await route.fulfill(json=s.overpass(u) if s.overpass else {"elements": []})
         if 'routed-bike' in u:
