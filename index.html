@@ -695,7 +695,7 @@ label.chk{font-size:14px}
   <div class="vc-row"><button class="vc-mic" id="vc-mic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></button><div class="vc-st" id="vc-st"></div><button class="vc-x" id="vc-x">✕</button></div>
   <div class="vc-heard" id="vc-heard" hidden></div>
   <div class="vc-alts" id="vc-alts"></div>
-  <div class="vc-row"><input class="vc-q" id="vc-q" type="text" enterkeyhint="go" autocomplete="off"><button class="btn pri" id="vc-go">→</button></div>
+  <div class="vc-row"><input class="vc-q" id="vc-q" dir="auto" type="text" enterkeyhint="go" autocomplete="off"><button class="btn pri" id="vc-go">→</button></div>
   <div class="vc-sug" id="vc-sug" hidden></div>
   <div class="vc-ex" id="vc-ex"></div>
   <div class="vc-row"><div class="vc-home" id="vc-home" style="flex:1"></div><button class="btn sm" id="vc-sethome"></button></div>
@@ -774,7 +774,7 @@ label.chk{font-size:14px}
     <div class="col" style="margin-top:12px">
       <button class="btn" id="pl-gpx" style="justify-content:flex-start;gap:10px"><b style="color:var(--accent)">GPX</b> Открыть файл маршрута и ехать</button>
       <button class="btn" id="pl-ab" style="justify-content:flex-start;gap:10px"><b style="color:var(--accent)">A→B</b> Из точки в точку: старт и финиш на карте, варианты</button>
-      <input type="search" id="geo-q" placeholder="Куда? Адрес, место, יישוב…" autocomplete="off">
+      <input type="search" id="geo-q" dir="auto" placeholder="Куда? Адрес, место, יישוב…" autocomplete="off">
       <div class="list" id="geo-res" hidden></div>
       <label class="chk"><input type="checkbox" id="pl-fromgps" checked> Старт из моего местоположения</label>
       <label class="chk"><input type="checkbox" id="pl-tap"> Добавлять точки нажатием на карту</label>
@@ -823,7 +823,7 @@ label.chk{font-size:14px}
     <div class="row"><button class="btn pri" id="tr-load">Загрузить</button><button class="btn" id="tr-clear">Скрыть</button></div>
     <p class="note" id="tr-status"></p>
     <h3>Поиск по всему Израилю</h3>
-    <input type="search" id="tr-q" placeholder="Название: שביל, Ben Shemen, Карми…" autocomplete="off">
+    <input type="search" id="tr-q" dir="auto" placeholder="Название: שביל, Ben Shemen, Карми…" autocomplete="off">
     <div class="list" id="tr-list" style="margin-top:8px"></div>
   </div>
 
@@ -838,7 +838,7 @@ label.chk{font-size:14px}
     </div>
     <h3>Мои сайты с маршрутами</h3>
     <div class="col">
-      <div class="row"><input type="search" id="st-q" placeholder="Найти маршрут на моих сайтах: Бен-Шемен, Кармель…" autocomplete="off" style="flex:1;min-width:0"><button class="btn" id="st-search">Искать</button></div>
+      <div class="row"><input type="search" id="st-q" dir="auto" placeholder="Найти маршрут на моих сайтах: Бен-Шемен, Кармель…" autocomplete="off" style="flex:1;min-width:0"><button class="btn" id="st-search">Искать</button></div>
       <div class="list" id="st-list"></div>
       <div class="row"><input type="search" id="st-url" inputmode="url" placeholder="Адрес сайта: rochvim-kavuh.com" autocomplete="off" autocapitalize="off" spellcheck="false" style="flex:1;min-width:0"><button class="btn pri" id="st-add">Добавить</button></div>
       <p class="note" style="margin:0">Откройте сайт, найдите маршрут, скопируйте ссылку на его страницу и вставьте в поле «Добавить по ссылке» выше — приложение само найдёт на странице файл GPX/KML (может понадобиться «Через прокси»).</p>
@@ -856,9 +856,9 @@ label.chk{font-size:14px}
   <header><button class="back" data-close aria-label="Назад к карте"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg>На карту</button><h2>Из точки в точку</h2><button class="close" data-close aria-label="Закрыть">×</button></header>
   <p class="note" id="ab-hint" style="margin-top:0"></p>
   <div class="col" style="gap:6px">
-    <input type="search" id="ab-qa" placeholder="Старт: адрес, место или координаты" autocomplete="off">
+    <input type="search" id="ab-qa" dir="auto" placeholder="Старт: адрес, место или координаты" autocomplete="off">
     <div class="list" id="ab-ra" hidden></div>
-    <input type="search" id="ab-qb" placeholder="Финиш: адрес, место или координаты" autocomplete="off">
+    <input type="search" id="ab-qb" dir="auto" placeholder="Финиш: адрес, место или координаты" autocomplete="off">
     <div class="list" id="ab-rb" hidden></div>
   </div>
   <div class="list" id="ab-pts" style="margin-top:8px"></div>
@@ -5124,9 +5124,10 @@ const Voice = (() => {
     while (Date.now() - t0 < ms) { await new Promise(r => setTimeout(r, 300)); if (GPS.fix) return GPS.fix; }
     throw new Error(T3('нет GPS — выйдите на открытое место', 'no GPS — move to an open spot', 'אין GPS — צאו למקום פתוח'));
   }
+  // Hebrew in any app language: «לשפרינצק 16» / «ל-תל אביב» → also without the prefix ל (as typed first: «לטרון» is a place).
+  const heVariants = q => { const out = [q]; const m = q.match(/^ל-?([\u0590-\u05FF].*)$/); if (m) out.push(m[1]); return out; };
   async function findPlace(q) {
-    const tries = [q];
-    if (LANG === 'he' && /^ל[^\s]/.test(q)) tries.push(q.slice(1)); // «לתל אביב» → «תל אביב»; «לטרון» stays first
+    const tries = heVariants(q);
     for (const x of tries) { const j = await geoSearch(x, 5); if (j && j.length) return j; }
     return [];
   }
@@ -5177,7 +5178,8 @@ const Voice = (() => {
     if (!q || q.length < 3) { sugClear(); return; }
     const my = ++sugSeq, box = el('vc-sug');
     try {
-      const j = await geoSuggest(q, 6);
+      const vs = heVariants(q), all = await Promise.all(vs.map(x => geoSuggest(x, 6).catch(e => { if (vs.length === 1) throw e; return []; })));
+      const j = []; for (const a of all) for (const x of a) if (!j.some(y => Math.abs(y.lat - x.lat) < 2e-4 && Math.abs(y.lon - x.lon) < 2e-4)) j.push(x); j.splice(6);
       if (my !== sugSeq || el('vc').hidden) return;
       box.hidden = false;
       box.innerHTML = j.length ? j.map((r, i) => { const parts = r.display_name.split(','); return `<div class="vc-s"><div class="tx"><span class="t">${esc(r.name || parts[0])}</span><span class="s">${esc(parts.slice(1, 3).join(',').trim())}</span></div><button class="go" data-go="${i}" aria-label="${esc(T3('Поехали', 'Go', 'סע'))}">➜</button><button data-home="${i}" aria-label="${esc(T3('Сделать домом', 'Set as home', 'קבע כבית'))}">🏠</button></div>`; }).join('')
