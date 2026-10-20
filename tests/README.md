@@ -16,7 +16,10 @@ python3 tests/regression.py
 
 `update.py` — автообновление: новая версия на сайте перезагружает приложение сразу, а во время поездки или навигации — после неё; без бесконечных перезагрузок. Номер сборки в `index.html` (`APP_BUILD`) и в `version.json` должен совпадать — тест это проверяет.
 
+`gmaps.py` — Google Maps: ключевые точки поворотов в ссылках Google Maps, импорт любых ссылок Google (короткие maps.app.goo.gl, место, точка), «Что рядом / по пути» (Places Nearby) и «Заехать сюда».
+
 ```
+python3 tests/gmaps.py
 python3 tests/update.py
 python3 tests/voice.py
 python3 tests/ride.py
