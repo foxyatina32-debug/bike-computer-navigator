@@ -135,7 +135,7 @@ class Mocks:
             return await route.fulfill(json=s.photon(u) if s.photon else {'type': 'FeatureCollection', 'features': []}, headers={'Access-Control-Allow-Origin': '*'})
         if 'overpass' in u:
             return await route.fulfill(json=s.overpass(u) if s.overpass else {"elements": []})
-        if 'routed-bike' in u:
+        if 'routing.openstreetmap.de/routed-' in u:
             return await route.fulfill(json={"code":"Ok","routes":[{"distance":1500,"geometry":{"type":"LineString","coordinates":[[34.88,32.09],[34.89,32.095],[34.9,32.1]]},"legs":[{"steps":[]}]}]})
         for k, v in s.pages.items():
             if k in u: return await route.fulfill(body=v[0], content_type=v[1], headers={'Access-Control-Allow-Origin': '*'})
