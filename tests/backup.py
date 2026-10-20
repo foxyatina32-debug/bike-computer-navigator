@@ -1,4 +1,4 @@
-# Simple backup: «📦 Сохранить копию» (share menu → Files / iCloud), weekly reminder, full restore. Run: python3 tests/backup.py
+# Backup: «📦 Сохранить копию» through the share menu (the rider chooses where), full restore. Run: python3 tests/backup.py
 import asyncio, sys, os, json
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from harness import serve, Mocks, open_app
@@ -33,19 +33,10 @@ async def main():
         check('no JS errors', not log['errors'], log['errors'][:3])
         await b.close()
 
-        # Reminder: data and no copy for a week → asks (not during a ride); «через неделю» snoozes
+        # No reminder any more (removed on request)
         b, ctx, pg, log = await open_app(p, url + '?lang=ru', Mocks())
-        await pg.evaluate(SEED); await pg.evaluate("lsSet('lastBackup', Date.now() - 8 * 864e5)")
-        await pg.reload(); await pg.wait_for_function('window.__appReady === true'); await pg.wait_for_timeout(7000)
-        nag = await pg.evaluate("!document.getElementById('ask-backup').hidden && document.getElementById('bkn-info').textContent")
-        check('after a week: reminder with what is at stake', nag and '1 поездка и 1 маршрут' in nag, nag)
-        await pg.screenshot(path=os.path.join(SHOT, 'backup-nag.png'))
-        await pg.click('#bkn-week')
-        snooze = await pg.evaluate("(lsGet('bkNag', 0) - Date.now()) / 864e5")
-        await pg.reload(); await pg.wait_for_function('window.__appReady === true'); await pg.wait_for_timeout(7000)
-        check('«Напомнить через неделю» → quiet for 7 days', 6.9 < snooze < 7.1 and await pg.evaluate("document.getElementById('ask-backup').hidden"), round(snooze, 2))
-        await pg.evaluate("lsSet('bkNag', 0)"); await pg.click('#c-play'); await pg.evaluate("backupNag()"); await pg.wait_for_timeout(300)
-        check('never during a ride', await pg.evaluate("document.getElementById('ask-backup').hidden"))
+        await pg.evaluate(SEED); await pg.reload(); await pg.wait_for_function('window.__appReady === true'); await pg.wait_for_timeout(7000)
+        check('no backup reminder, no iCloud wording', await pg.evaluate("!document.getElementById('ask-backup') && typeof backupNag === 'undefined' && !/iCloud/.test(document.getElementById('sheet-profile').innerText)"))
         await b.close()
 
         # New phone: restore from the file → routes, rides and settings back
