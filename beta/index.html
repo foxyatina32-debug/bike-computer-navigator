@@ -612,6 +612,15 @@ label.chk{font-size:14px}
 .vc-heard{font-size:15px;color:var(--ink);overflow-wrap:anywhere}
 .vc-ex,.vc-home{font-size:12.5px;color:var(--muted);overflow-wrap:anywhere}
 .vc-q{flex:1;min-width:0;height:40px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--ink);padding:0 12px;font-size:16px}
+.vc-sug{display:grid;gap:4px;max-height:min(42vh,300px);overflow:auto;margin-top:-2px}
+.vc-sug[hidden]{display:none}
+.vc-s{display:flex;align-items:center;gap:6px;padding:6px 6px 6px 10px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid var(--line)}
+.vc-s .tx{flex:1;min-width:0;display:grid}
+.vc-s .t{font-weight:700;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vc-s .s{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vc-s button{flex:none;width:40px;height:36px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.08);color:var(--ink);font-size:16px}
+.vc-s button.go{background:var(--accent);color:var(--accent-ink);border-color:transparent;font-weight:800}
+.vc-empty{font-size:12.5px;color:var(--muted);padding:2px 4px}
 .vc-alts{display:flex;flex-wrap:wrap;gap:6px}.vc-alts:empty{display:none}
 .vc-lbl{width:100%;font-size:12.5px;color:var(--muted)}
 </style>
@@ -686,7 +695,8 @@ label.chk{font-size:14px}
   <div class="vc-row"><button class="vc-mic" id="vc-mic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></button><div class="vc-st" id="vc-st"></div><button class="vc-x" id="vc-x">✕</button></div>
   <div class="vc-heard" id="vc-heard" hidden></div>
   <div class="vc-alts" id="vc-alts"></div>
-  <div class="vc-row"><input class="vc-q" id="vc-q" type="text" enterkeyhint="go" autocomplete="off"><button class="btn pri" id="vc-go">→</button></div>
+  <div class="vc-row"><input class="vc-q" id="vc-q" dir="auto" type="text" enterkeyhint="go" autocomplete="off"><button class="btn pri" id="vc-go">→</button></div>
+  <div class="vc-sug" id="vc-sug" hidden></div>
   <div class="vc-ex" id="vc-ex"></div>
   <div class="vc-row"><div class="vc-home" id="vc-home" style="flex:1"></div><button class="btn sm" id="vc-sethome"></button></div>
 </section>
@@ -764,7 +774,7 @@ label.chk{font-size:14px}
     <div class="col" style="margin-top:12px">
       <button class="btn" id="pl-gpx" style="justify-content:flex-start;gap:10px"><b style="color:var(--accent)">GPX</b> Открыть файл маршрута и ехать</button>
       <button class="btn" id="pl-ab" style="justify-content:flex-start;gap:10px"><b style="color:var(--accent)">A→B</b> Из точки в точку: старт и финиш на карте, варианты</button>
-      <input type="search" id="geo-q" placeholder="Куда? Адрес, место, יישוב…" autocomplete="off">
+      <input type="search" id="geo-q" dir="auto" placeholder="Куда? Адрес, место, יישוב…" autocomplete="off">
       <div class="list" id="geo-res" hidden></div>
       <label class="chk"><input type="checkbox" id="pl-fromgps" checked> Старт из моего местоположения</label>
       <label class="chk"><input type="checkbox" id="pl-tap"> Добавлять точки нажатием на карту</label>
@@ -813,7 +823,7 @@ label.chk{font-size:14px}
     <div class="row"><button class="btn pri" id="tr-load">Загрузить</button><button class="btn" id="tr-clear">Скрыть</button></div>
     <p class="note" id="tr-status"></p>
     <h3>Поиск по всему Израилю</h3>
-    <input type="search" id="tr-q" placeholder="Название: שביל, Ben Shemen, Карми…" autocomplete="off">
+    <input type="search" id="tr-q" dir="auto" placeholder="Название: שביל, Ben Shemen, Карми…" autocomplete="off">
     <div class="list" id="tr-list" style="margin-top:8px"></div>
   </div>
 
@@ -828,7 +838,7 @@ label.chk{font-size:14px}
     </div>
     <h3>Мои сайты с маршрутами</h3>
     <div class="col">
-      <div class="row"><input type="search" id="st-q" placeholder="Найти маршрут на моих сайтах: Бен-Шемен, Кармель…" autocomplete="off" style="flex:1;min-width:0"><button class="btn" id="st-search">Искать</button></div>
+      <div class="row"><input type="search" id="st-q" dir="auto" placeholder="Найти маршрут на моих сайтах: Бен-Шемен, Кармель…" autocomplete="off" style="flex:1;min-width:0"><button class="btn" id="st-search">Искать</button></div>
       <div class="list" id="st-list"></div>
       <div class="row"><input type="search" id="st-url" inputmode="url" placeholder="Адрес сайта: rochvim-kavuh.com" autocomplete="off" autocapitalize="off" spellcheck="false" style="flex:1;min-width:0"><button class="btn pri" id="st-add">Добавить</button></div>
       <p class="note" style="margin:0">Откройте сайт, найдите маршрут, скопируйте ссылку на его страницу и вставьте в поле «Добавить по ссылке» выше — приложение само найдёт на странице файл GPX/KML (может понадобиться «Через прокси»).</p>
@@ -846,9 +856,9 @@ label.chk{font-size:14px}
   <header><button class="back" data-close aria-label="Назад к карте"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg>На карту</button><h2>Из точки в точку</h2><button class="close" data-close aria-label="Закрыть">×</button></header>
   <p class="note" id="ab-hint" style="margin-top:0"></p>
   <div class="col" style="gap:6px">
-    <input type="search" id="ab-qa" placeholder="Старт: адрес, место или координаты" autocomplete="off">
+    <input type="search" id="ab-qa" dir="auto" placeholder="Старт: адрес, место или координаты" autocomplete="off">
     <div class="list" id="ab-ra" hidden></div>
-    <input type="search" id="ab-qb" placeholder="Финиш: адрес, место или координаты" autocomplete="off">
+    <input type="search" id="ab-qb" dir="auto" placeholder="Финиш: адрес, место или координаты" autocomplete="off">
     <div class="list" id="ab-rb" hidden></div>
   </div>
   <div class="list" id="ab-pts" style="margin-top:8px"></div>
@@ -2348,8 +2358,82 @@ async function googleRoute(points, o = {}, x = {}) {
 }
 // Google content is shown on a Google map (Google Maps Platform terms).
 function ensureGoogleBase() { if (!/^google/.test(baseKey)) { setBase('google'); lsSet('base', 'google'); toast('Маршрут Google — карта переключена на Google Карты', 3500); } }
-// Address search: Google Places (New) when a key is set and the Google map is on; otherwise Nominatim. Same result shape.
+// Russian address → how it is written in Israel. OSM has street names in Hebrew (and some English), almost never in Russian:
+// «улица Шпринцак 16, Петах-Тиква» is found as «שפרינצק 16 פתח תקווה».
+const RU_CITY_HE = { 'петах-тиква': 'פתח תקווה', 'петах тиква': 'פתח תקווה', 'птах-тиква': 'פתח תקווה', 'тель-авив': 'תל אביב', 'тель авив': 'תל אביב', 'тель-авив-яффо': 'תל אביב-יפו', 'яффо': 'יפו',
+  'иерусалим': 'ירושלים', 'хайфа': 'חיפה', 'ришон-ле-цион': 'ראשון לציון', 'ришон ле цион': 'ראשון לציון', 'ришон': 'ראשון לציון', 'холон': 'חולון', 'бат-ям': 'בת ים', 'бат ям': 'בת ים',
+  'рамат-ган': 'רמת גן', 'рамат ган': 'רמת גן', 'гиватаим': 'גבעתיים', 'бней-брак': 'בני ברק', 'бней брак': 'בני ברק', 'нетания': 'נתניה', 'натания': 'נתניה', 'герцлия': 'הרצליה',
+  'кфар-саба': 'כפר סבא', 'кфар саба': 'כפר סבא', 'раанана': 'רעננה', 'ход-ашарон': 'הוד השרון', 'ход ашарон': 'הוד השרון', 'рош-аин': 'ראש העין', 'рош аин': 'ראש העין', 'рош-ха-аин': 'ראש העין',
+  'реховот': 'רחובות', 'нес-циона': 'נס ציונה', 'нес циона': 'נס ציונה', 'ашдод': 'אשדוד', 'ашкелон': 'אשקלון', 'беэр-шева': 'באר שבע', 'беер-шева': 'באר שבע', 'беэр шева': 'באר שבע',
+  'модиин': 'מודיעין', 'лод': 'לוד', 'рамле': 'רמלה', 'йехуд': 'יהוד', 'ор-йехуда': 'אור יהודה', 'ор йехуда': 'אור יהודה', 'шоам': 'שוהם', 'кирьят-оно': 'קריית אונו', 'кирьят оно': 'קריית אונו',
+  'эльад': 'אלעד', 'элад': 'אלעד', 'ариэль': 'אריאל', 'кфар-юна': 'כפר יונה', 'хадера': 'חדרה', 'афула': 'עפולה', 'назарет': 'נצרת', 'тверия': 'טבריה', 'цфат': 'צפת', 'акко': 'עכו', 'нагария': 'נהריה',
+  'кармиэль': 'כרמיאל', 'эйлат': 'אילת', 'димона': 'דימונה', 'арад': 'ערד', 'кирьят-гат': 'קריית גת', 'кирьят-ям': 'קריית ים', 'кирьят-бялик': 'קריית ביאליק', 'кирьят-моцкин': 'קריית מוצקין',
+  'кирьят-ата': 'קריית אתא', 'кирьят-шмона': 'קריית שמונה', 'нешер': 'נשר', 'явне': 'יבנה', 'гедера': 'גדרה', 'ган-явне': 'גן יבנה', 'бейт-шемеш': 'בית שמש', 'маале-адумим': 'מעלה אדומים', 'ор-акива': 'אור עקיבא',
+  'зихрон-яаков': 'זכרון יעקב', 'бинямина': 'בנימינה', 'кейсария': 'קיסריה', 'сдерот': 'שדרות', 'офаким': 'אופקים', 'нетивот': 'נתיבות', 'йокнеам': 'יקנעם', 'мевасерет-цион': 'מבשרת ציון' };
+const RU_HE = { б: 'ב', в: 'ו', г: 'ג', д: 'ד', ж: "ז'", з: 'ז', к: 'ק', л: 'ל', м: 'מ', н: 'נ', п: 'פ', р: 'ר', с: 'ס', т: 'ט', ф: 'פ', х: 'ח', ц: 'צ', ч: "צ'", ш: 'ש', щ: 'ש', й: 'י', ы: 'י', и: 'י', о: 'ו', у: 'ו', ю: 'יו', ё: 'יו', я: 'יא', а: '', е: '', э: '', ь: '', ъ: '' };
+const HE_FINAL = { 'כ': 'ך', 'מ': 'ם', 'נ': 'ן', 'פ': 'ף', 'צ': 'ץ' };
+function ruWordHe(w, tav) {
+  if (!w) return '';
+  w = w.replace(/(ск|цк)(?:ого|ая|ой)$/, '$1и'); // «улица Жаботинского» → Жаботинский
+  let out = '';
+  const first = w[0];
+  if ('аэе'.includes(first)) out = 'א';
+  else if ('оу'.includes(first)) out = 'או';
+  else if ('иы'.includes(first)) out = 'אי';
+  else if (first === 'я') out = 'יא';
+  const body = 'аэеоуиыя'.includes(first) ? w.slice(1) : w;
+  for (const ch of body) out += ch === 'т' && tav ? 'ת' : (RU_HE[ch] ?? ch);
+  if (/[ая]$/.test(w) && w.length > 2) out += 'ה'; // Хайфа → חיפה
+  const last = out[out.length - 1];
+  if (HE_FINAL[last]) out = out.slice(0, -1) + HE_FINAL[last];
+  return out;
+}
+const RU_ADDR_WORDS = /(^|[\s,])(улица|ул\.?|проспект|просп\.?|пр-т|бульвар|б-р|шоссе|переулок|пер\.?|площадь|пл\.?|дом|д\.|город|г\.|квартира|кв\.?|в|на|у|до|рядом с)(?=[\s,]|$)/gi;
+// Up to two Hebrew spellings of a Russian address (т as ט and as ת); [] when the text has no Russian.
+function ruAddrHe(q) {
+  if (!/[А-Яа-яЁё]/.test(q)) return [];
+  let s = q.toLowerCase().replace(/ё/g, 'е');
+  let city = '';
+  for (const k of Object.keys(RU_CITY_HE).sort((a, b) => b.length - a.length)) { const i = s.indexOf(k); if (i >= 0) { city = RU_CITY_HE[k]; s = s.slice(0, i) + ' ' + s.slice(i + k.length); break; } }
+  s = s.replace(RU_ADDR_WORDS, ' ').replace(/[,.]+/g, ' ').replace(/\s+/g, ' ').trim();
+  const mk = tav => [s.split(' ').map(w => /[а-я]/.test(w) ? w.split('-').map(x => ruWordHe(x, tav)).join(' ') : w).join(' '), city].filter(Boolean).join(' ').trim();
+  const a = mk(false), b = mk(true);
+  return [...new Set([a, b])].filter(Boolean);
+}
+// Photon (komoot): made for search-as-you-type, fuzzy, Israel only, nearest first. Same result shape as Nominatim.
+async function photonSearch(q, limit = 6) {
+  const c = (typeof GPS !== 'undefined' && GPS.fix) ? { lat: GPS.fix.lat, lng: GPS.fix.lon } : map.getCenter();
+  const lang = LANG === 'en' ? '&lang=en' : '';
+  const j = await fetchJSON(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=${limit}&lat=${c.lat.toFixed(4)}&lon=${c.lng.toFixed(4)}&bbox=34.2,29.4,35.95,33.35${lang}`, {}, 10000);
+  return (j.features || []).filter(f => f.geometry && f.geometry.coordinates).map(f => {
+    const p = f.properties || {}, [lon, lat] = f.geometry.coordinates;
+    const head = p.housenumber ? `${p.street || p.name || ''} ${p.housenumber}`.trim() : (p.name || p.street || '');
+    const name = head || p.city || '';
+    return { lat: String(lat), lon: String(lon), name, display_name: [name, p.city && p.city !== name ? p.city : (p.district || p.county || ''), p.state || ''].filter(Boolean).join(', '), src: 'photon' };
+  }).filter(r => r.name);
+}
+// Suggestions while typing: Photon with the text as typed and, for Russian, its Hebrew spellings.
+async function geoSuggest(q, limit = 6) {
+  const qs = [...ruAddrHe(q), q];
+  const res = await Promise.allSettled(qs.map(x => photonSearch(x, limit)));
+  const out = [];
+  for (const r of res) if (r.status === 'fulfilled') for (const x of r.value) if (!out.some(y => Math.abs(y.lat - x.lat) < 2e-4 && Math.abs(y.lon - x.lon) < 2e-4)) out.push(x);
+  if (!out.length && res.every(r => r.status === 'rejected')) throw res[0].reason;
+  return out.slice(0, limit);
+}
+// Address search everywhere in the app: the usual search first; when it finds nothing (typical for Russian street names) —
+// the Hebrew spelling and Photon.
 async function geoSearch(q, limit = 6) {
+  let r = [], err = null;
+  try { r = await geoSearchBase(q, limit); } catch (e) { err = e; }
+  if (r && r.length) return r;
+  for (const he of ruAddrHe(q)) { try { r = await geoSearchBase(he, limit); if (r && r.length) return r; } catch {} }
+  try { r = await geoSuggest(q, limit); if (r.length) return r; } catch (e) { err = err || e; }
+  if (err) throw err;
+  return [];
+}
+// Address search: Google Places (New) when a key is set and the Google map is on; otherwise Nominatim. Same result shape.
+async function geoSearchBase(q, limit = 6) {
   const c = map.getCenter();
   if (gKey() && /^google/.test(baseKey) && navigator.onLine) {
     try {
@@ -4922,7 +5006,7 @@ const Voice = (() => {
     if (!auto) return;
     if (SR) listen(); else el('vc-q').focus();
   }
-  function close() { stop(); clearTimeout(idleT); byWake = false; el('vc').hidden = true; el('t-mic').classList.remove('on'); el('vc-q').value = ''; wakeSched(600); }
+  function close() { stop(); sugClear(); clearTimeout(idleT); byWake = false; el('vc').hidden = true; el('t-mic').classList.remove('on'); el('vc-q').value = ''; wakeSched(600); }
 
   /* ---- «Привет, Вело»: listening for the wake phrase while the app is open ---- */
   // Uses the same browser recognizer in continuous mode and restarts it when iOS ends it.
@@ -5040,9 +5124,10 @@ const Voice = (() => {
     while (Date.now() - t0 < ms) { await new Promise(r => setTimeout(r, 300)); if (GPS.fix) return GPS.fix; }
     throw new Error(T3('нет GPS — выйдите на открытое место', 'no GPS — move to an open spot', 'אין GPS — צאו למקום פתוח'));
   }
+  // Hebrew in any app language: «לשפרינצק 16» / «ל-תל אביב» → also without the prefix ל (as typed first: «לטרון» is a place).
+  const heVariants = q => { const out = [q]; const m = q.match(/^ל-?([\u0590-\u05FF].*)$/); if (m) out.push(m[1]); return out; };
   async function findPlace(q) {
-    const tries = [q];
-    if (LANG === 'he' && /^ל[^\s]/.test(q)) tries.push(q.slice(1)); // «לתל אביב» → «תל אביב»; «לטרון» stays first
+    const tries = heVariants(q);
     for (const x of tries) { const j = await geoSearch(x, 5); if (j && j.length) return j; }
     return [];
   }
@@ -5085,6 +5170,24 @@ const Voice = (() => {
     } catch (e) { fail(e); }
     finally { busy = false; idleClose(7000); }
   }
+  /* ---- suggestions while typing an address ---- */
+  let sugT = null, sugSeq = 0;
+  function sugClear() { clearTimeout(sugT); sugSeq++; const b = el('vc-sug'); b.innerHTML = ''; b.hidden = true; }
+  async function suggest(v) {
+    const cmd = parse(v), q = cmd && (cmd.kind === 'place' || (cmd.kind === 'sethome' && cmd.q)) ? cmd.q : null;
+    if (!q || q.length < 3) { sugClear(); return; }
+    const my = ++sugSeq, box = el('vc-sug');
+    try {
+      const vs = heVariants(q), all = await Promise.all(vs.map(x => geoSuggest(x, 6).catch(e => { if (vs.length === 1) throw e; return []; })));
+      const j = []; for (const a of all) for (const x of a) if (!j.some(y => Math.abs(y.lat - x.lat) < 2e-4 && Math.abs(y.lon - x.lon) < 2e-4)) j.push(x); j.splice(6);
+      if (my !== sugSeq || el('vc').hidden) return;
+      box.hidden = false;
+      box.innerHTML = j.length ? j.map((r, i) => { const parts = r.display_name.split(','); return `<div class="vc-s"><div class="tx"><span class="t">${esc(r.name || parts[0])}</span><span class="s">${esc(parts.slice(1, 3).join(',').trim())}</span></div><button class="go" data-go="${i}" aria-label="${esc(T3('Поехали', 'Go', 'סע'))}">➜</button><button data-home="${i}" aria-label="${esc(T3('Сделать домом', 'Set as home', 'קבע כבית'))}">🏠</button></div>`; }).join('')
+        : `<div class="vc-empty">${esc(T3('Ничего не нашлось — попробуйте на иврите или без номера дома', 'Nothing found — try in Hebrew or without the house number', 'לא נמצא כלום — נסו בלי מספר הבית'))}</div>`;
+      box.querySelectorAll('[data-go]').forEach(b => b.onclick = async () => { const r = j[+b.dataset.go]; sugClear(); el('vc-q').value = ''; el('vc-q').blur(); busy = true; heard(''); try { await go([+r.lat, +r.lon], r.name || r.display_name.split(',')[0]); } catch (e) { fail(e); } finally { busy = false; } });
+      box.querySelectorAll('[data-home]').forEach(b => b.onclick = () => { const r = j[+b.dataset.home], name = r.display_name.split(',').slice(0, 2).join(',').trim(); lsSet('home', { ll: [+r.lat, +r.lon], name }); sugClear(); el('vc-q').value = ''; el('vc-q').blur(); renderHome(); status(T3('Дом запомнен: ', 'Home saved: ', 'הבית נשמר: ') + name, 'ok'); });
+    } catch (e) { if (my === sugSeq) { box.hidden = false; box.innerHTML = `<div class="vc-empty">${esc(T3('Подсказки недоступны: ', 'Suggestions unavailable: ', 'הצעות לא זמינות: ') + tr(e.message))}</div>`; } }
+  }
   function fail(e) {
     const msg = e && e.name === 'AbortError' ? T3('нет ответа сервера', 'no answer from the server', 'השרת לא ענה') : (e && e.message) || String(e);
     status(T3('Маршрут не построен: ', 'No route: ', 'המסלול לא נבנה: ') + tr(msg), 'err'); speak(T3('Маршрут не построен', 'Could not build the route', 'המסלול לא נבנה'));
@@ -5117,7 +5220,8 @@ const Voice = (() => {
     el('vc-mic').onclick = () => { if (listening) { stop(); status(T3('Остановлено', 'Stopped', 'נעצר')); } else if (SR) listen(); else el('vc-q').focus(); };
     el('vc-x').onclick = close;
     el('vc-sethome').onclick = () => { if (!busy) run(LANG === 'he' ? 'זכור בית' : LANG === 'ru' ? 'запомни дом' : 'remember home'); };
-    const submit = () => { const q = el('vc-q').value.trim(); if (!q || busy) return; stop(); el('vc-q').blur(); run(q); };
+    const submit = () => { const q = el('vc-q').value.trim(); if (!q || busy) return; stop(); sugClear(); el('vc-q').blur(); run(q); };
+    el('vc-q').addEventListener('input', () => { clearTimeout(sugT); sugSeq++; const v = el('vc-q').value.trim(); if (v.length < 3) { sugClear(); return; } sugT = setTimeout(() => suggest(v), 450); });
     el('vc-go').onclick = submit;
     el('vc-q').addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
     const cb = el('s-wakeword');

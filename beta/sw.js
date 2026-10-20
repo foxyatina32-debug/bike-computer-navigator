@@ -1,6 +1,6 @@
 // Velokomp service worker: keeps the app shell and libraries available offline.
 // Map tiles are cached by the page itself (Cache Storage "velo-tiles-v1").
-const SHELL = 'velo-beta-shell-v16';
+const SHELL = 'velo-beta-shell-v17';
 const LIBS = 'velo-libs-v1';
 const SHELL_FILES = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png', './off.html'];
 const LIB_HOSTS = ['cdn.jsdelivr.net'];
