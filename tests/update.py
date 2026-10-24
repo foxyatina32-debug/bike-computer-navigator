@@ -11,7 +11,8 @@ def check(name, ok, info=''):
 async def main():
     url = serve(8785); m = Mocks()
     repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    build = json.load(open(os.path.join(repo, 'version.json')))['build']
+    from harness import APP
+    build = json.load(open(os.path.join(APP, 'version.json')))['build']
     async with async_playwright() as p:
         b, ctx, pg, log = await open_app(p, url + '?lang=ru', m)
         check('APP_BUILD matches version.json', await pg.evaluate('APP_BUILD') == build, f"{await pg.evaluate('APP_BUILD')} / {build}")

@@ -4,6 +4,8 @@ import asyncio, http.server, threading, os, re, json, base64, sys
 import subprocess
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
+# The app under test: the personal version in dima/ (the root copy is frozen for friends). VELO_APP_DIR=. tests the root.
+APP = os.path.normpath(os.path.join(REPO, os.environ.get('VELO_APP_DIR', 'dima')))
 SP = os.path.join(HERE, '.cache')          # served root: /libs/... lives here
 LIBS = os.path.join(SP, 'libs')
 CHROME = os.environ.get('CHROME_PATH', '/opt/pw-browsers/chromium-1194/chrome-linux/chrome')
@@ -18,7 +20,7 @@ def ensure_libs():
             subprocess.run(['git', 'clone', '-q', '--depth', '1', '--branch', tag, url, os.path.join(LIBS, name)], check=True)
 
 def app_html():
-    src = open(REPO + '/index.html', encoding='utf-8').read()
+    src = open(APP + '/index.html', encoding='utf-8').read()
     i = src.index('<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>')
     j = src.index('<script>', i); k = src.rindex('</script>')
     main = src[j + len('<script>'):k]
@@ -39,7 +41,7 @@ class H(http.server.SimpleHTTPRequestHandler):
     def __init__(s, *a, **k): super().__init__(*a, directory=SP, **k)
     def log_message(s, *a): pass
     def translate_path(s, path):
-        if path.startswith('/app/'): return os.path.join(REPO, path[5:].split('?')[0])
+        if path.startswith('/app/'): return os.path.join(APP, path[5:].split('?')[0])
         fp = super().translate_path(path)
         if not os.path.exists(fp) and os.path.exists(fp + '.js'): return fp + '.js'
         return fp
