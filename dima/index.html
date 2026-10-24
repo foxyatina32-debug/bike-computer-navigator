@@ -1131,7 +1131,7 @@ body.wide #hello{left:calc((100vw - var(--mapr)) / 2)}
   <label class="chk"><input type="checkbox" id="s-wakeword"> «Привет, Вело» — голосовые команды без кнопки, пока приложение открыто</label>
   <p class="note" id="s-wakeword-st" style="margin:0 0 8px 34px"></p>
   <label class="chk"><input type="checkbox" id="s-reroute" checked> Сбился — автоматически перестраивать маршрут</label>
-  <label class="chk"><input type="checkbox" id="s-tofinish" checked> Перестраивать сразу к финишу (выкл. — назад на трассу)</label>
+  <label class="chk"><input type="checkbox" id="s-tofinish"> Перестраивать сразу к финишу (выкл. — назад на трассу)</label>
   <label class="chk"><input type="checkbox" id="s-wake" checked> Не гасить экран, пока приложение открыто</label>
   <div id="s-wake-st" style="margin:-4px 0 8px 32px;font-size:12px;color:var(--muted)"></div>
   <label class="chk"><input type="checkbox" id="s-compactnav" checked> Сворачивать панель при навигации</label>
@@ -1438,12 +1438,14 @@ const DB = {
 };
 
 /* ================= settings ================= */
-const S = Object.assign({ compass: true, headingUp: true, orient: 'compass', autopause: true, voice: true, reroute: true, tofinish: true, wake: true, darkmap: true, extnav: 'auto', urlProxy: false, compact: false, compactNav: true, places: true }, lsGet('settings', {}));
+const S = Object.assign({ compass: true, headingUp: true, orient: 'compass', autopause: true, voice: true, reroute: true, tofinish: false, wake: true, darkmap: true, extnav: 'auto', urlProxy: false, compact: false, compactNav: true, places: true }, lsGet('settings', {}));
 if (!('orient' in (lsGet('settings', {}) || {}))) S.orient = S.headingUp === false ? 'north' : 'compass'; // older builds had only on/off
 S.headingUp = S.orient !== 'north';
 const saveS = () => lsSet('settings', S);
 if (!S.compassOn2) { S.compassOn2 = 1; S.compass = true; saveS(); }
 if (!S.extnavAuto) { S.extnavAuto = 1; if (S.extnav === 'app') S.extnav = 'auto'; saveS(); }
+// Off the route: back to the planned route by default — «straight to the finish» dropped the rest of a trail route.
+if (!S.tofinish2) { S.tofinish2 = 1; S.tofinish = false; saveS(); }
 
 /* ================= map, layers, view padding ================= */
 const IHM = 'https://israelhiking.osm.org.il';
@@ -2109,7 +2111,7 @@ setInterval(() => { if (meMarker && GPS.fix) refreshMe(); }, 200);
 // marker glides to it, and the map pans and turns every frame (≤30 fps) instead of jumping once a second.
 const Smooth = { ll: null, t: 0, fixT: 0, last: 0, rot: null, cKey: '' };
 function smoothTarget(now) {
-  const f = GPS.fix; let lat = f.lat, lon = f.lon;
+  const f = GPS.fix.jump && GPS.good ? GPS.good : GPS.fix; let lat = f.lat, lon = f.lon;
   if (!f.jump && f.spd > 1.2 && f.hdg != null && !Number.isNaN(f.hdg)) {
     const d = f.spd * Math.min(1.2, Math.max(0, (now - Smooth.fixT) / 1000)), a = f.hdg * D2R;
     lat += Math.cos(a) * d / 110540; lon += Math.sin(a) * d / (111320 * Math.cos(f.lat * D2R));
@@ -3636,8 +3638,13 @@ const Nav = {
     const lim = 35 + Math.min(f.acc, 40) / 2;
     // Riding against the route: even the best match runs the opposite way for several fixes.
     if (loc.dist <= lim && mv != null && loc.sameDir != null && f.spd >= 1.2 && f.acc <= 30) {
-      this.backHits = loc.sameDir ? 0 : this.backHits + 1;
-      if (this.backHits >= 3) {
+      if (loc.sameDir) { this.backHits = 0; this.backSince = 0; }
+      else { if (!this.backHits) { this.backSince = Date.now(); this.backFrom = this.progress; } this.backHits++; }
+      // Flip the whole track only when it is clearly the way you ride: right after starting it (you set off from its
+      // far end), or after ≥12 s and ≥60 m against it. A short turn-back (a dropped bottle, a missed turn) never flips it.
+      const fresh = Date.now() - this.setAt < 120000 && this.progress < 300;
+      const sustained = this.backSince && Date.now() - this.backSince >= 12000 && (this.backFrom || 0) - loc.along >= 60;
+      if (this.backHits >= 3 && (fresh || sustained || this.route.opts || this.route.rr)) {
         if (!this.route.opts && !this.route.rr && Date.now() - this.lastFlip > 30000) {
           // A track from a file / saved / OSM: flip it so turns match the way you ride.
           const c = this.route.coords;
@@ -3651,7 +3658,7 @@ const Nav = {
       }
     }
     if (loc.dist <= lim) { this.lost = false; this.offCount = 0; this.joined = true; if (loc.along > this.progress - 50) this.progress = loc.along; this.etaFeed(f); }
-    else this.offCount++;
+    else if (f.acc <= 50) this.offCount++;   // weak GPS (canyon, trees, buildings): its point wanders off the route — not a real departure
     const off = this.offCount >= 3 && Date.now() > this.ignoreOffUntil;
     if (off && !this.joined) {
       // Not on the route yet: never build a way automatically — ask once; after «no» just point at the route.
