@@ -1938,9 +1938,19 @@ function wakeStatus() {
 document.addEventListener('visibilitychange', updateWake);
 ['pointerdown', 'touchend', 'focus'].forEach(ev => (ev === 'focus' ? window : document).addEventListener(ev, () => { if (S.wake && !wakeLock) updateWake(); }, { passive: true }));
 setInterval(() => { if (S.wake && !wakeLock && document.visibilityState === 'visible') updateWake(); }, 5000);
-function say(text) {
+// prio = a turn or wrong-way prompt: it may cut off anything; other messages wait their turn after a prio one
+// instead of cutting it off (a waypoint or reroute message used to swallow «через 200 метров направо»).
+const SAY = { prio: false };
+function say(text, prio = false) {
   if (!S.voice || !('speechSynthesis' in window)) return;
-  try { const u = new SpeechSynthesisUtterance(tr(text)); u.lang = SPEECH_LANG; u.rate = 1.05; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch {}
+  try {
+    const u = new SpeechSynthesisUtterance(tr(text)); u.lang = SPEECH_LANG; u.rate = 1.05;
+    const busy = speechSynthesis.speaking || speechSynthesis.pending;
+    const now = prio || !(busy && SAY.prio);   // speak now (cutting off) or queue behind the prio prompt
+    if (now) { speechSynthesis.cancel(); SAY.prio = prio; }
+    u.onstart = () => { SAY.prio = prio; }; u.onend = u.onerror = () => { if (!speechSynthesis.pending) SAY.prio = false; };
+    speechSynthesis.speak(u);
+  } catch {}
 }
 // «Install»: Android/Chrome shows its own install prompt; iPhone gets the steps. Hidden when already installed.
 let installEvt = null;
@@ -2026,6 +2036,12 @@ function onOrient(e) {
       Att.off = Att.off == null ? o : norm180(Att.off + norm180(o - Att.off) * 0.04);
     }
   }
+  // Never learned north (the phone stood upright on the handlebar from the start): riding steadily, the phone faces
+  // the way you go — take north from the GPS course once; the compass keeps refining it later when it can.
+  if (Att.off == null && GPS.fix && GPS.fix.spd > 3 && GPS.fix.acc <= 20) {
+    const tc = typeof travelCourse === 'function' ? travelCourse() : null, h0 = tc && attHeading(e.alpha, e.beta, e.gamma);
+    if (tc && h0 != null) Att.off = norm180(tc.h - h0);
+  }
   if (Att.off == null) { if (wk != null && !Number.isNaN(wk) && wk >= 0) feedCompass(wk + DECL, e.webkitCompassAccuracy); return; }
   const h = attHeading(e.alpha, e.beta, e.gamma); if (h == null) return;
   feedCompass(h + Att.off, e.webkitCompassAccuracy, true);
@@ -2109,11 +2125,12 @@ setInterval(() => { if (meMarker && GPS.fix) refreshMe(); }, 200);
 // ---- Smooth following like Google / Apple Maps ----
 // GPS gives one point a second. Between points the position is predicted from speed and course (≤1.2 s ahead), the
 // marker glides to it, and the map pans and turns every frame (≤30 fps) instead of jumping once a second.
+// Look-ahead ≤0.8 s: about 5 m of overshoot at 25 km/h on a sharp turn, then it glides back.
 const Smooth = { ll: null, t: 0, fixT: 0, last: 0, rot: null, cKey: '' };
 function smoothTarget(now) {
   const f = GPS.fix.jump && GPS.good ? GPS.good : GPS.fix; let lat = f.lat, lon = f.lon;
   if (!f.jump && f.spd > 1.2 && f.hdg != null && !Number.isNaN(f.hdg)) {
-    const d = f.spd * Math.min(1.2, Math.max(0, (now - Smooth.fixT) / 1000)), a = f.hdg * D2R;
+    const d = f.spd * Math.min(0.8, Math.max(0, (now - Smooth.fixT) / 1000)), a = f.hdg * D2R;
     lat += Math.cos(a) * d / 110540; lon += Math.sin(a) * d / (111320 * Math.cos(f.lat * D2R));
   }
   return [lat, lon];
@@ -2372,7 +2389,7 @@ map.on('zoomend', () => { MapBusy.zoom = false; });
 const Ride = {
   status: 'idle', startTs: 0, movingMs: 0, dist: 0, max: 0, asc: 0, desc: 0, altRef: null, track: [], autoPaused: false, slowSince: 0, lastTick: 0, line: null,
   start() {
-    if (this.status === 'idle') Object.assign(this, { startTs: Date.now(), movingMs: 0, dist: 0, max: 0, asc: 0, desc: 0, altRef: null, track: [], autoPaused: false });
+    if (this.status === 'idle') Object.assign(this, { startTs: Date.now(), movingMs: 0, dist: 0, max: 0, asc: 0, desc: 0, altRef: null, altS: null, track: [], autoPaused: false });
     // Resuming after a manual pause: what was ridden while paused must not be added as a straight line.
     if (this.status === 'paused' && !this.restored) this.gap = true;
     this.status = 'rec'; this.restored = false; this.moveSince = 0; this.lastTick = Date.now(); startGPS(); unlockSpeech();
@@ -2410,10 +2427,12 @@ const Ride = {
       else if (spd > 1.0) { this.slowSince = 0; this.autoPaused = false; }
     } else this.autoPaused = false;
     if (f.acc <= 20 && !f.jump && spd < vMax() - 3) this.max = Math.max(this.max, GPS.spdEma);
-    if (f.alt != null && (f.altAcc == null || f.altAcc <= 20)) {
-      if (this.altRef == null) this.altRef = f.alt;
-      else if (f.alt - this.altRef >= 4) { this.asc += f.alt - this.altRef; this.altRef = f.alt; }
-      else if (this.altRef - f.alt >= 4) { this.desc += this.altRef - f.alt; this.altRef = f.alt; }
+    if (f.alt != null && (f.altAcc == null || f.altAcc <= 20) && !f.jump) {
+      this.altS = this.altS == null ? f.alt : this.altS * 0.75 + f.alt * 0.25;
+      const a = this.altS;
+      if (this.altRef == null) this.altRef = a;
+      else if (a - this.altRef >= 5) { this.asc += a - this.altRef; this.altRef = a; }
+      else if (this.altRef - a >= 5) { this.desc += this.altRef - a; this.altRef = a; }
     }
     renderRecUI();
     if (f.acc > 35 || f.jump) return;
@@ -2422,6 +2441,13 @@ const Ride = {
     if (!last) { this.track.push(p); this.line.addLatLng([p[0], p[1]]); return; }
     const d = hav(last, p);
     if (this.gap) { this.gap = false; this.track.push(p); this.line.addLatLng([p[0], p[1]]); return; }
+    // The page was asleep (screen locked, another app): no ticks counted the time while the distance was ridden.
+    // Ridden at a plausible pace → count that time as moving too; otherwise (standing, GPS off) leave the time out.
+    const gapMs = (p[3] || 0) - (last[3] || 0);
+    if (gapMs > 20000 && d > 30 && !this.autoPaused) {
+      const v = d / (gapMs / 1000);
+      if (v >= 1 && v <= vMax()) this.movingMs += Math.max(0, gapMs - 5000);
+    }
     if (d >= Math.max(3, f.acc * 0.3) && !this.autoPaused) { if (!f.jump) this.dist += d; this.track.push(p); this.line.addLatLng([p[0], p[1]]); }
   },
   persist() {
@@ -2565,6 +2591,7 @@ setInterval(() => {
   renderDash();
 }, 1000);
 setInterval(() => Ride.persist(), 20000);
+try { if (navigator.storage && navigator.storage.persisted) navigator.storage.persisted().then(ok => { if (!ok && navigator.storage.persist) navigator.storage.persist().catch(() => {}); }).catch(() => {}); } catch {}
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') Ride.persist(); });
 
 /* ================= bike profiles & routing ================= */
@@ -3329,9 +3356,11 @@ function buildCues(coords, cum, osrmSteps) {
     for (let k = 1; k < idx.length - 1; k++) {
       const i = idx[k], a = back(i, 18), b = fwd(i, 18); if (a === i || b === i) continue;
       const ang = norm180(bearing(coords[i], coords[b]) - bearing(coords[a], coords[i]));
-      if (Math.abs(ang) < 35) continue;
+      if (Math.abs(ang) < 45) continue;   // no junction data on a track: a curve of the trail is not a turn
       const last = cues[cues.length - 1];
       if (last && cum[i] - last.d < 25) { if (typeof last.ang === 'number' && Math.abs(ang) > Math.abs(last.ang)) Object.assign(last, mkCue(cum[i], ang)); continue; }
+      // S-jog: left then right (or the reverse) within 40 m, about the same size — the trail just wiggles, the way goes on straight.
+      if (last && typeof last.ang === 'number' && cum[i] - last.d < 40 && Math.sign(last.ang) !== Math.sign(ang) && Math.abs(Math.abs(last.ang) - Math.abs(ang)) < 35 && Math.abs(ang) < 120) { cues.pop(); continue; }
       cues.push(mkCue(cum[i], ang));
     }
   }
@@ -3654,7 +3683,7 @@ const Nav = {
           setFollow(true); say('Маршрут развёрнут по направлению вашего движения'); toast('↺ Маршрут развёрнут по направлению движения', 4000);
           return;
         }
-        if ((this.route.opts || this.route.rr) && !this.wrongSaid) { this.wrongSaid = true; say('Вы едете в обратную сторону. Развернитесь'); toast('⚠ Вы едете в обратную сторону — развернитесь', 5000); }
+        if ((this.route.opts || this.route.rr) && !this.wrongSaid) { this.wrongSaid = true; say('Вы едете в обратную сторону. Развернитесь', true); toast('⚠ Вы едете в обратную сторону — развернитесь', 5000); }
       }
     }
     if (loc.dist <= lim) { this.lost = false; this.offCount = 0; this.joined = true; if (loc.along > this.progress - 50) this.progress = loc.along; this.etaFeed(f); }
@@ -3729,7 +3758,7 @@ const Nav = {
     const nm = (this.route.opts && this.route.opts.mode) || 'bike', [dNow, dNear] = nm === 'car' ? [100, 600] : nm === 'foot' ? [20, 100] : [45, 220];
     const stage = d <= dNow ? 'now' : d <= dNear ? 'near' : '';
     const key = i + ':' + stage;
-    if (stage && !this.said[key] && cue.ang !== 'finish') { this.said[key] = 1; say(d <= 45 ? 'Сейчас ' + cue.spoken : `Через ${Math.round(d / 50) * 50} метров ${cue.spoken}`); }
+    if (stage && !this.said[key] && cue.ang !== 'finish') { this.said[key] = 1; say(d <= 45 ? 'Сейчас ' + cue.spoken : `Через ${Math.round(d / 50) * 50} метров ${cue.spoken}`, true); }
     drawElev();
   },
   // Back to the original route: try several rejoin points ahead at once and pick the best way —
@@ -3743,7 +3772,7 @@ const Nav = {
     const r = this.route, me = [GPS.fix.lat, GPS.fix.lon];
     const base = this.lost || this.progress < 1 ? this.locate(me, null).along : this.progress;  // where you left the route
     const left = Math.max(0, r.total - base);
-    const offs = [120, 350, 700, 1200].filter(o => o < left - 20); if (left > 20) offs.push(Math.max(20, left - 1));
+    const offs = [150, 600].filter(o => o < left - 20); if (left > 20) offs.push(Math.max(20, left - 1)); // 3 points ahead × 2 variants
     const targets = [...new Set(offs.map(o => Math.min(r.coords.length - 1, lowerBound(r.cum, base + o))))];
     const opts = r.opts && r.opts.engine !== 'osrm' ? r.opts : curOpts();
     $('#nv-txt').textContent = 'Ищу путь назад к маршруту…'; $('#nv-dist').textContent = '…';
@@ -3757,7 +3786,9 @@ const Nav = {
         const a = (this.lastMv + 180) * D2R, m = 30, behind = [me[0] + Math.cos(a) * m / 110540, me[1] + Math.sin(a) * m / (111320 * Math.cos(me[0] * D2R)), 22];
         targets.forEach(i => jobs.push({ i, pts: [me, [r.coords[i][0], r.coords[i][1]]], avoid: [behind] }));
       }
-      const res = await Promise.allSettled(jobs.map(j => routeVia(j.pts, opts, { quiet: true, avoid: j.avoid })));
+      // While riding nobody waits 30 s: whatever has answered in 15 s is used.
+      const lim15 = p => Promise.race([p, new Promise((_, rj) => setTimeout(() => rj(new Error('timeout')), 15000))]);
+      const res = await Promise.allSettled(jobs.map(j => lim15(routeVia(j.pts, opts, { quiet: true, avoid: j.avoid }))));
       let best = null;
       res.forEach((x, k) => {
         if (x.status !== 'fulfilled' || !x.value || !x.value.coords || x.value.coords.length < 2) return;
