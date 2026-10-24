@@ -19,6 +19,15 @@ async def main():
         await pg.click('#aj-start'); await pg.wait_for_function("Nav.route && Nav.route.rr && Nav.startAt > 0", timeout=15000)
         r = await pg.evaluate("(() => { const c = Nav.route.coords, s = [32.10, 34.88]; let k = c.findIndex(p => hav(p, s) < 5); return {k, n: c.length, startAt: Nav.startAt, first: c[0], total: Nav.route.total}; })()")
         check('route leads to the start of the route first, then the whole route', r['k'] > 0 and r['n'] - r['k'] >= 30 and r['startAt'] > 0, r)
+        # Stray on the way to the start (default «к финишу» is on): the way is rebuilt to the START, the whole route stays.
+        await pg.evaluate("Nav.lastReroute = 0; Nav.ignoreOffUntil = 0; window.__set0 = Nav.setAt")
+        for k in range(6):
+            await ctx.set_geolocation({'latitude': 32.118 + k * 0.0001, 'longitude': 34.896, 'accuracy': 5}); await pg.wait_for_timeout(1200)
+        await pg.wait_for_function("Nav.setAt !== window.__set0 && !Nav.rejoining", timeout=15000)
+        r = await pg.evaluate("(() => { const c = Nav.route.coords, s = [32.10, 34.88]; let k = c.findIndex(p => hav(p, s) < 5); return {k, n: c.length, ap: Nav.route.ap, approaching: Nav.approaching(), first: c[0], last: c[c.length - 1]}; })()")
+        check('strayed on the way: rebuilt to the start, then the whole route (not straight to the finish)', r['k'] > 0 and r['n'] - r['k'] >= 30 and r['approaching'], r)
+        an = await pg.evaluate("JSON.parse(localStorage.getItem('velo:activeNav') || 'null')")
+        check('the way-to-route mark survives a reload', an is not None and (an.get('ap', 0) > 0 and an.get('apTo') == 'start'), {k: an.get(k) for k in ('ap', 'apTo')} if an else None)
         check('no JS errors', not log['errors'], log['errors'][:3])
         await b.close()
     print(f'{sum(RES)}/{len(RES)} passed'); sys.exit(0 if all(RES) else 1)
