@@ -32,6 +32,14 @@ async def main():
                 await pg.wait_for_timeout(800)
                 r = await pg.evaluate(ST)
                 check('after the whole loop: «Финиш маршрута»', r['finish'] and 'Финиш' in r['toasts'], r)
+            if name == 'GPS 4 m on the finish side':
+                # Ride off the other way round (along the last leg backwards): the loop flips, no «Финиш».
+                rev = pts[::-1]
+                for a, c in zip(rev[:9], rev[1:9]):
+                    for t in (0.5, 1.0):
+                        await ctx.set_geolocation({'latitude': a[0] + (c[0] - a[0]) * t, 'longitude': a[1] + (c[1] - a[1]) * t, 'accuracy': 5}); await pg.wait_for_timeout(1000)
+                r = await pg.evaluate("({name: Nav.route.name, finish: !!Nav.said.finish, toasts: window.__lastToasts})")
+                check('loop ridden the other way from its start: flipped, no «Финиш»', r['name'].endswith('(обратно)') and not r['finish'] and 'Финиш' not in r['toasts'], r)
             check(f'{name}: no JS errors', not log['errors'], log['errors'][:3])
             await b.close()
     print(f'{sum(RES)}/{len(RES)} passed'); sys.exit(0 if all(RES) else 1)

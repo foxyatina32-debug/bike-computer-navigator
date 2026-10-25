@@ -3502,7 +3502,8 @@ const Nav = {
     this.route.sb = coords.slice(0, -1).map((c, i) => bearing(c, coords[i + 1]));
     this.lastPos = null; this.backHits = 0; this.wrongSaid = false;
     this.progress = 0; this.offCount = 0; this.lost = true; this.said = {}; this.setAt = Date.now();
-    this.loopy = hav(coords[0], coords[coords.length - 1]) < 150 && cum[cum.length - 1] > 400; this.midSeen = !!(r.keepView || r.restore);
+    this.loopy = hav(coords[0], coords[coords.length - 1]) < 150 && cum[cum.length - 1] > 400;
+    this.midSeen = 'midSeen' in r ? !!r.midSeen : r.restore ? true : r.keepView ? !!this.midSeen : false;
     // A route started by the rider (not a reroute, auto-flip or restore): if they are already somewhere on it, ask how to start.
     this.askPending = !r.keepView && !r.restore && !r.noAsk; this.toStart = false; this.startAt = 0; this.startTxt = null; this.choosing = false; $('#ask-start').hidden = true; $('#ask-join').hidden = true;
     this.joined = !!(r.keepView || r.restore); this.declined = false;
@@ -3554,7 +3555,9 @@ const Nav = {
   locate(p, mv) {
     const { coords, cum, sb } = this.route; const lat0 = p[0] * D2R, mx = 111320 * Math.cos(lat0), my = 110540;
     let lo = 0, hi = coords.length - 2;
-    if (!this.lost) { lo = Math.max(0, lowerBound(cum, this.progress - 300) - 1); hi = Math.min(coords.length - 2, lowerBound(cum, this.progress + 1500)); }
+    // A loop not yet ridden: its start and its finish are the same place — look at both ends whatever the progress.
+    const loopStart = this.loopy && !this.midSeen && this.progress < 200;
+    if (!this.lost && !loopStart) { lo = Math.max(0, lowerBound(cum, this.progress - 300) - 1); hi = Math.min(coords.length - 2, lowerBound(cum, this.progress + 1500)); }
     let best = { cost: Infinity, dist: Infinity, along: 0, seg: 0, sameDir: null };
     for (let i = lo; i <= hi; i++) {
       const a = coords[i], b = coords[i + 1];
@@ -3563,9 +3566,9 @@ const Nav = {
       const d = Math.hypot(ax + t * dx, ay + t * dy), along = cum[i] + t * (cum[i + 1] - cum[i]);
       let cost = d, same = null;
       if (mv != null && L2 > 1) { same = Math.abs(norm180(mv - sb[i])) <= 100; if (!same) cost += 45; }
-      if (!this.lost) cost += Math.max(0, along - (this.progress + 150)) * 0.05 + Math.max(0, this.progress - 60 - along) * 0.05;
-      // A loop (start = finish) not yet ridden: standing at its start/finish point means the start, not the finish.
-      else if (this.loopy && this.progress < 200 && !this.midSeen) cost += Math.max(0, along - 300) * 0.05;
+      // Loop start: standing there means the start, not the finish; once moving, the direction of travel decides.
+      if (loopStart) { if (mv == null) cost += Math.max(0, along - 300) * 0.05; }
+      else if (!this.lost) cost += Math.max(0, along - (this.progress + 150)) * 0.05 + Math.max(0, this.progress - 60 - along) * 0.05;
       if (cost < best.cost) best = { cost, dist: d, along, seg: i, sameDir: same };
     }
     return best;
@@ -3814,14 +3817,16 @@ const Nav = {
           const c = this.route.coords;
           const name = this.route.name.endsWith(' (обратно)') ? this.route.name.slice(0, -10) : this.route.name + ' (обратно)';
           this.lastFlip = Date.now(); const keep = this.lastFlip;
-          this.set({ name, coords: c.slice().reverse(), wpts: this.wpts, keepView: true, startLL: [c[c.length - 1][0], c[c.length - 1][1]] }); this.lastFlip = keep;
+          this.set({ name, coords: c.slice().reverse(), wpts: this.wpts, keepView: true, midSeen: false, startLL: [c[c.length - 1][0], c[c.length - 1][1]] }); this.lastFlip = keep;
           setFollow(true); say('Маршрут развёрнут по направлению вашего движения'); toast('↺ Маршрут развёрнут по направлению движения', 4000);
           return;
         }
         if ((this.route.opts || this.route.rr) && !this.wrongSaid) { this.wrongSaid = true; say('Вы едете в обратную сторону. Развернитесь', true); toast('⚠ Вы едете в обратную сторону — развернитесь', 5000); }
       }
     }
-    if (loc.dist <= lim) { this.lost = false; this.offCount = 0; this.joined = true; if (loc.along > this.progress - 50) this.progress = loc.along; this.etaFeed(f); if (this.progress > this.route.total * 0.4) this.midSeen = true; }
+    // Riding a loop the other way from its start matches its last leg backwards: that is not «nearly at the finish».
+    const loopBack = this.loopy && !this.midSeen && loc.sameDir === false && loc.along > this.route.total * 0.5;
+    if (loc.dist <= lim) { this.lost = false; this.offCount = 0; this.joined = true; if (loc.along > this.progress - 50 && !loopBack) this.progress = loc.along; this.etaFeed(f); if (this.progress > this.route.total * 0.4) this.midSeen = true; }
     else if (f.acc <= 50) this.offCount++;   // weak GPS (canyon, trees, buildings): its point wanders off the route — not a real departure
     const off = this.offCount >= 3 && Date.now() > this.ignoreOffUntil;
     if (off && !this.joined) {
