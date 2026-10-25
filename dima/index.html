@@ -2304,7 +2304,7 @@ function onFix(pos) {
       else {
         GPS.moveHits = (GPS.moveHits || 0) + 1;
         if (GPS.still && slow && GPS.moveHits < 3) fix.spd = 0;   // a couple of odd fixes are not setting off
-        else { GPS.still = false; if (!reported) fix.spd = net / dt; }
+        else GPS.still = false;   // moving: keep this second's own speed (a 6-s average would lag after stopping)
       }
     } else if (GPS.still !== false && (!(c.speed != null && c.speed >= 0) || fix.spd < 2.2)) fix.spd = 0;   // first seconds (no history yet): not moving until shown otherwise
   }
