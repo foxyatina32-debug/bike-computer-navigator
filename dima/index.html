@@ -792,6 +792,9 @@ body:not(.pro) .pro-only{display:none!important}
 .vc-s button.go{background:var(--accent);color:var(--accent-ink);border-color:transparent;font-weight:800}
 .vc-empty{font-size:12.5px;color:var(--muted);padding:2px 4px}
 .vc-alts{display:flex;flex-wrap:wrap;gap:6px}.vc-alts:empty{display:none}
+.vc-langs{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
+.vc-langs button{height:30px;min-width:46px;padding:0 10px;border-radius:15px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--ink);font-weight:800;font-size:14px}
+.vc-langs button.on{background:var(--accent);color:var(--accent-ink);border-color:transparent}
 .vc-alts .vc-s{width:100%}
 .vc-lbl{width:100%;font-size:12.5px;color:var(--muted)}
 .chips.sw .chip{width:40px;height:40px;padding:0;border-radius:50%;border:3px solid transparent;box-shadow:inset 0 0 0 2px rgba(0,0,0,.25)}
@@ -890,6 +893,7 @@ body.wide #hello{left:calc((100vw - var(--mapr)) / 2)}
 <button class="gpxfab zfab" id="z-me" aria-label="Моё место"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
 <section class="vc glass" id="vc" hidden aria-live="polite">
   <div class="vc-row"><button class="vc-mic" id="vc-mic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></button><div class="vc-st" id="vc-st"></div><button class="vc-x" id="vc-x">✕</button></div>
+  <div class="vc-langs" id="vc-langs"><span id="vc-lang-l"></span><button data-l="ru" lang="ru">RU</button><button data-l="he" lang="he">עב</button><button data-l="en" lang="en">EN</button></div>
   <div class="vc-heard" id="vc-heard" hidden></div>
   <div class="vc-alts" id="vc-alts"></div>
   <div class="vc-row"><input class="vc-q" id="vc-q" dir="auto" type="text" enterkeyhint="go" autocomplete="off"><button class="btn pri" id="vc-go">→</button></div>
@@ -1983,6 +1987,7 @@ setInterval(() => { if (S.wake && !wakeLock && document.visibilityState === 'vis
 const SAY = { prio: false };
 function say(text, prio = false) {
   if (!S.voice || !('speechSynthesis' in window)) return;
+  try { if (Voice.listening) return; } catch {}
   try {
     const u = new SpeechSynthesisUtterance(tr(text)); u.lang = SPEECH_LANG; u.rate = 1.05;
     const busy = speechSynthesis.speaking || speechSynthesis.pending;
@@ -6412,7 +6417,7 @@ $('#t-3d').onclick = () => open3D(curRouteCoords());
 // iPhone can keep the app suspended for days: on every return to the screen and every 30 min the app asks the site for
 // its current build (version.json, a few bytes) and reloads itself when a newer one is out. Never in the middle of a
 // ride or navigation — then it waits until both are finished. Bump APP_BUILD together with version.json.
-const APP_BUILD = '85';
+const APP_BUILD = '86';
 const Upd = { pending: false, t: 0, mv: 0 };
 setInterval(() => { try { if (GPS.fix && GPS.fix.spd > 1.5 && Date.now() - GPS.fix.t < 10000) Upd.mv = Date.now(); } catch {} }, 5000);
 async function checkUpdate(force) {
@@ -6565,6 +6570,7 @@ const Voice = (() => {
   function wakeStart() {
     clearTimeout(wTimer);
     if (!wakeWanted() || wrec) return;
+    if (Date.now() - lastRelease < 450) { wakeSched(500); return; }
     const r = new SR(); r.lang = SPEECH_LANG; r.continuous = true; r.interimResults = true; r.maxAlternatives = 1;
     let done = false, pend = null, pendT = null;
     const fire = (rest) => { if (done) return; done = true; clearTimeout(pendT); wakeStop(); onWake(rest); };
@@ -6584,11 +6590,11 @@ const Voice = (() => {
       if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { wFails = 99; wakeStatus(T3('iPhone не дал слушать микрофон постоянно. Разрешите микрофон для Safari или пользуйтесь кнопкой 🎤', 'The iPhone did not allow continuous listening. Allow the microphone for Safari or use the 🎤 button', 'האייפון לא איפשר האזנה רציפה. אפשרו מיקרופון ל-Safari או השתמשו בכפתור 🎤')); }
       else if (e.error !== 'no-speech' && e.error !== 'aborted') wFails++;
     };
-    r.onend = () => { if (wrec === r) { wrec = null; el('t-mic').classList.remove('wake'); } if (!done && wFails < 99) wakeSched(wFails > 3 ? 3000 : 250); };
+    r.onend = () => { lastRelease = Date.now(); if (wrec === r) { wrec = null; el('t-mic').classList.remove('wake'); } if (!done && wFails < 99) wakeSched(wFails > 3 ? 3000 : 250); };
     wrec = r;
     try { r.start(); el('t-mic').classList.add('wake'); } catch { wrec = null; wFails++; wakeSched(2000); }
   }
-  function wakeStop() { clearTimeout(wTimer); const r = wrec; wrec = null; el('t-mic').classList.remove('wake'); if (r) { r.onend = null; try { r.abort(); } catch {} } }
+  function wakeStop() { clearTimeout(wTimer); const r = wrec; wrec = null; el('t-mic').classList.remove('wake'); release(r); }
   function wakeSched(ms = 400) { clearTimeout(wTimer); if (S.wakeword) wTimer = setTimeout(wakeStart, ms); }
   function onWake(rest) {
     byWake = true; open(false);
@@ -6602,27 +6608,76 @@ const Voice = (() => {
   // Opened by the wake phrase: close by itself when it is idle, so listening for «Привет, Вело» resumes.
   function idleClose(ms) { clearTimeout(idleT); if (!byWake) return; idleT = setTimeout(() => { if (!busy && !listening && !el('vc').hidden && !el('vc-q').value && document.activeElement !== el('vc-q')) close(); }, ms); }
 
-  function stop() { listening = false; el('vc-mic').classList.remove('rec'); try { rec && rec.abort(); } catch {} rec = null; }
-  function listen() {
+  /* ---- the microphone on iPhone: one recognizer at a time ----
+     A second tap used to start a new recognizer right after aborting the old one (or the «Привет, Вело» listener),
+     or while the phone was still saying «Маршрут построен». iOS then hands the new one a silent microphone:
+     it «listens» and hears nothing. Now the old one is released first (its end is awaited), the phone's own voice
+     is stopped, there is a short gap, and a recognizer that ends at once without hearing anything is restarted once. */
+  let endWait = null, lastRelease = 0, lsn = 0, tries = 0, wd = null, seenAudio = false, unlocked = false;
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  function release(r) {
+    if (!r) return;
+    endWait = new Promise(res => {
+      let ok = false; const fin = () => { if (ok) return; ok = true; lastRelease = Date.now(); res(); };
+      r.onresult = r.onerror = r.onaudiostart = null; r.onend = fin; setTimeout(fin, 900);
+      try { r.abort(); } catch { fin(); }
+    });
+  }
+  async function micFree() {
+    try { if ('speechSynthesis' in window && (speechSynthesis.speaking || speechSynthesis.pending)) { speechSynthesis.cancel(); lastRelease = Date.now(); } } catch {}
+    if (endWait) await endWait;
+    const gap = 450 - (Date.now() - lastRelease); if (gap > 0) await sleep(gap);
+  }
+  // Language of the spoken address/command: Russian, Hebrew or English — chosen in the panel, remembered.
+  const LOC = { ru: 'ru-RU', he: 'he-IL', en: 'en-US' };
+  let recLang = (() => { const v = lsGet('vcLang', null); return LOC[v] ? v : LOC[LANG] ? LANG : 'en'; })();
+  const recLocale = () => recLang === LANG ? SPEECH_LANG : LOC[recLang];
+  function renderLang() {
+    const box = el('vc-langs'); if (!box) return;
+    el('vc-lang-l').textContent = T3('Язык речи:', 'Speech:', 'שפת דיבור:');
+    box.querySelectorAll('[data-l]').forEach(b => { const on = b.dataset.l === recLang; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  }
+  function setLang(l) { if (!LOC[l]) return; recLang = l; lsSet('vcLang', l); renderLang(); }
+
+  function stop() { listening = false; lsn++; clearTimeout(wd); el('vc-mic').classList.remove('rec'); const r = rec; rec = null; release(r); }
+  async function listen(retry = false) {
     if (!SR || busy) return;
-    stop(); unlockSpeech();
-    try { speechSynthesis.cancel(); } catch {}
-    rec = new SR(); rec.lang = SPEECH_LANG; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 3;
-    gotFinal = false; listening = true; el('vc-mic').classList.add('rec'); status(T3('Слушаю…', 'Listening…', 'מקשיב…'));
-    rec.onresult = e => {
-      const r = e.results[e.results.length - 1]; const txt = r[0].transcript.trim(); heard(txt);
-      if (r.isFinal && !gotFinal) { gotFinal = true; const all = [...r].map(a => a.transcript.trim()).filter(Boolean); stop(); run(all); }
+    if (!retry) tries = 0;
+    stop(); wakeStop();
+    const my = lsn; listening = true; el('vc-mic').classList.add('rec'); status(T3('Слушаю…', 'Listening…', 'מקשיב…'));
+    if (!unlocked) { unlocked = true; unlockSpeech(); }
+    await micFree();
+    if (my !== lsn || !listening || el('vc').hidden) return;   // stopped or closed while waiting
+    const r = new SR(); rec = r; r.lang = recLocale(); r.interimResults = true; r.continuous = false; r.maxAlternatives = 3;
+    gotFinal = false; let t0 = Date.now(), audio = false, any = false;
+    // The recognizer gave up at once without hearing anything (iOS microphone not ready) → once more, silently.
+    const again = () => { if (tries >= 1 || el('vc').hidden || busy) return false; tries++; stop(); setTimeout(() => { if (!el('vc').hidden && !busy && !listening) listen(true); }, 250); return true; };
+    const quick = () => !any && !audio && Date.now() - t0 < 1500;
+    r.onaudiostart = () => { audio = seenAudio = true; clearTimeout(wd); };
+    r.onresult = e => {
+      if (rec !== r) return; any = true; clearTimeout(wd);
+      const res = e.results[e.results.length - 1]; const txt = res[0].transcript.trim(); heard(txt);
+      if (res.isFinal && !gotFinal) { gotFinal = true; const all = [...res].map(a => a.transcript.trim()).filter(Boolean); stop(); run(all); }
     };
-    rec.onerror = e => {
-      const me = listening; stop(); if (!me && e.error === 'aborted') return;
-      idleClose(6000);
+    r.onerror = e => {
+      if (rec !== r) return;
+      if ((e.error === 'no-speech' || e.error === 'audio-capture') && quick() && again()) return;
+      stop(); idleClose(6000);
       status({ 'not-allowed': T3('Нет доступа к микрофону. Разрешите: Настройки → Safari → Микрофон', 'No microphone access. Allow it: Settings → Safari → Microphone', 'אין גישה למיקרופון. אפשרו: הגדרות ← Safari ← מיקרופון'),
         'service-not-allowed': T3('Распознавание речи недоступно — скажите команду через 🎤 на клавиатуре в поле ниже', 'Speech recognition is unavailable — dictate with 🎤 on the keyboard in the field below', 'זיהוי דיבור לא זמין — הכתיבו עם 🎤 במקלדת בשדה למטה'),
         'no-speech': T3('Ничего не услышал. Нажмите 🎤 и скажите ещё раз', "Didn't hear anything. Tap 🎤 and say it again", 'לא שמעתי כלום. לחצו 🎤 ואמרו שוב'),
+        'language-not-supported': T3('Этот язык распознавания недоступен на телефоне — выберите другой или напишите адрес', 'This recognition language is not available on the phone — pick another or type the address', 'שפת הזיהוי הזו לא זמינה בטלפון — בחרו אחרת או כתבו את הכתובת'),
         'network': T3('Нет связи с распознаванием речи', 'No connection to speech recognition', 'אין חיבור לזיהוי הדיבור') }[e.error] || T3('Не получилось распознать: ', 'Recognition failed: ', 'הזיהוי נכשל: ') + e.error, 'err');
     };
-    rec.onend = () => { if (listening && !gotFinal) { stop(); idleClose(5000); status(T3('Ничего не услышал. Нажмите 🎤 и скажите ещё раз', "Didn't hear anything. Tap 🎤 and say it again", 'לא שמעתי כלום. לחצו 🎤 ואמרו שוב'), 'err'); } };
-    try { rec.start(); } catch (e) { stop(); status(T3('Микрофон не запустился: ', 'The microphone did not start: ', 'המיקרופון לא הופעל: ') + e.message, 'err'); }
+    r.onend = () => {
+      lastRelease = Date.now();
+      if (rec !== r || !listening || gotFinal) return;
+      if (quick() && again()) return;
+      stop(); idleClose(5000); status(T3('Ничего не услышал. Нажмите 🎤 и скажите ещё раз', "Didn't hear anything. Tap 🎤 and say it again", 'לא שמעתי כלום. לחצו 🎤 ואמרו שוב'), 'err');
+    };
+    // This phone reports when the microphone really opens; if it doesn't within 3 s, the session is dead → restart once.
+    clearTimeout(wd); if (seenAudio) wd = setTimeout(() => { if (rec === r && listening && !audio && !any) again(); }, 3000);
+    try { r.start(); } catch (e) { if (again()) return; stop(); status(T3('Микрофон не запустился: ', 'The microphone did not start: ', 'המיקרופון לא הופעל: ') + e.message, 'err'); }
   }
 
   /* ---- understanding the phrase ---- */
@@ -6772,6 +6827,8 @@ const Voice = (() => {
     el('t-mic').onclick = () => { if (!el('vc').hidden && !listening && !busy) { close(); return; } if (el('vc').hidden) open(); else if (listening) stop(); };
     el('vc-mic').onclick = () => { if (listening) { stop(); status(T3('Остановлено', 'Stopped', 'נעצר')); } else if (SR) listen(); else el('vc-q').focus(); };
     el('vc-x').onclick = close;
+    renderLang();
+    el('vc-langs').querySelectorAll('[data-l]').forEach(b => b.onclick = () => { setLang(b.dataset.l); if (SR && !busy) listen(); });
     el('vc-sethome').onclick = () => { if (!busy) run(LANG === 'he' ? 'זכור בית' : LANG === 'ru' ? 'запомни дом' : 'remember home'); };
     const submit = () => { const q = el('vc-q').value.trim(); if (!q || busy) return; stop(); sugClear(); el('vc-q').value = ''; el('vc-q').blur(); run(q); };
     el('vc-q').addEventListener('input', () => { clearTimeout(sugT); sugSeq++; const v = el('vc-q').value.trim(); if (v.length < 3) { sugClear(); return; } sugT = setTimeout(() => suggest(v), 450); });
@@ -6802,7 +6859,7 @@ const Voice = (() => {
     el('rt-home').classList.add('busy');
     try { await run(LANG === 'he' ? 'הביתה' : LANG === 'ru' ? 'домой' : 'home'); } finally { el('rt-home').classList.remove('busy'); }
   }
-  return { open, close, parse, run, goHome, coords, wakeRx: WAKE, dead: false, get supported() { return !!SR; }, get waking() { return !!wrec; },
+  return { open, close, parse, run, goHome, coords, wakeRx: WAKE, dead: false, get supported() { return !!SR; }, get waking() { return !!wrec; }, get listening() { return listening; }, get lang() { return recLang; }, setLang,
     off() { this.dead = true; wakeStop(); stop(); } };
 })();
 </script>
