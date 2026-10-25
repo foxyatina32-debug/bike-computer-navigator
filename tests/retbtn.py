@@ -13,6 +13,15 @@ def over(a, b): return a[0] < b[2] and b[0] < a[2] and a[1] < b[3] and b[1] < a[
 async def main():
     url = serve(8807)
     async with async_playwright() as p:
+        # Phone on its side: the button sits beside «+ Маршрут», over nothing else.
+        b, ctx, pg, log = await open_app(p, url + '?lang=ru', Mocks(), viewport=(844, 390), geo=(32.0901, 34.88))
+        await pg.wait_for_timeout(1200)
+        await pg.evaluate(f"Nav.set({{name: 'Тест', coords: {json.dumps(ROUTE)}, noAsk: true}})"); await pg.wait_for_timeout(600)
+        bx = await pg.evaluate("[...document.querySelectorAll('.top button, #navb, .gpxfab:not([hidden]), #t-compass, #t-sos')].filter(e => e.getClientRects().length && !e.classList.contains('ovh')).map(e => { const r = e.getBoundingClientRect(); return [e.id || e.className, r.left, r.top, r.right, r.bottom]; })")
+        me = next(x for x in bx if x[0] == 't-ret')
+        hit = [x[0] for x in bx if x[0] != 't-ret' and over(me[1:], x[1:])]
+        check('landscape: «⟳ Кольцом» visible, over no other button', await pg.is_visible('#t-ret') and not hit and me[1] >= 0, [me, hit])
+        await b.close()
         for lang, vp in (('ru', (430, 932)), ('he', (375, 667))):
             b, ctx, pg, log = await open_app(p, url + f'?lang={lang}', Mocks(), viewport=vp, geo=(32.0901, 34.88))
             await pg.wait_for_timeout(1500)

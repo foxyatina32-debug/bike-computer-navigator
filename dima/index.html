@@ -1723,8 +1723,11 @@ function placeGpxBtn() {
   const ctl = $('#hud').classList.contains('compact') ? $('#mini') : $('#hud-panel');
   const lim = document.body.classList.contains('wide') ? innerHeight - 8 : ctl ? ctl.getBoundingClientRect().top - 8 : innerHeight;
   // «⟳ Кольцом» under «+ Маршрут» while a one-way route is being navigated.
-  const rt = $('#t-ret'); rt.hidden = !navRetOK(); rt.style.top = ($('#t-gpx').getBoundingClientRect().top + $('#t-gpx').offsetHeight + 10) + 'px';
-  const above = rt.hidden ? $('#t-gpx') : rt;
+  // Landscape (low screen): beside «+ Маршрут», so the column below keeps its room.
+  const rt = $('#t-ret'), gr = $('#t-gpx').getBoundingClientRect(), side = document.body.classList.contains('wide');
+  rt.hidden = !navRetOK(); rt.style.top = (side ? gr.top : gr.top + gr.height + 10) + 'px';
+  rt.style.right = side ? 'auto' : ''; rt.style.left = side && !rt.hidden ? (gr.left - rt.offsetWidth - 8) + 'px' : '';
+  const above = rt.hidden || side ? $('#t-gpx') : rt;
   $('#t-mic').style.top = (above.getBoundingClientRect().top + above.offsetHeight + 10) + 'px';
   let zy = $('#t-mic').getBoundingClientRect().top + $('#t-mic').offsetHeight + 18; const zOn = S.zoomBtns !== false;
   // SOS: bottom-left above the ride panel (mirrors the «где я» button), out of the way of the left-edge legend tab.
