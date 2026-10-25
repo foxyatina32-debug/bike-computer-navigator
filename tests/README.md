@@ -22,7 +22,10 @@ python3 tests/regression.py
 
 `fit.py` — файлы FIT (Garmin, Wahoo, Zwift, Komoot): импорт тренировки в Историю (точки, пульс, калории из файла, тип, без дублей) и как маршрут с запуском навигации; порядок байт little/big endian, сжатые метки времени, поля разработчика, файл курса, повреждённый файл. FIT-файлы генерируются самим тестом.
 
+`ihm.py` — ссылки «Поделиться» Israel Hiking Map / mapeak.com: маршрут с названием и отмеченными точками, ссылка внутри сообщения WhatsApp, несколько маршрутов в одной ссылке, старая форма ?s=, запасной mapeak.com, сообщения об ошибках на трёх языках. API подменён заглушкой по формату из исходников Israel Hiking.
+
 ```
+python3 tests/ihm.py
 python3 tests/fit.py
 python3 tests/look.py
 python3 tests/gmaps.py
