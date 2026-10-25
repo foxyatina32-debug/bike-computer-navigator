@@ -20,7 +20,10 @@ python3 tests/regression.py
 
 `look.py` — цвет маршрута и значок на карте из Профиля, сохраняются после перезапуска.
 
+`fit.py` — файлы FIT (Garmin, Wahoo, Zwift, Komoot): импорт тренировки в Историю (точки, пульс, калории из файла, тип, без дублей) и как маршрут с запуском навигации; порядок байт little/big endian, сжатые метки времени, поля разработчика, файл курса, повреждённый файл. FIT-файлы генерируются самим тестом.
+
 ```
+python3 tests/fit.py
 python3 tests/look.py
 python3 tests/gmaps.py
 python3 tests/update.py
