@@ -2289,13 +2289,17 @@ function onFix(pos) {
   }
   if ((fix.hdg == null || Number.isNaN(fix.hdg)) && prev && fix.spd > 1.2) fix.hdg = bearing([prev.lat, prev.lon], [fix.lat, fix.lon]);
   // GPS jumps (signal regained, tunnels, multipath) produce impossible speeds — don't let them into speed, max or distance.
-  fix.jump = fix.spd > vMax();
+  // The speed the phone itself reports (Doppler) is not fooled by a jump: trust it up to car speeds in any mode, so
+  // riding in a car faster than 100 km/h with the bike mode on no longer freezes navigation (every fix was a «jump»).
+  const rep = c.speed != null && c.speed >= 0 && !Number.isNaN(c.speed);
+  const lim = Math.max(vMax(), rep ? Math.min(c.speed, 70) * 1.5 + 5 : 0);
+  fix.jump = fix.spd > (rep ? Math.max(70, vMax()) : vMax());
   // A wild point far away with a normal-looking reported speed: compare with the last good fix.
   // Three such points in a row that agree with each other are the real position (e.g. a bad first fix).
   const good = GPS.good;
   if (!fix.jump && good && fix.t > good.t) {
     const dd = hav([good.lat, good.lon], [fix.lat, fix.lon]);
-    if (dd > 100 && dd / ((fix.t - good.t) / 1000) > vMax()) {
+    if (dd > 100 && dd / ((fix.t - good.t) / 1000) > lim) {
       const run = GPS.jumpRun || [];
       if (run.length && hav([run[run.length - 1].lat, run[run.length - 1].lon], [fix.lat, fix.lon]) < 150) run.push(fix); else run.splice(0, run.length, fix);
       GPS.jumpRun = run;
@@ -6417,7 +6421,7 @@ $('#t-3d').onclick = () => open3D(curRouteCoords());
 // iPhone can keep the app suspended for days: on every return to the screen and every 30 min the app asks the site for
 // its current build (version.json, a few bytes) and reloads itself when a newer one is out. Never in the middle of a
 // ride or navigation — then it waits until both are finished. Bump APP_BUILD together with version.json.
-const APP_BUILD = '86';
+const APP_BUILD = '87';
 const Upd = { pending: false, t: 0, mv: 0 };
 setInterval(() => { try { if (GPS.fix && GPS.fix.spd > 1.5 && Date.now() - GPS.fix.t < 10000) Upd.mv = Date.now(); } catch {} }, 5000);
 async function checkUpdate(force) {
