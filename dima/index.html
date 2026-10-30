@@ -51,6 +51,7 @@ const tr = (() => {
   Object.assign(D, {"«Привет, Вело» — голосовые команды без кнопки, пока приложение открыто":["«Hey Velo» — voice commands without tapping, while the app is open","«היי ולו» — פקודות קוליות בלי ללחוץ, כשהאפליקציה פתוחה"]});
   Object.assign(D, {"Вышла новая версия — обновлю, когда закончите поездку":["A new version is out — it will update when you finish the ride","יצאה גרסה חדשה — היא תתעדכן כשתסיימו את הרכיבה"],"Приложение обновлено до новой версии":["The app is updated to the new version","האפליקציה עודכנה לגרסה החדשה"]});
   Object.assign(D, {"** короткая ссылка Google разворачивается через allorigins.win / corsproxy.io":["** a short Google link is expanded via allorigins.win / corsproxy.io","** קישור Google מקוצר נפתח דרך allorigins.win / corsproxy.io"]});
+  Object.assign(D, {"Маршруты рядом со мной": ["Routes near me", "מסלולים לידי"], "MTB- и веломаршруты из OpenStreetMap (база Israel Hiking Map) и ваши сохранённые маршруты — ближайшие первыми.": ["MTB and bike routes from OpenStreetMap (the Israel Hiking Map base) and your saved routes — nearest first.", "מסלולי MTB ואופניים מ-OpenStreetMap (הבסיס של Israel Hiking Map) והמסלולים השמורים שלכם — הקרובים קודם."], "Ищу маршруты рядом…": ["Looking for routes nearby…", "מחפש מסלולים בסביבה…"], "от центра карты (нет GPS)": ["from the map centre (no GPS)", "ממרכז המפה (אין GPS)"], "от вас": ["from you", "ממך"], "Найдено": ["Found", "נמצאו"], "радиус": ["radius", "רדיוס"], "В радиусе": ["Within", "ברדיוס"], "маршрутов не нашлось": ["no routes found", "לא נמצאו מסלולים"], "OpenStreetMap не ответил": ["OpenStreetMap did not answer", "OpenStreetMap לא ענה"], "Мой": ["Mine", "שלי"], "вы на маршруте": ["you are on it", "אתם על המסלול"], "до него": ["distance", "מרחק"], "Попробуйте радиус побольше": ["Try a bigger radius", "נסו רדיוס גדול יותר"]});
   Object.assign(D, {"Что рядом":["Nearby","מה בסביבה"],"Веломагазины, магазины, заправки, кафе · Google":["Bike shops, stores, gas stations, cafés · Google","חנויות אופניים, מכולות, תחנות דלק, בתי קפה · Google"],"☕ Что по пути: магазин, вода, веломастерская":["☕ On the way: store, water, bike shop","☕ בדרך: מכולת, מים, חנות אופניים"],"Заехать сюда":["Stop here on the way","לעצור כאן בדרך"],"Маршрут сюда":["Route here","מסלול לכאן"]});
   Object.assign(D, {"веломагазин":["bike shop","חנות אופניים"],"магазин":["store","מכולת"],"кафе":["café","בית קפה"],"заправка":["gas station","תחנת דלק"],"открыто":["open now","פתוח עכשיו"],"закрыто":["closed now","סגור עכשיו"],"Нужен ваш ключ Google с Places API (New) — Настройки → Google Карты":["Needs your Google key with Places API (New) — Settings → Google Maps","נדרש מפתח Google עם Places API (New) — הגדרות ← Google Maps"],"Ищу веломагазины, магазины, заправки и кафе…":["Looking for bike shops, stores, gas stations and cafés…","מחפש חנויות אופניים, מכולות, תחנות דלק ובתי קפה…"],"Рядом ничего не нашлось":["Nothing found nearby","לא נמצא כלום בסביבה"],"🔧 веломагазины · 🏪 магазины · ⛽ заправки · ☕ кафе. Нажмите на значок":["🔧 bike shops · 🏪 stores · ⛽ gas stations · ☕ cafés. Tap an icon","🔧 חנויות אופניים · 🏪 מכולות · ⛽ תחנות דלק · ☕ בתי קפה. הקישו על סמל"],"Нашёл":["Found","נמצאו"],"Поиск Google не сработал:":["Google search failed:","חיפוש Google נכשל:"],"Строю маршрут через":["Building the route via","בונה מסלול דרך"],"Маршрут идёт через":["The route goes via","המסלול עובר דרך"],"Едем в":["Going to","נוסעים אל"]});
   Object.assign(D, {"Ничего не найдено — нажмите «Найти» на клавиатуре, поищу подробнее":["Nothing found — press «Search» on the keyboard for a deeper search","לא נמצא כלום — הקישו «חיפוש» במקלדת לחיפוש מעמיק"]});
@@ -1037,6 +1038,12 @@ body.wide #hello{left:calc((100vw - var(--mapr)) / 2)}
   </div>
 
   <div id="r-trails" hidden>
+    <h3 style="margin-top:4px">Маршруты рядом со мной</h3>
+    <div class="seg" id="nr-r"><button data-r="5000">5 км</button><button data-r="15000">15 км</button><button data-r="30000">30 км</button></div>
+    <p class="note" id="nr-status" style="margin:8px 0 0"></p>
+    <div class="list" id="nr-list" style="margin-top:8px"></div>
+    <div class="row" style="margin-top:8px"><button class="btn" id="nr-load">Обновить</button></div>
+    <p class="note">MTB- и веломаршруты из OpenStreetMap (база Israel Hiking Map) и ваши сохранённые маршруты — ближайшие первыми.</p>
     <p class="note">Маршруты из OpenStreetMap Израиля — та же база, что у Israel Hiking Map. Слой трасс IHM — кнопка карты слева вверху.</p>
     <h3>В видимой области карты</h3>
     <label class="chk"><input type="checkbox" id="tr-mtb" checked> MTB-маршруты</label>
@@ -1813,6 +1820,7 @@ function routeSeg(r) {
   $$('#rseg button').forEach(b => b.classList.toggle('on', b.dataset.r === r));
   ['plan', 'trails', 'mine'].forEach(x => $('#r-' + x).hidden = x !== r);
   if (r === 'mine') renderRoutes();
+  if (r === 'trails' && typeof nearAuto === 'function') nearAuto();
   syncTapMode();
 }
 $$('#rseg button').forEach(b => b.onclick = () => routeSeg(b.dataset.r));
@@ -5906,6 +5914,75 @@ async function loadRelation(id, btn) {
   } catch (e) { toast('Не загрузилось: ' + e.message); btn.disabled = false; btn.textContent = 'Загрузить'; }
 }
 
+/* ================= Routes near me: OpenStreetMap (Israel Hiking base) + my saved routes, nearest first ================= */
+const Near = { seq: 0, at: 0, from: null, r: 0, items: [] };
+// Metres from p to the nearest point of a line (long lines are sampled so a 10 000-point track stays fast).
+function lineDist(p, c) {
+  if (!c || !c.length) return Infinity; if (c.length === 1) return hav(p, c[0]);
+  const lat0 = p[0] * D2R, mx = 111320 * Math.cos(lat0), my = 110540, step = Math.max(1, Math.floor(c.length / 3000)); let best = Infinity;
+  for (let i = 0; i < c.length - 1; i += step) {
+    const a = c[i], b = c[Math.min(c.length - 1, i + step)], ax = (a[1] - p[1]) * mx, ay = (a[0] - p[0]) * my, dx = (b[1] - a[1]) * mx, dy = (b[0] - a[0]) * my, L2 = dx * dx + dy * dy;
+    const t = L2 ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / L2)) : 0, d = Math.hypot(ax + t * dx, ay + t * dy); if (d < best) best = d;
+  }
+  return best;
+}
+const boxDist = (p, b) => !b ? Infinity : hav(p, [Math.max(b.minlat, Math.min(b.maxlat, p[0])), Math.max(b.minlon, Math.min(b.maxlon, p[1]))]);
+function nearR() { const r = +lsGet('nearR', 15000); return [5000, 15000, 30000].includes(r) ? r : 15000; }
+function nearAuto() {
+  const p = GPS.fix ? [GPS.fix.lat, GPS.fix.lon] : null;
+  // Fresh enough: the same place (±2 km), the same radius, within 10 minutes — just show it again.
+  if (Near.items.length && Near.r === nearR() && Date.now() - Near.at < 600000 && (!p || !Near.from || hav(p, Near.from) < 2000)) return renderNear();
+  loadNear();
+}
+async function loadNear() {
+  const my = ++Near.seq, R = nearR(), fix = GPS.fix, c = map.getCenter();
+  const p = fix ? [fix.lat, fix.lon] : [c.lat, c.lng], fromMap = !fix;
+  $$('#nr-r button').forEach(b => b.classList.toggle('on', +b.dataset.r === R));
+  $('#nr-status').textContent = tr('Ищу маршруты рядом…'); $('#nr-load').disabled = true;
+  let osmErr = '';
+  // My saved routes (including those taken from my websites) whose line passes within the radius.
+  let mine = [];
+  try {
+    mine = (await DB.all('routes')).filter(r => r.coords && r.coords.length > 1).map(r => ({ kind: 'mine', id: r.id, name: r.name, line: r.coords, wpts: r.wpts, src: r.source || '', len: r.dist || cumDist(r.coords).pop(), d: lineDist(p, r.coords) })).filter(x => x.d <= R);
+  } catch {}
+  // OpenStreetMap MTB and bicycle route relations: first names and boxes (light), then the shapes of the nearest 20.
+  let osm = [];
+  try {
+    const j = await overpass(`[out:json][timeout:40];relation["type"="route"]["route"~"^(mtb|bicycle)$"](around:${R},${p[0].toFixed(5)},${p[1].toFixed(5)});out tags bb;`);
+    if (my !== Near.seq) return;
+    const top = (j.elements || []).map(e => ({ e, d: boxDist(p, e.bounds) })).sort((a, b) => a.d - b.d).slice(0, 20);
+    if (top.length) {
+      const g = await overpass(`[out:json][timeout:60];relation(id:${top.map(x => x.e.id).join(',')});out geom;`);
+      if (my !== Near.seq) return;
+      osm = itemsFromOverpass(g).map(it => ({ ...it, name: tName(it.tags), len: cumDist(it.line).pop(), d: Math.min(...(it.parts || [it.line]).map(l => lineDist(p, l))) })).filter(x => x.d <= R);
+    }
+  } catch (e) { osmErr = e.name === 'AbortError' ? tr('таймаут') : e.message || String(e); }
+  if (my !== Near.seq) return;
+  // A route saved from OSM is shown once — as mine.
+  const savedOsm = new Set(mine.map(x => (String(x.src).match(/(relation\/\d+)/) || [])[1]).filter(Boolean));
+  Near.items = mine.concat(osm.filter(x => !savedOsm.has(x.osm))).sort((a, b) => a.d - b.d).slice(0, 15);
+  Near.at = Date.now(); Near.from = p; Near.r = R; Near.fromMap = fromMap; Near.err = osmErr;
+  $('#nr-load').disabled = false;
+  renderNear();
+}
+function renderNear() {
+  const L0 = Near.items, km = d => d >= 1000 ? fmtKm(d) + ' км' : Math.round(d / 10) * 10 + ' м';
+  const where = Near.fromMap ? tr('от центра карты (нет GPS)') : tr('от вас');
+  $('#nr-status').textContent = (L0.length ? `${tr('Найдено')}: ${L0.length} · ${tr('радиус')} ${fmtKm(Near.r)} км · ${where}` : `${tr('В радиусе')} ${fmtKm(Near.r)} км ${tr('маршрутов не нашлось')}`)
+    + (Near.err ? ` · ${tr('OpenStreetMap не ответил')}: ${Near.err}` : '');
+  $$('#nr-r button').forEach(b => b.classList.toggle('on', +b.dataset.r === Near.r));
+  $('#nr-list').innerHTML = L0.map((it, i) => {
+    const kind = it.kind === 'mine' ? tr('Мой') + (it.src ? ' · ' + esc(String(it.src).replace(/^(Ссылка|Файл): /, '').replace(/^https?:\/\/(www\.)?/, '').split(/[/?#]/)[0].slice(0, 40)) : '') : it.kind === 'mtb' ? 'MTB · OSM' : tr('Вело') + ' · OSM';
+    const name = it.name || (it.kind === 'mtb' ? tr('MTB без названия') : it.kind === 'mine' ? tr('Маршрут') : tr('Веломаршрут без названия'));
+    const at = it.d < 60 ? tr('вы на маршруте') : `${tr('до него')} ${km(it.d)}`;
+    return `<div class="item"><span class="t">${esc(name)}</span><span class="s">${kind} · ${fmtKm(it.len)} км · ${at}</span><span class="a"><button class="btn sm pri" data-ng="${i}">${tr('Ехать')}</button><button class="btn sm" data-nm="${i}">${tr('На карте')}</button></span></div>`;
+  }).join('') || `<div class="empty">${tr('Попробуйте радиус побольше')}</div>`;
+  $$('#nr-list [data-ng]').forEach(b => b.onclick = () => { const it = Near.items[+b.dataset.ng]; if (!it) return; showTab('rec'); Nav.set({ name: it.name || 'Маршрут', coords: it.line, wpts: it.wpts || [], ...(it.kind === 'mine' ? { rid: it.id } : {}) }); setFollow(true); });
+  $$('#nr-list [data-nm]').forEach(b => b.onclick = () => { const it = Near.items[+b.dataset.nm]; if (!it) return; if (it.kind === 'mine') { openRouteInfo(it.id, 'routes'); return; } if (!it.layer) addTrail(it); showTrail(it); });
+}
+$$('#nr-r button').forEach(b => b.onclick = () => { lsSet('nearR', +b.dataset.r); loadNear(); });
+$('#nr-load').onclick = () => loadNear();
+
 /* ================= import from links ================= */
 // Own Cloudflare Worker first (Settings → Pro), public proxies as the fallback.
 const workerUrl = () => { const w = String(lsGet('worker', '') || '').trim().replace(/\/+$/, ''); return /^https:\/\/[^\s/]+(\/[^\s]*)?$/.test(w) ? w : ''; };
@@ -6595,7 +6672,7 @@ $('#t-3d').onclick = () => open3D(curRouteCoords());
 // iPhone can keep the app suspended for days: on every return to the screen and every 30 min the app asks the site for
 // its current build (version.json, a few bytes) and reloads itself when a newer one is out. Never in the middle of a
 // ride or navigation — then it waits until both are finished. Bump APP_BUILD together with version.json.
-const APP_BUILD = '93';
+const APP_BUILD = '94';
 const Upd = { pending: false, t: 0, mv: 0 };
 setInterval(() => { try { if (GPS.fix && GPS.fix.spd > 1.5 && Date.now() - GPS.fix.t < 10000) Upd.mv = Date.now(); } catch {} }, 5000);
 async function checkUpdate(force) {
