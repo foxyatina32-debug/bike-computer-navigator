@@ -1438,7 +1438,7 @@ const kmh0 = ms => { const v = ms*3.6; return v < 10 ? v.toFixed(1).replace(/\.0
 const compass = d => ['С','СВ','В','ЮВ','Ю','ЮЗ','З','СЗ'][Math.round(d/45)%8];
 function toast(msg, ms = 2600) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, ms); }
 function lsGet(k, d) { try { const v = localStorage.getItem('velo:'+k); return v == null ? d : JSON.parse(v); } catch { return d; } }
-function lsSet(k, v) { try { localStorage.setItem('velo:'+k, JSON.stringify(v)); } catch {} }
+function lsSet(k, v) { try { localStorage.setItem('velo:'+k, JSON.stringify(v)); return true; } catch { return false; } }
 function cumDist(coords) { const c = [0]; for (let i = 1; i < coords.length; i++) c.push(c[i-1] + hav(coords[i-1], coords[i])); return c; }
 function ascentOf(coords) {
   let up = 0, ref = null;
@@ -2005,6 +2005,12 @@ function wakeStatus() {
     : wakeErr ? 'Экран может погаснуть: коснитесь экрана, чтобы включить снова' : '';
 }
 document.addEventListener('visibilitychange', updateWake);
+// Back from the background (screen was locked, another app): if iOS stopped delivering positions, restart GPS so the
+// route does not freeze on the last known point.
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden || GPS.watch == null || !(Nav.route || Ride.status === 'rec')) return;
+  if (!GPS.fix || Date.now() - (GPS.fix.t || 0) > 30000) { try { navigator.geolocation.clearWatch(GPS.watch); } catch {} GPS.watch = null; startGPS(); }
+});
 ['pointerdown', 'touchend', 'focus'].forEach(ev => (ev === 'focus' ? window : document).addEventListener(ev, () => { if (S.wake && !wakeLock) updateWake(); }, { passive: true }));
 setInterval(() => { if (S.wake && !wakeLock && document.visibilityState === 'visible') updateWake(); }, 5000);
 // prio = a turn or wrong-way prompt: it may cut off anything; other messages wait their turn after a prio one
@@ -3537,7 +3543,7 @@ const Nav = {
     // Length of the route as planned: «Всего / Пройдено» stay relative to it after a reroute, «continue from here» or a reload.
     if (r.restore) this.origTotal = r.origTotal || this.route.total; else if (!r.keepView || !this.origTotal) this.origTotal = this.route.total;
     this.route.sb = coords.slice(0, -1).map((c, i) => bearing(c, coords[i + 1]));
-    this.lastPos = null; this.backHits = 0; this.wrongSaid = false;
+    this.lastPos = null; this.backHits = 0; this.wrongWay = false; this.wrongAt = 0; this.rodeFwd = 0; this.offSaid = false; this.rrFailed = false;
     this.progress = 0; this.offCount = 0; this.lost = true; this.said = {}; this.setAt = Date.now();
     this.loopy = hav(coords[0], coords[coords.length - 1]) < 150 && cum[cum.length - 1] > 400;
     this.midSeen = 'midSeen' in r ? !!r.midSeen : r.keepView && !r.restore ? !!this.midSeen : false;   // after a reload: where you are decides
@@ -3567,7 +3573,13 @@ const Nav = {
     if (!r.keepView) fitB(this.line.getBounds());
     if (GPS.fix) this.onFix(GPS.fix); else this.render();
     const prevAN = r.rr ? lsGet('activeNav', null) : null; // after a reroute the route is still the same trip: keep its from → to
-    lsSet('activeNav', { ...(prevAN && prevAN.from != null ? { from: prevAN.from, to: prevAN.to } : {}), rid: this.rid || null, src: r.source || (prevAN && r.rr ? prevAN.src : null) || null, name: r.name, coords: coords.map(c => [+c[0].toFixed(6), +c[1].toFixed(6), c[2] != null ? Math.round(c[2]) : null]), opts: r.opts || null, wpts: this.wpts, origTotal: this.origTotal, rr: !!r.rr, startLL: this.startLL, ap: this.route.ap || 0, apTo: this.route.apTo || null, at: Date.now() });
+    const an = { ...(prevAN && prevAN.from != null ? { from: prevAN.from, to: prevAN.to } : {}), rid: this.rid || null, src: r.source || (prevAN && r.rr ? prevAN.src : null) || null, name: r.name, coords: coords.map(c => [+c[0].toFixed(6), +c[1].toFixed(6), c[2] != null ? Math.round(c[2]) : null]), opts: r.opts || null, wpts: this.wpts, origTotal: this.origTotal, rr: !!r.rr, startLL: this.startLL, ap: this.route.ap || 0, apTo: this.route.apTo || null, at: Date.now() };
+    // A very long, dense track may not fit in the browser's storage: then keep it thinned (≤ 1.5–4 m off the line, the
+    // join point kept), so a reload in the middle of the ride still brings the route back.
+    if (!lsSet('activeNav', an)) for (const tol of [1.5, 4, 10]) {
+      const idx = simplifyIdx(an.coords, tol); if (an.ap > 0 && !idx.includes(an.ap)) { idx.push(an.ap); idx.sort((x, y) => x - y); }
+      if (lsSet('activeNav', { ...an, coords: idx.map(k => an.coords[k]), ap: an.ap > 0 ? idx.indexOf(an.ap) : 0 })) break;
+    }
     placeGpxBtn();
   },
   drawEnds(st, fin) {
@@ -3738,6 +3750,11 @@ const Nav = {
     else { this.declined = true; this.offCount = 0; toast('Путь не прокладываю — стрелка показывает на маршрут', 3500); if (GPS.fix) this.renderAway([GPS.fix.lat, GPS.fix.lon]); }
   },
   cumAt(n) { return this.route.cum[n.seg] + hav(this.route.coords[n.seg], n.pt); },
+  ptAt(d) {
+    const { coords: c, cum } = this.route; let i = Math.max(1, Math.min(c.length - 1, lowerBound(cum, d)));
+    const a = c[i - 1], b = c[i], l = cum[i] - cum[i - 1], t = l > 0 ? Math.max(0, Math.min(1, (d - cum[i - 1]) / l)) : 0;
+    return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+  },
   // Declined: a straight-line arrow to the nearest point of the route; navigation picks up once you are on it.
   renderAway(p) {
     const n = this.nearest(p), d = n.dist, ang = this.lastMv != null ? norm180(bearing(p, n.pt) - this.lastMv) : 0;
@@ -3844,14 +3861,17 @@ const Nav = {
     const lim = 35 + Math.min(f.acc, 40) / 2;
     // Riding against the route: even the best match runs the opposite way for several fixes.
     if (loc.dist <= lim && mv != null && loc.sameDir != null && f.spd >= 1.2 && f.acc <= 30) {
-      if (loc.sameDir) { this.backHits = 0; this.backSince = 0; }
+      if (loc.sameDir) { this.backHits = 0; this.backSince = 0; if (this.wrongWay) { this.wrongWay = false; this.wrongAt = 0; } }
       else { if (!this.backHits) { this.backSince = Date.now(); this.backFrom = this.progress; } this.backHits++; }
       // Flip the whole track only when it is clearly the way you ride: right after starting it (you set off from its
       // far end), or after ≥12 s and ≥60 m against it. A short turn-back (a dropped bottle, a missed turn) never flips it.
       const fresh = Date.now() - this.setAt < 120000 && this.progress < 300;
       const sustained = this.backSince && Date.now() - this.backSince >= 12000 && (this.backFrom || 0) - loc.along >= 60;
-      if (this.backHits >= 3 && (fresh || sustained || this.route.opts || this.route.rr)) {
-        if (!this.route.opts && !this.route.rr && Date.now() - this.lastFlip > 30000) {
+      // Only a track not ridden yet is flipped (you set off from its far end). Once 300 m of it were ridden the right way,
+      // riding back is a mistake: turn round — said again every 40 s while it goes on, U-turn on the banner.
+      const canFlip = !this.route.opts && !this.route.rr && (this.rodeFwd || 0) < 300 && (fresh || sustained);
+      if (this.backHits >= 3 && (canFlip || sustained || this.route.opts || this.route.rr)) {
+        if (canFlip && Date.now() - this.lastFlip > 30000) {
           // A track from a file / saved / OSM: flip it so turns match the way you ride.
           const c = this.route.coords;
           const name = this.route.name.endsWith(' (обратно)') ? this.route.name.slice(0, -10) : this.route.name + ' (обратно)';
@@ -3860,14 +3880,18 @@ const Nav = {
           setFollow(true); say('Маршрут развёрнут по направлению вашего движения'); toast('↺ Маршрут развёрнут по направлению движения', 4000);
           return;
         }
-        if ((this.route.opts || this.route.rr) && !this.wrongSaid) { this.wrongSaid = true; say('Вы едете в обратную сторону. Развернитесь', true); toast('⚠ Вы едете в обратную сторону — развернитесь', 5000); }
+        if (!canFlip) { this.wrongWay = true; if (!this.wrongAt || Date.now() - this.wrongAt > 40000) { this.wrongAt = Date.now(); say('Вы едете в обратную сторону. Развернитесь', true); toast('⚠ Вы едете в обратную сторону — развернитесь', 5000); } }
       }
     }
     // Riding a loop the other way from its start matches its last leg backwards: that is not «nearly at the finish».
     const loopBack = this.loopy && !this.midSeen && loc.sameDir === false && loc.along > this.route.total * 0.5;
-    if (loc.dist <= lim) { this.lost = false; this.offCount = 0; this.joined = true; if (loc.along > this.progress - 50 && !loopBack) this.progress = loc.along; this.etaFeed(f); if (this.progress > this.route.total * 0.4) this.midSeen = true; }
+    if (loc.dist <= lim) { this.lost = false; this.offCount = 0; this.joined = true; this.offSaid = false; this.rrFailed = false; this.offPt = null;
+      if (loc.sameDir !== false && loc.along > this.progress && loc.along - this.progress < 100) this.rodeFwd = (this.rodeFwd || 0) + loc.along - this.progress;
+      if (loc.along > this.progress - 50 && !loopBack) this.progress = loc.along; this.etaFeed(f); if (this.progress > this.route.total * 0.4) this.midSeen = true; }
     else if (f.acc <= 50) this.offCount++;   // weak GPS (canyon, trees, buildings): its point wanders off the route — not a real departure
     const off = this.offCount >= 3 && Date.now() > this.ignoreOffUntil;
+    if (off) { this.offFrom = p; this.offPt = this.ptAt(Math.min(this.route.total, Math.max(loc.along, this.progress) + 30)); }
+    if (off && this.joined && !this.offSaid && (!S.reroute || this.rrFailed)) { this.offSaid = true; say('Вы сошли с маршрута. Стрелка показывает, куда вернуться', true); }
     if (off && !this.joined) {
       // Not on the route yet: never build a way automatically — ask once; after «no» just point at the route.
       if (!this.declined && !this.rejoining) { this.offerJoin(p); return; }
@@ -3942,7 +3966,11 @@ const Nav = {
     const r = this.route; if (!r) return;
     $('#navb').classList.toggle('off', !!off); $('#nv-act').hidden = !off; $('#nv-rejoin').textContent = tr('Перестроить'); syncSheetMax();
     this.showRemaining(Math.max(0, r.total - this.progress), this.progress);
-    if (off) { $('#nv-icon').innerHTML = ARROW(0); $('#nv-dist').textContent = Math.round(offDist) + ' м'; $('#nv-txt').textContent = 'Вы в стороне от маршрута'; drawElev(); return; }
+    if (off) {
+      const p = this.offFrom, q = this.offPt, ang = p && q && this.lastMv != null ? norm180(bearing(p, q) - this.lastMv) : 0;
+      $('#nv-icon').innerHTML = ARROW(Math.abs(ang) > 150 ? (ang > 0 ? 'uturn-r' : 'uturn-l') : ang); $('#nv-dist').textContent = Math.round(offDist) + ' м'; $('#nv-txt').textContent = 'Вы в стороне от маршрута'; drawElev(); return;
+    }
+    if (this.wrongWay) { $('#nv-icon').innerHTML = ARROW('uturn-l'); $('#nv-dist').textContent = ''; $('#nv-txt').textContent = 'Развернитесь — вы едете против маршрута'; drawElev(); return; }
     if (!GPS.fix) { $('#nv-icon').innerHTML = ARROW(0); $('#nv-dist').textContent = '—'; $('#nv-txt').textContent = 'Ожидание GPS…'; drawElev(); return; }
     const i = r.cues.findIndex(c => c.d > this.progress + 5); const cue = r.cues[i] || r.cues[r.cues.length - 1];
     const d = Math.max(0, cue.d - this.progress);
@@ -3996,7 +4024,9 @@ const Nav = {
         // Does the way back start by turning around?
         const j = Math.min(c.length - 1, lowerBound(cum, 30));
         const uturn = this.lastMv != null && len > 30 && Math.abs(norm180(bearing(me, c[j]) - this.lastMv)) > 120 ? 150 : 0;
-        const score = len - 0.9 * Math.min(skip, 500) + uturn; // short way back wins; a little progress counts, but no big shortcuts past the planned route
+        // Short way back wins; a little progress counts; skipping more than 700 m of the route costs every metre skipped,
+        // so a nearby finish (a horseshoe, a figure-8) never replaces the rest of the route.
+        const score = len - 0.9 * Math.min(skip, 500) + Math.max(0, skip - 700) + uturn;
         if (!best || score < best.score) best = { score, i, coords: c, len, skip, uturn };
       });
       if (!best) throw new Error('нет пути к маршруту');
@@ -4005,7 +4035,7 @@ const Nav = {
       setFollow(true); centerOn(me);
       const msg = best.uturn ? 'Развернитесь и вернитесь на маршрут' : 'Маршрут перестроен. Возвращаемся на маршрут';
       say(msg); toast('↪ ' + msg + ` · ${Math.round(best.len)} м до маршрута`, 4000);
-    } catch (e) { if (!auto) toast('Не удалось перестроить: ' + e.message, 5000); this.render(true, 0); }
+    } catch (e) { this.rrFailed = true; if (!auto) toast('Не удалось перестроить: ' + e.message, 5000); if (GPS.fix) this.onFix(GPS.fix); else this.render(true, 0); }
     finally { this.rejoining = false; }
   }
 };
@@ -6565,7 +6595,7 @@ $('#t-3d').onclick = () => open3D(curRouteCoords());
 // iPhone can keep the app suspended for days: on every return to the screen and every 30 min the app asks the site for
 // its current build (version.json, a few bytes) and reloads itself when a newer one is out. Never in the middle of a
 // ride or navigation — then it waits until both are finished. Bump APP_BUILD together with version.json.
-const APP_BUILD = '92';
+const APP_BUILD = '93';
 const Upd = { pending: false, t: 0, mv: 0 };
 setInterval(() => { try { if (GPS.fix && GPS.fix.spd > 1.5 && Date.now() - GPS.fix.t < 10000) Upd.mv = Date.now(); } catch {} }, 5000);
 async function checkUpdate(force) {

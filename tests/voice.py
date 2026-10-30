@@ -33,9 +33,15 @@ PARSE = [
 
 async def status(pg): return await pg.evaluate("document.getElementById('vc-st').textContent")
 async def say(pg, text, wait_for):
-    await pg.evaluate(f"window.__sayNext = {text!r}")
-    await pg.click('#vc-mic')
-    await pg.wait_for_function(wait_for, timeout=15000)
+    # The panel may still be finishing an earlier listen (the fake recognizer answers after 150 ms, and a tap on 🎤 while it
+    # listens stops it): if the phrase was not taken, tap again — up to 3 times — like a person would.
+    for k in range(3):
+        await pg.evaluate(f"window.__sayNext = {text!r}")
+        await pg.click('#vc-mic')
+        try: await pg.wait_for_function(wait_for, timeout=15000 if k == 2 else 6000); return
+        except Exception:
+            if k == 2: raise
+            await pg.wait_for_timeout(500)
 
 async def main():
     url = serve(8786); m = Mocks()
