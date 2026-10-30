@@ -1,5 +1,5 @@
 # «Маршруты рядом со мной» in «Трассы»: OpenStreetMap MTB / bike routes (Israel Hiking base) + my saved routes, nearest
-# first, at most 15, radius 5 / 15 / 30 km; «Ехать» starts navigation, a failing Overpass still shows my routes.
+# first, at most 15, radius 5 / 15 / 30 km; «Смотреть» previews on the map, «Поехали» starts navigation, a failing Overpass still shows my routes.
 import asyncio, sys, os, json, math, re
 from urllib.parse import unquote_plus
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -62,10 +62,32 @@ async def main():
         await pg.click('#nr-r [data-r="30000"]'); await pg.wait_for_timeout(1500)
         L = await pg.evaluate(LIST)
         check('2.3 radius 30 km: the 25 km trail appears, Eilat does not', 'Far trail' in [x['t'] for x in L] and 'Эйлат' not in [x['t'] for x in L], [x['t'] for x in L])
-        # «Ехать» on the first: navigation with that line, and it asks how to start (we are 1 km from it).
+        # Preview: a tap on the route opens the map with it and a card — nothing starts yet.
+        await pg.click('#nr-list .item[data-nv="0"] .t'); await pg.wait_for_timeout(1200)
+        pv = await pg.evaluate("({card: !document.getElementById('nr-pv').hidden, map: document.getElementById('sheet-routes').hidden, nav: !!Nav.route, t: document.getElementById('nr-pv-t').textContent, km: document.getElementById('nr-pv-km').textContent, time: document.getElementById('nr-pv-time').textContent, n: document.getElementById('nr-pv-n').textContent, layer: !!NPV.layer && map.hasLayer(NPV.layer)})")
+        check('P.1 tap on a route: map with the route and a card, navigation not started', pv['card'] and pv['map'] and not pv['nav'] and pv['layer'], pv)
+        check('P.2 card: name, length, time', pv['t'] == 'סינגל בן שמן' and pv['km'] == '2.00' and pv['time'].startswith('~') and 'мин' in pv['time'], pv)
+        check('P.3 card: one way, finish from start, distance to the start', 'В одну сторону' in pv['n'] and 'финиш в 2.00 км' in pv['n'] and 'до старта' in pv['n'], pv['n'])
+        vis = await pg.evaluate("(() => { const r = document.getElementById('nr-pv').getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight && r.left >= 0 && r.right <= innerWidth; })()")
+        check('P.4 the card fits on the screen', vis)
+        # Back: the list again, the preview gone.
+        await pg.click('#nr-pv-back'); await pg.wait_for_timeout(600)
+        r = await pg.evaluate("({list: !document.getElementById('sheet-routes').hidden && !document.getElementById('r-trails').hidden && document.querySelectorAll('#nr-list .item').length, card: !document.getElementById('nr-pv').hidden, layer: !!NPV.layer, nav: !!Nav.route})")
+        check('P.5 «← К списку»: back to the same list, preview removed, no navigation', r['list'] == 5 and not r['card'] and not r['layer'] and not r['nav'], r)
+        # A loop: the card says so.
+        loop = line(0, 3000, 1000, 3000, 10) + line(1000, 3000, 1000, 4000, 10)[1:] + line(1000, 4000, 0, 4000, 10)[1:] + line(0, 4000, 0, 3000, 10)[1:]
+        await pg.evaluate(f"nearPreview({{kind: 'mine', name: 'Кольцо', line: {json.dumps(loop)}, d: 3000}})"); await pg.wait_for_timeout(500)
+        n = await pg.evaluate("document.getElementById('nr-pv-n').textContent")
+        check('P.6 a loop is shown as a loop', n.startswith('Кольцо: старт и финиш в одной точке'), n)
+        # «Поехали» on the card: navigation on that route.
+        await pg.click('#nr-pv-go'); await pg.wait_for_timeout(1200)
+        r = await pg.evaluate("({name: Nav.route && Nav.route.name, card: !document.getElementById('nr-pv').hidden, layer: !!NPV.layer})")
+        check('P.7 «Поехали» on the card starts navigation, the card closes', r['name'] == 'Кольцо' and not r['card'] and not r['layer'], r)
+        await pg.evaluate("Nav.stop(); showTab('routes'); routeSeg('trails')"); await pg.wait_for_timeout(500)
+        # «Поехали» in the list: navigation with that line right away, and it asks how to start (we are 1 km from it).
         await pg.click('#nr-list [data-ng="0"]'); await pg.wait_for_timeout(1500)
         r = await pg.evaluate("({name: Nav.route && Nav.route.name, n: Nav.route && Nav.route.coords.length, ask: !document.getElementById('ask-join').hidden || !document.getElementById('ask-start').hidden})")
-        check('3.1 «Ехать» starts navigation on that route', r['name'] == 'סינגל בן שמן' and r['n'] >= 21, r)
+        check('3.1 «Поехали» in the list starts navigation on that route', r['name'] == 'סינגל בן שמן' and r['n'] >= 21, r)
         check('3.2 …and asks how to start (way to the start or the nearest point)', r['ask'], r)
         check('no JS errors (ru)', not log['errors'], log['errors'][:3]); await b.close()
 

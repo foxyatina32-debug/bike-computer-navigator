@@ -52,6 +52,7 @@ const tr = (() => {
   Object.assign(D, {"Вышла новая версия — обновлю, когда закончите поездку":["A new version is out — it will update when you finish the ride","יצאה גרסה חדשה — היא תתעדכן כשתסיימו את הרכיבה"],"Приложение обновлено до новой версии":["The app is updated to the new version","האפליקציה עודכנה לגרסה החדשה"]});
   Object.assign(D, {"** короткая ссылка Google разворачивается через allorigins.win / corsproxy.io":["** a short Google link is expanded via allorigins.win / corsproxy.io","** קישור Google מקוצר נפתח דרך allorigins.win / corsproxy.io"]});
   Object.assign(D, {"Маршруты рядом со мной": ["Routes near me", "מסלולים לידי"], "MTB- и веломаршруты из OpenStreetMap (база Israel Hiking Map) и ваши сохранённые маршруты — ближайшие первыми.": ["MTB and bike routes from OpenStreetMap (the Israel Hiking Map base) and your saved routes — nearest first.", "מסלולי MTB ואופניים מ-OpenStreetMap (הבסיס של Israel Hiking Map) והמסלולים השמורים שלכם — הקרובים קודם."], "Ищу маршруты рядом…": ["Looking for routes nearby…", "מחפש מסלולים בסביבה…"], "от центра карты (нет GPS)": ["from the map centre (no GPS)", "ממרכז המפה (אין GPS)"], "от вас": ["from you", "ממך"], "Найдено": ["Found", "נמצאו"], "радиус": ["radius", "רדיוס"], "В радиусе": ["Within", "ברדיוס"], "маршрутов не нашлось": ["no routes found", "לא נמצאו מסלולים"], "OpenStreetMap не ответил": ["OpenStreetMap did not answer", "OpenStreetMap לא ענה"], "Мой": ["Mine", "שלי"], "вы на маршруте": ["you are on it", "אתם על המסלול"], "до него": ["distance", "מרחק"], "Попробуйте радиус побольше": ["Try a bigger radius", "נסו רדיוס גדול יותר"]});
+  Object.assign(D, {"Смотреть": ["View", "הצג"], "Поехали": ["Let's go", "יוצאים"], "← К списку": ["← Back to the list", "← לרשימה"], "в пути, примерно": ["riding, approx.", "זמן רכיבה משוער"], "Мой маршрут": ["My route", "המסלול שלי"], "Кольцо: старт и финиш в одной точке": ["Loop: start and finish at the same point", "מעגלי: ההתחלה והסיום באותה נקודה"], "В одну сторону: финиш в": ["One way: the finish is", "בכיוון אחד: הסיום"], "от старта": ["from the start", "מההתחלה"], "до маршрута": ["to the route", "עד המסלול"]});
   Object.assign(D, {"Что рядом":["Nearby","מה בסביבה"],"Веломагазины, магазины, заправки, кафе · Google":["Bike shops, stores, gas stations, cafés · Google","חנויות אופניים, מכולות, תחנות דלק, בתי קפה · Google"],"☕ Что по пути: магазин, вода, веломастерская":["☕ On the way: store, water, bike shop","☕ בדרך: מכולת, מים, חנות אופניים"],"Заехать сюда":["Stop here on the way","לעצור כאן בדרך"],"Маршрут сюда":["Route here","מסלול לכאן"]});
   Object.assign(D, {"веломагазин":["bike shop","חנות אופניים"],"магазин":["store","מכולת"],"кафе":["café","בית קפה"],"заправка":["gas station","תחנת דלק"],"открыто":["open now","פתוח עכשיו"],"закрыто":["closed now","סגור עכשיו"],"Нужен ваш ключ Google с Places API (New) — Настройки → Google Карты":["Needs your Google key with Places API (New) — Settings → Google Maps","נדרש מפתח Google עם Places API (New) — הגדרות ← Google Maps"],"Ищу веломагазины, магазины, заправки и кафе…":["Looking for bike shops, stores, gas stations and cafés…","מחפש חנויות אופניים, מכולות, תחנות דלק ובתי קפה…"],"Рядом ничего не нашлось":["Nothing found nearby","לא נמצא כלום בסביבה"],"🔧 веломагазины · 🏪 магазины · ⛽ заправки · ☕ кафе. Нажмите на значок":["🔧 bike shops · 🏪 stores · ⛽ gas stations · ☕ cafés. Tap an icon","🔧 חנויות אופניים · 🏪 מכולות · ⛽ תחנות דלק · ☕ בתי קפה. הקישו על סמל"],"Нашёл":["Found","נמצאו"],"Поиск Google не сработал:":["Google search failed:","חיפוש Google נכשל:"],"Строю маршрут через":["Building the route via","בונה מסלול דרך"],"Маршрут идёт через":["The route goes via","המסלול עובר דרך"],"Едем в":["Going to","נוסעים אל"]});
   Object.assign(D, {"Ничего не найдено — нажмите «Найти» на клавиатуре, поищу подробнее":["Nothing found — press «Search» on the keyboard for a deeper search","לא נמצא כלום — הקישו «חיפוש» במקלדת לחיפוש מעמיק"]});
@@ -428,6 +429,12 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 .nojs code{background:#1f2a38;padding:4px 8px;border-radius:8px;font-size:14px;word-break:break-all;-webkit-user-select:all;user-select:all}
 #pick-bar{position:fixed;left:12px;right:12px;bottom:calc(var(--tabs-b) + 12px);z-index:95;max-width:440px;margin:0 auto;background:#161d28;border:1px solid var(--accent);border-radius:20px;padding:12px 14px;box-shadow:0 10px 40px rgba(0,0,0,.5);font-size:15px;font-weight:600}
 #pick-bar .row{margin-top:10px}
+#nr-pv{position:fixed;left:12px;right:12px;bottom:calc(var(--tabs-b) + 12px);z-index:96;max-width:440px;margin:0 auto;background:#161d28;border:1px solid var(--line);border-radius:22px;padding:14px 16px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+body.pv-on #hud{display:none!important}
+#nr-pv .pv-t{font-size:18px;font-weight:800;line-height:1.25}#nr-pv .pv-s{color:var(--muted);font-size:13px;margin-top:2px}
+#nr-pv .pv-st{display:flex;gap:8px;margin:10px 0 8px}#nr-pv .pv-st div{flex:1;background:rgba(255,255,255,.05);border-radius:14px;padding:8px 10px}
+#nr-pv .pv-st b{display:block;font-size:18px;font-weight:800}#nr-pv .pv-st span{color:var(--muted);font-size:12px}
+#nr-pv .pv-n{color:var(--text);font-size:14px;margin:0 0 4px}#nr-pv .pv-d{color:var(--muted);font-size:13px;margin:0 0 4px}#nr-pv .row{margin-top:10px}#nr-pv .row .btn{flex:1}
 #ins-chip{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--tabs-b) + 182px);z-index:40;background:var(--glass-hi);border:1px solid var(--line);color:var(--ink);font:600 14px/1 inherit;font-family:inherit;padding:9px 14px;border-radius:999px;box-shadow:0 4px 16px rgba(0,0,0,.4)}
 .poim.g{background:#fff7d6;border-color:#c99a00}
 .poim.g.closed{opacity:.55}
@@ -1270,6 +1277,7 @@ body.wide #hello{left:calc((100vw - var(--mapr)) / 2)}
 </section>
 
 <button id="ins-chip" hidden>Покрытие и точки ✕</button>
+<div id="nr-pv" hidden><div class="pv-t" id="nr-pv-t"></div><div class="pv-s" id="nr-pv-s"></div><div class="pv-st"><div><b id="nr-pv-km"></b><span>км</span></div><div><b id="nr-pv-time"></b><span>в пути, примерно</span></div><div id="nr-pv-ascw"><b id="nr-pv-asc"></b><span>набор, м</span></div></div><p class="pv-n" id="nr-pv-n"></p><p class="pv-d" id="nr-pv-d" hidden></p><div class="row"><button class="btn" id="nr-pv-back">← К списку</button><button class="btn pri" id="nr-pv-go">Поехали</button></div></div>
 <div id="pick-bar" hidden><span>Нажмите на линию маршрута — там будут старт и финиш</span><div class="row"><button class="btn pri" id="pick-me">Моё место</button><button class="btn" id="pick-x">Отмена</button></div></div>
 <div class="ask" id="ask-rt" hidden><div class="box">
   <h2 id="rtm-name"></h2>
@@ -1787,6 +1795,7 @@ function showTab(t, fromHistory) {
   $$('.sheet').forEach(s => s.hidden = s.id !== 'sheet-' + t);
   $('#hud').hidden = t !== 'rec' && !document.body.classList.contains('wide'); // wide screen: instruments stay beside the panel
   if (t !== 'ab') { try { abHide(); } catch {} }
+  if (t !== 'rec' && typeof nearPvClose === 'function') nearPvClose();
   syncSheetMax();
   try {
     if (t !== 'rec' && !wasOpen) history.pushState({ sheet: t }, '');
@@ -5975,11 +5984,63 @@ function renderNear() {
     const kind = it.kind === 'mine' ? tr('Мой') + (it.src ? ' · ' + esc(String(it.src).replace(/^(Ссылка|Файл): /, '').replace(/^https?:\/\/(www\.)?/, '').split(/[/?#]/)[0].slice(0, 40)) : '') : it.kind === 'mtb' ? 'MTB · OSM' : tr('Вело') + ' · OSM';
     const name = it.name || (it.kind === 'mtb' ? tr('MTB без названия') : it.kind === 'mine' ? tr('Маршрут') : tr('Веломаршрут без названия'));
     const at = it.d < 60 ? tr('вы на маршруте') : `${tr('до него')} ${km(it.d)}`;
-    return `<div class="item"><span class="t">${esc(name)}</span><span class="s">${kind} · ${fmtKm(it.len)} км · ${at}</span><span class="a"><button class="btn sm pri" data-ng="${i}">${tr('Ехать')}</button><button class="btn sm" data-nm="${i}">${tr('На карте')}</button></span></div>`;
+    return `<div class="item nrit" data-nv="${i}"><span class="t">${esc(name)}</span><span class="s">${kind} · ${fmtKm(it.len)} км · ${at}</span><span class="a"><button class="btn sm pri" data-nm="${i}">${tr('Смотреть')}</button><button class="btn sm" data-ng="${i}">${tr('Поехали')}</button></span></div>`;
   }).join('') || `<div class="empty">${tr('Попробуйте радиус побольше')}</div>`;
-  $$('#nr-list [data-ng]').forEach(b => b.onclick = () => { const it = Near.items[+b.dataset.ng]; if (!it) return; showTab('rec'); Nav.set({ name: it.name || 'Маршрут', coords: it.line, wpts: it.wpts || [], ...(it.kind === 'mine' ? { rid: it.id } : {}) }); setFollow(true); });
-  $$('#nr-list [data-nm]').forEach(b => b.onclick = () => { const it = Near.items[+b.dataset.nm]; if (!it) return; if (it.kind === 'mine') { openRouteInfo(it.id, 'routes'); return; } if (!it.layer) addTrail(it); showTrail(it); });
+  $$('#nr-list [data-ng]').forEach(b => b.onclick = e => { e.stopPropagation(); nearGo(Near.items[+b.dataset.ng]); });
+  $$('#nr-list [data-nm]').forEach(b => b.onclick = e => { e.stopPropagation(); nearPreview(Near.items[+b.dataset.nm]); });
+  $$('#nr-list [data-nv]').forEach(el => el.onclick = () => nearPreview(Near.items[+el.dataset.nv]));
 }
+
+// Preview before riding: the route on the map with its start and finish, a card with length, time, climb,
+// loop or one way and how far the start is — «← К списку» goes back, «Поехали» starts navigation.
+const NPV = { layer: null, it: null };
+function nearGo(it) {
+  if (!it) return; nearPvClose(); showTab('rec');
+  Nav.set({ name: it.name || 'Маршрут', coords: it.line, wpts: it.wpts || [], ...(it.kind === 'mine' ? { rid: it.id } : {}) }); setFollow(true);
+}
+function nearPvClose() {
+  if (NPV.layer) { map.removeLayer(NPV.layer); NPV.layer = null; }
+  NPV.it = null; $('#nr-pv').hidden = true; document.body.classList.remove('pv-on');
+}
+function nearPreview(it) {
+  if (!it || !it.line || it.line.length < 2) return;
+  nearPvClose(); NPV.it = it;
+  const c = it.line, a = c[0], z = c[c.length - 1], len = it.len || cumDist(c).pop();
+  const hasAlt = c.filter(q => q[2] != null).length > c.length * 0.5, asc = hasAlt ? ascentOf(c) : 0;
+  const loop = hav(a, z) < 150 && len > 400;
+  const mode = curMode(), v = mode === 'car' ? 11 : mode === 'foot' ? 1.3 : (BIKES[(RO && RO.bike) || 'xc'] || BIKES.xc).spd[1];
+  const secs = len / v + (mode === 'car' ? 0 : asc / ((mode === 'foot' ? 350 : 500) / 3600));
+  const km = d => d >= 1000 ? fmtKm(d) + ' км' : Math.round(d / 10) * 10 + ' м';
+  const me = GPS.fix ? [GPS.fix.lat, GPS.fix.lon] : null;
+  // The line, a green start and a chequered finish (one marker when it is a loop).
+  const parts = (it.parts || [c]).map(l => l.map(q => [q[0], q[1]]));
+  const g = L.featureGroup([L.polyline(parts, { color: css('--route'), weight: 6, opacity: .95 })]);
+  g.addLayer(L.marker([a[0], a[1]], { icon: L.divIcon({ className: '', iconSize: [28, 28], iconAnchor: [14, 14], html: '<div class="rte-st" aria-label="Старт"><svg viewBox="0 0 24 24"><path d="M9 6.5v11l9-5.5Z" fill="#fff"/></svg></div>' }), interactive: false, zIndexOffset: 400 }));
+  if (!loop) g.addLayer(L.marker([z[0], z[1]], { icon: L.divIcon({ className: '', iconSize: [36, 43], iconAnchor: [5, 42], html: '<svg class="rte-fin" viewBox="0 0 30 36" aria-label="Финиш"><path d="M4 2v33" stroke="#1b1f24" stroke-width="2.6" stroke-linecap="round"/><path d="M4 3h22v14H4Z" fill="#fff" stroke="#1b1f24" stroke-width="1.4"/><path d="M4 3h5.5v4.67H4ZM15 3h5.5v4.67H15ZM9.5 7.67H15v4.66H9.5ZM20.5 7.67H26v4.66h-5.5ZM4 12.33h5.5V17H4ZM15 12.33h5.5V17H15Z" fill="#1b1f24"/></svg>' }), interactive: false, zIndexOffset: 500 }));
+  NPV.layer = g.addTo(map);
+  // The card.
+  const kind = it.kind === 'mine' ? tr('Мой маршрут') + (it.src ? ' · ' + String(it.src).replace(/^(Ссылка|Файл): /, '').replace(/^https?:\/\/(www\.)?/, '').split(/[/?#]/)[0].slice(0, 40) : '')
+    : (it.kind === 'mtb' ? 'MTB' : tr('Веломаршрут')) + ' · OpenStreetMap' + (it.tags && it.tags['mtb:scale'] ? ' · ' + tr('сложность') + ' ' + it.tags['mtb:scale'] + '/6' : '');
+  $('#nr-pv-t').textContent = it.name || (it.kind === 'mtb' ? tr('MTB без названия') : tr('Маршрут'));
+  $('#nr-pv-s').textContent = kind;
+  $('#nr-pv-km').textContent = fmtKm(len); $('#nr-pv-time').textContent = '~' + fmtHM(secs);
+  $('#nr-pv-asc').textContent = Math.round(asc); $('#nr-pv-ascw').hidden = !hasAlt;
+  const shape = loop ? tr('Кольцо: старт и финиш в одной точке') : `${tr('В одну сторону: финиш в')} ${km(hav(a, z))} ${tr('от старта')}`;
+  const toStart = me ? ` · ${tr('до старта')} ${km(hav(me, a))}` + (it.d != null && it.d < hav(me, a) - 200 ? `, ${tr('до маршрута')} ${km(it.d)}` : '') : '';
+  $('#nr-pv-n').textContent = shape + toStart;
+  const desc = it.tags && (it.tags['description:ru'] || it.tags.description || it.tags['description:he'] || it.tags['description:en']);
+  $('#nr-pv-d').textContent = desc ? String(desc).slice(0, 180) : ''; $('#nr-pv-d').hidden = !desc;
+  showTab('rec'); document.body.classList.add('pv-on'); $('#nr-pv').hidden = false; setFollow(false);
+  // Above the tab bar, whatever its height on this phone.
+  try { $('#nr-pv').style.bottom = Math.max(12, innerHeight - $('.tabs').getBoundingClientRect().top + 10) + 'px'; } catch {}
+  // Fit the whole route above the card.
+  requestAnimationFrame(() => { try {
+    const pb = Math.max(0, innerHeight - $('#nr-pv').getBoundingClientRect().top + 12), pt = viewPad().top;
+    map.fitBounds(g.getBounds(), { paddingTopLeft: [64, pt], paddingBottomRight: [72, pb], maxZoom: 16 });
+  } catch {} });
+}
+$('#nr-pv-back').onclick = () => { nearPvClose(); showTab('routes'); routeSeg('trails'); };
+$('#nr-pv-go').onclick = () => nearGo(NPV.it);
 $$('#nr-r button').forEach(b => b.onclick = () => { lsSet('nearR', +b.dataset.r); loadNear(); });
 $('#nr-load').onclick = () => loadNear();
 
@@ -6672,7 +6733,7 @@ $('#t-3d').onclick = () => open3D(curRouteCoords());
 // iPhone can keep the app suspended for days: on every return to the screen and every 30 min the app asks the site for
 // its current build (version.json, a few bytes) and reloads itself when a newer one is out. Never in the middle of a
 // ride or navigation — then it waits until both are finished. Bump APP_BUILD together with version.json.
-const APP_BUILD = '94';
+const APP_BUILD = '95';
 const Upd = { pending: false, t: 0, mv: 0 };
 setInterval(() => { try { if (GPS.fix && GPS.fix.spd > 1.5 && Date.now() - GPS.fix.t < 10000) Upd.mv = Date.now(); } catch {} }, 5000);
 async function checkUpdate(force) {
