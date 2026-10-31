@@ -2630,7 +2630,8 @@ const Ride = {
   start() {
     if (this.status === 'idle') Object.assign(this, { startTs: Date.now(), movingMs: 0, dist: 0, max: 0, asc: 0, desc: 0, altRef: null, altS: null, track: [], brk: [], autoPaused: false });
     if (!this.brk) this.brk = [];
-    this.missed = 0; this.live = undefined;
+    this.live = undefined; this.mAtFix = this.movingMs;
+    this.lastFixT = this.track.length ? this.track[this.track.length - 1][3] || 0 : 0;   // a restored ride: its gap is settled by the next fix
     // Resuming after a manual pause: what was ridden while paused must not be added as a straight line.
     if (this.status === 'paused' && !this.restored) this.gap = true;
     this.status = 'rec'; this.restored = false; this.moveSince = 0; this.lastTick = Date.now(); startGPS(); unlockSpeech();
@@ -2638,7 +2639,7 @@ const Ride = {
     this.line.setLatLngs(segLL(this.track, this.brk));
     renderRecUI(); updateWake();
   },
-  pause() { this.status = 'paused'; this.restored = false; this.missed = 0; renderRecUI(); this.persist(); },
+  pause() { this.status = 'paused'; this.restored = false; renderRecUI(); this.persist(); },
   // A point onto the end of the line on the map; newSeg starts a separate piece (nothing drawn across the gap).
   addPt(p, newSeg) {
     this.track.push(p);
@@ -2662,17 +2663,17 @@ const Ride = {
       }
     }
     else toast('Поездка без трека — не сохранена');
-    this.status = 'idle'; this.track = []; this.brk = []; Object.assign(this, { movingMs: 0, dist: 0, max: 0, asc: 0, desc: 0, autoPaused: false, missed: 0 }); if (this.line) this.line.setLatLngs([]);
+    this.status = 'idle'; this.track = []; this.brk = []; Object.assign(this, { movingMs: 0, dist: 0, max: 0, asc: 0, desc: 0, autoPaused: false, lastFixT: 0 }); if (this.line) this.line.setLatLngs([]);
     await DB.del('kv', 'currentRide').catch(() => {}); renderRecUI(); updateWake(); renderDash();
     return true;
   },
-  // Moving time counts only while GPS answers (a fix in the last 5 s). Time without fixes — tunnel, page asleep —
-  // goes to «missed»: the next fix decides whether it was ridden (counted once) or not (left out).
+  // Moving time counts only while GPS answers (a fix in the last 5 s). Time without fixes — tunnel, page asleep — is
+  // settled by the next fix (Ride.onFix): ridden at a plausible pace → counted once, otherwise left out.
   tick() {
     const now = Date.now(), dt = Math.max(0, now - this.lastTick); this.lastTick = now;
     if (this.status !== 'rec' || this.autoPaused) { if (this.live !== undefined) { this.live = undefined; renderRecUI(); } return; }
     const live = now - (GPS.lastT || 0) < 5000, add = live ? Math.min(dt, 5000) : 0;
-    this.movingMs += add; this.missed = (this.missed || 0) + dt - add;
+    this.movingMs += add;
     if (live !== this.live) { this.live = live; renderRecUI(); }
   },
   onFix(f) {
@@ -2699,7 +2700,13 @@ const Ride = {
     if (f.acc > 35 || f.jump) return;
     const p = [f.lat, f.lon, f.alt != null ? Math.round(f.alt * 10) / 10 : null, f.t];
     const last = this.track[this.track.length - 1];
-    const missed = this.missed || 0; this.missed = 0;
+    // Time the ticks did not count since the last clean fix (screen locked, another app, tunnel): from the fixes' own
+    // times, so it does not matter whether iPhone wakes the timer or delivers the fix first.
+    const fixGap = this.lastFixT ? (p[3] || 0) - this.lastFixT : 0, counted = this.movingMs - (this.mAtFix == null ? this.movingMs : this.mAtFix);
+    const missed = Math.max(0, fixGap - counted);
+    try { this.fixStep(f, p, last, missed, fixGap, spd); } finally { this.lastFixT = p[3]; this.mAtFix = this.movingMs; }
+  },
+  fixStep(f, p, last, missed, fixGap, spd) {
     if (!last) { this.addPt(p); return; }
     const d = hav(last, p);
     if (this.gap) { this.gap = false; this.addPt(p, true); return; } // resumed after a manual pause: a new piece
@@ -2714,7 +2721,7 @@ const Ride = {
       this.addPt(p, !ok); return;
     }
     // A short dropout (≤ 20 s) while riding on: its time was riding time too.
-    if (missed && gapMs <= 20000 && spd > 1 && !this.autoPaused) this.movingMs += Math.min(missed, gapMs);
+    if (missed && fixGap > 5000 && gapMs <= 20000 && spd > 1 && !this.autoPaused) this.movingMs += Math.min(missed, fixGap);
     if (d >= Math.max(3, f.acc * 0.3) && !this.autoPaused && !GPS.still) { if (!f.jump) this.dist += d; this.addPt(p); }
   },
   persist() {
