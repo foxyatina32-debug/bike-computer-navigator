@@ -104,8 +104,11 @@ async def main():
         check('wake phrase: «Привет / Хей / Эй / Окей, Вело» yes, other speech no', r == [[], []], r)
         idle = await pg.evaluate("Voice.waking")
         await pg.evaluate("lsSet('home', {ll: [32.0853, 34.7818], name: 'Тель-Авив'}); document.getElementById('s-wakeword').click()")
+        await pg.wait_for_timeout(2500)
+        check('switched on, no ride and no navigation: the microphone stays off (v103)', not await pg.evaluate("Voice.waking") and await pg.evaluate("window.__srStarts") == 0)
+        await pg.evaluate("Ride.start()")   # a ride is recording → «Привет, Вело» listens
         await pg.wait_for_function("Voice.waking && document.getElementById('t-mic').classList.contains('wake')", timeout=5000)
-        check('off by default; switch in Profile starts listening (green dot)', idle is False and await pg.evaluate("S.wakeword === true && lsGet('settings', {}) !== null"))
+        check('off by default; switch in Profile starts listening during a ride (green dot)', idle is False and await pg.evaluate("S.wakeword === true && lsGet('settings', {}) !== null"))
         await pg.evaluate("window.__sayQ = ['Привет, Вело, поехали домой']")
         await pg.wait_for_function("Nav.route && Nav.route.name === 'Домой'", timeout=10000)
         check('«Привет, Вело, поехали домой» in one phrase → navigation home', True, await status(pg))

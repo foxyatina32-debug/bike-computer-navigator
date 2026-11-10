@@ -118,7 +118,8 @@ async def main():
         await pg.evaluate("showTab('profile')"); await pg.wait_for_timeout(300)
         body = await pg.evaluate("document.body.innerText")
         check('Settings: no Strava mentioned for the own proxy', 'нужен для Strava' not in body and 'Strava настроена' not in body)
-        check('version text: v102', 'навигация v102' in body)
+        b_ = await pg.evaluate("APP_BUILD")
+        check(f'version text: v{b_} (current build)', f'навигация v{b_}' in body)
         check('no JS errors', not log['errors'], log['errors'][:3])
         await b.close()
         # 12. Hebrew and English: new texts translated.
@@ -129,7 +130,7 @@ async def main():
             r = await pg.evaluate("({st: Ride.status, t: tr(window.__lastToasts)})")   # the hook keeps the text before toast() translates it
             await pg.evaluate("showTab('profile')"); await pg.wait_for_timeout(300)
             lbl = await pg.evaluate("document.getElementById('s-autorec').closest('label').textContent")
-            ver = await pg.evaluate("[...document.querySelectorAll('p.note')].map(x => x.textContent).find(x => /v102/.test(x)) || ''")
+            ver = await pg.evaluate("[...document.querySelectorAll('p.note')].map(x => x.textContent).find(x => x.includes('v' + APP_BUILD + ' ')) || ''")
             import re
             cyr = re.compile('[А-Яа-яЁё]')
             check(f'[{lang}] auto-start works, toast, switch and version text without Russian', r['st'] == 'rec' and not cyr.search(r['t']) and not cyr.search(lbl) and ver and not cyr.search(ver), (r['t'][-90:], lbl.strip(), ver[:60]))
