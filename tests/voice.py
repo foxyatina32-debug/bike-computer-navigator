@@ -1,6 +1,6 @@
 # Voice commands: phrase parsing (ru / he / en) and the whole flow mic → route → navigation.
 # The browser's speech recognizer is replaced by a fake that "hears" window.__sayNext. Run: python3 tests/voice.py
-import asyncio, sys, os, re
+import asyncio, sys, os, re, json
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from harness import serve, Mocks, open_app
 from playwright.async_api import async_playwright
@@ -9,10 +9,10 @@ def check(name, ok, info=''):
     RES.append(bool(ok)); print(('PASS ' if ok else 'FAIL ') + name + (f' — {info}' if info != '' else ''))
 
 FAKE_SR = '''window.__sayNext = ''; window.__sayQ = []; window.__srStarts = 0;
-class FakeSR { start() { window.__srStarts++; setTimeout(() => { const t = window.__sayQ.length ? window.__sayQ.shift() : window.__sayNext; window.__sayNext = '';
+class FakeSR { start() { window.__srStarts++; setTimeout(() => { if (this._ab) return; const t = window.__sayQ.length ? window.__sayQ.shift() : window.__sayNext; window.__sayNext = '';
   if (!t) { this.onerror && this.onerror({ error: 'no-speech' }); this.onend && this.onend(); return; }
-  const res = [{ transcript: t, confidence: .9 }]; res.isFinal = true; this.onresult({ resultIndex: 0, results: [res] }); this.onend && this.onend(); }, 150); }
-  abort() {} stop() {} }
+  const res = [{ transcript: t, confidence: .9 }]; res.isFinal = true; this.onresult && this.onresult({ resultIndex: 0, results: [res] }); this.onend && this.onend(); }, 150); }
+  abort() { this._ab = true; } stop() { this._ab = true; } }   // like a real recognizer: nothing more after abort
 window.webkitSpeechRecognition = window.SpeechRecognition = FakeSR;'''
 NO_SR = 'window.SpeechRecognition = window.webkitSpeechRecognition = undefined;'
 
@@ -95,34 +95,17 @@ async def main():
         check('no JS errors (ru)', not log['errors'], log['errors'])
         await b.close()
 
-        # 8. «Привет, Вело»
-        WAKE_YES = ['привет вело', 'Привет, Вело, поехали домой', 'хей вело', 'эй, вело', 'окей вело', 'Hey Velo go home', 'היי ולו סע הביתה']
-        WAKE_NO = ['привет', 'поехали домой', 'привет велосипед', 'велосипед', 'хей']
-        b, ctx, pg, log = await open_app(p, url + '?lang=ru', m)
+        # 8. No «Привет, Вело» since v105: the microphone never starts by itself, even with the old setting saved as on
+        b, ctx, pg, log = await open_app(p, url + '?lang=ru', m, storage=[['velo:settings', json.dumps({'wakeword': True})]])
         await ctx.add_init_script(FAKE_SR); await pg.reload(); await pg.wait_for_function('window.__appReady === true'); await pg.wait_for_timeout(800)
-        r = await pg.evaluate('([y, n]) => [y.filter(t => !Voice.wakeRx.test(t.toLowerCase())), n.filter(t => Voice.wakeRx.test(t.toLowerCase()))]', [WAKE_YES, WAKE_NO])
-        check('wake phrase: «Привет / Хей / Эй / Окей, Вело» yes, other speech no', r == [[], []], r)
-        idle = await pg.evaluate("Voice.waking")
-        await pg.evaluate("lsSet('home', {ll: [32.0853, 34.7818], name: 'Тель-Авив'}); document.getElementById('s-wakeword').click()")
-        await pg.wait_for_timeout(2500)
-        check('switched on, no ride and no navigation: the microphone stays off (v103)', not await pg.evaluate("Voice.waking") and await pg.evaluate("window.__srStarts") == 0)
-        await pg.evaluate("Ride.start()")   # a ride is recording → «Привет, Вело» listens
-        await pg.wait_for_function("Voice.waking && document.getElementById('t-mic').classList.contains('wake')", timeout=5000)
-        check('off by default; switch in Profile starts listening during a ride (green dot)', idle is False and await pg.evaluate("S.wakeword === true && lsGet('settings', {}) !== null"))
-        await pg.evaluate("window.__sayQ = ['Привет, Вело, поехали домой']")
+        await pg.evaluate("lsSet('home', {ll: [32.0853, 34.7818], name: 'Тель-Авив'}); Ride.start(); Nav.set({ name: 'Тест', noAsk: true, coords: [[32.09, 34.88], [32.10, 34.88]] })")
+        await pg.wait_for_timeout(4000)
+        check('old «Привет, Вело» setting, a ride and navigation: no recognizer started, setting saved as off, no switch in Settings',
+              await pg.evaluate("window.__srStarts") == 0 and not await pg.evaluate("Voice.waking") and await pg.evaluate("lsGet('settings', {}).wakeword") is False
+              and await pg.evaluate("!document.getElementById('s-wakeword')"))
+        await pg.evaluate("window.__sayNext = 'поехали домой'"); await pg.click('#t-mic')
         await pg.wait_for_function("Nav.route && Nav.route.name === 'Домой'", timeout=10000)
-        check('«Привет, Вело, поехали домой» in one phrase → navigation home', True, await status(pg))
-        await pg.wait_for_function("document.getElementById('vc').hidden && Voice.waking", timeout=10000)
-        check('panel closes by itself and listening resumes', True)
-        await pg.evaluate("window.__sayQ = ['привет вело', 'поехали 32,05 34,85']")
-        await pg.wait_for_function("Nav.route && Nav.route.name.startsWith('32.05000')", timeout=12000)
-        check('«Привет, Вело» → «Слушаю» → «поехали 32,05 34,85» → route', True, await status(pg))
-        await pg.wait_for_function("document.getElementById('vc').hidden && Voice.waking", timeout=10000)
-        await pg.evaluate("window.__sayQ = ['поехали в Тель-Авив', 'привет как дела']"); await pg.wait_for_timeout(1500)
-        check('commands without «Привет, Вело» are ignored', await pg.evaluate("Nav.route.name.startsWith('32.05000') && document.getElementById('vc').hidden"))
-        await pg.evaluate("document.getElementById('s-wakeword').click()"); await pg.wait_for_timeout(600)
-        n = await pg.evaluate("window.__srStarts"); await pg.wait_for_timeout(1500)
-        check('switch off → stops listening', await pg.evaluate(f"!Voice.waking && window.__srStarts === {n} && !document.getElementById('t-mic').classList.contains('wake')"))
+        check('🎤 by hand still works: «поехали домой» → navigation home', await pg.evaluate("window.__srStarts") >= 1)
         check('no JS errors (wake)', not log['errors'], log['errors'])
         await b.close()
 
