@@ -56,8 +56,8 @@ async def main():
         # ---- «В поездке» ----
         await pg.evaluate("window.__mv = setInterval(() => { GPS.fix = Object.assign({}, GPS.fix, {spd: 6, t: Date.now()}); }, 300); Ride.status = 'rec'; Ride.autoPaused = false")
         await pg.wait_for_timeout(6500)
-        st = await pg.evaluate(f"(() => {{ const v = {VIS}; return {{on: document.body.classList.contains('ridemode'), gpx: v('t-gpx'), layers: v('t-layers'), zin: v('z-in'), me: v('z-me'), sos: v('t-sos'), compass: v('t-compass'), hud: v('hud')}}; }})()")
-        check('moving while recording: extra buttons hidden; «моё место», SOS, compass and cards stay', st['on'] and not st['gpx'] and not st['layers'] and not st['zin'] and st['me'] and st['sos'] and st['compass'] and st['hud'], st)
+        st = await pg.evaluate(f"(() => {{ const v = {VIS}; return {{on: document.body.classList.contains('ridemode'), gpx: v('t-gpx'), layers: v('t-layers'), zin: v('z-in'), me: v('z-me'), sos: v('t-sos'), compass: v('t-compass'), hud: v('hud'), mic: v('t-mic')}}; }})()")
+        check('moving while recording: extra buttons hidden; «моё место», 🎤 (v106), SOS, compass and cards stay', st['on'] and not st['gpx'] and not st['layers'] and not st['zin'] and st['me'] and st['mic'] and st['sos'] and st['compass'] and st['hud'], st)
         await pg.mouse.click(200, 300); await pg.wait_for_timeout(500)
         check('a tap on the map brings the buttons back', not await pg.evaluate("document.body.classList.contains('ridemode')"))
         await pg.wait_for_timeout(9500)

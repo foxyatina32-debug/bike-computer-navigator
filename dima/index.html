@@ -87,6 +87,7 @@ const tr = (() => {
   Object.assign(D, {"Версия приложения: 2026-11-10 · навигация v103 · «Привет, Вело» слушает только во время поездки или навигации · кнопка 🎤 не мешает сама себе": ["App version: 2026-11-10 · navigation v103 · «Hey Velo» listens only during a ride or navigation · the 🎤 button no longer gets in its own way", "גרסת האפליקציה: 2026-11-10 · ניווט v103 · «היי ולו» מקשיב רק בזמן רכיבה או ניווט · כפתור 🎤 כבר לא מפריע לעצמו"], "«Привет, Вело» — голосовые команды без кнопки во время поездки или навигации": ["«Hey Velo» — voice commands without tapping, during a ride or navigation", "«היי ולו» — פקודות קוליות בלי ללחוץ, בזמן רכיבה או ניווט"]});
   Object.assign(D, {"Версия приложения: 2026-11-10 · навигация v104 · автомасштаб в навигации: крупнее перед поворотом и на малой скорости": ["App version: 2026-11-10 · navigation v104 · auto-zoom in navigation: closer before a turn and at low speed", "גרסת האפליקציה: 2026-11-10 · ניווט v104 · זום אוטומטי בניווט: קרוב יותר לפני פנייה ובמהירות נמוכה"], "Автомасштаб в навигации: крупнее перед поворотом и на малой скорости, дальше — на большой": ["Auto-zoom in navigation: closer before a turn and at low speed, farther at high speed", "זום אוטומטי בניווט: קרוב יותר לפני פנייה ובמהירות נמוכה, רחוק יותר במהירות גבוהה"]});
   Object.assign(D, {"Версия приложения: 2026-11-10 · навигация v105 · микрофон сам не включается — голос только по кнопке 🎤 · автомасштаб в навигации": ["App version: 2026-11-10 · navigation v105 · the microphone never turns on by itself — voice only with the 🎤 button · auto-zoom in navigation", "גרסת האפליקציה: 2026-11-10 · ניווט v105 · המיקרופון לא נדלק מעצמו — קול רק בכפתור 🎤 · זום אוטומטי בניווט"]});
+  Object.assign(D, {"Версия приложения: 2026-11-10 · навигация v106 · 🎤 виден и в движении — новый маршрут голосом во время поездки · кнопка → отвечает всегда": ["App version: 2026-11-10 · navigation v106 · 🎤 stays on screen on the move — a new route by voice during a ride · the → button always responds", "גרסת האפליקציה: 2026-11-10 · ניווט v106 · 🎤 נשאר על המסך בתנועה — מסלול חדש בקול בזמן רכיבה · כפתור → תמיד מגיב"], "Режим «В поездке»: в движении прятать лишние кнопки на карте (🎤 остаётся; касание карты — вернуть все)": ["«Riding» mode: hide extra map buttons on the move (🎤 stays; tap the map to bring them all back)", "מצב «ברכיבה»: להסתיר כפתורים מיותרים במפה בתנועה (🎤 נשאר; נגיעה במפה מחזירה את כולם)"]});
   const k = LANG === 'he' ? 1 : 0, CY = 'А-Яа-яЁё', CYR = /[А-Яа-яЁё]/;
   const map = new Map(), low = new Map();
   for (const ru in D) { map.set(ru, D[ru][k]); const l = ru.toLowerCase(); if (!low.has(l)) low.set(l, D[ru][k]); }
@@ -657,8 +658,8 @@ details.more[open] > summary::before{content:'▾ '}
 .t3d b{font-size:15px;font-weight:800;letter-spacing:.5px}
 .t3d.na{opacity:.38}
 #t-layers,#t-mode,#t-3d,#t-gpx,#t-ret,#t-mic,#z-in,#z-out,#legend-tab{transition:opacity .35s}
-/* «В поездке»: on the move only the map, compass, «моё место», SOS and the ride cards stay */
-body.ridemode #t-layers,body.ridemode #t-mode,body.ridemode #t-3d,body.ridemode #t-gpx,body.ridemode #t-ret,body.ridemode #t-mic,body.ridemode #z-in,body.ridemode #z-out,body.ridemode #legend-tab{opacity:0!important;pointer-events:none!important}
+/* «В поездке»: on the move only the map, compass, «моё место», 🎤 (a new destination by voice), SOS and the ride cards stay */
+body.ridemode #t-layers,body.ridemode #t-mode,body.ridemode #t-3d,body.ridemode #t-gpx,body.ridemode #t-ret,body.ridemode #z-in,body.ridemode #z-out,body.ridemode #legend-tab{opacity:0!important;pointer-events:none!important}
 #v3d{position:fixed;inset:0;z-index:88;background:#0b1220}
 #v3d-map{position:absolute;inset:0}
 .v3top{position:absolute;z-index:2;top:calc(env(safe-area-inset-top) + 10px);left:12px;right:12px;display:flex;gap:10px;align-items:center}
@@ -1203,7 +1204,7 @@ body.wide #hello{left:calc((100vw - var(--mapr)) / 2)}
   <label class="chk"><input type="checkbox" id="s-wake" checked> Не гасить экран, пока приложение открыто</label>
   <div id="s-wake-st" style="margin:-4px 0 8px 32px;font-size:12px;color:var(--muted)"></div>
   <label class="chk"><input type="checkbox" id="s-compactnav" checked> Сворачивать панель при навигации</label>
-  <label class="chk"><input type="checkbox" id="s-ridemode" checked> Режим «В поездке»: в движении прятать лишние кнопки на карте (касание карты — вернуть)</label>
+  <label class="chk"><input type="checkbox" id="s-ridemode" checked> Режим «В поездке»: в движении прятать лишние кнопки на карте (🎤 остаётся; касание карты — вернуть все)</label>
   <label class="chk"><input type="checkbox" id="s-places" checked> Населённые пункты на карте (иврит): где я, впереди, позади</label>
   <h3>Навигатор по умолчанию</h3>
   <div class="seg" id="s-extnav"><button data-n="auto">Авто</button><button data-n="app">Это приложение</button><button data-n="google">Google Maps</button><button data-n="waze">Waze</button></div>
@@ -1285,7 +1286,7 @@ body.wide #hello{left:calc((100vw - var(--mapr)) / 2)}
   </details>
   <details class="grp" data-g="about"><summary><span>ℹ️ О приложении</span><small>Версия, Safari и Chrome, источники карт</small></summary>
   <h3>О приложении</h3>
-  <p class="note" style="margin-top:0">Версия приложения: 2026-11-10 · навигация v105 · микрофон сам не включается — голос только по кнопке 🎤 · автомасштаб в навигации</p>
+  <p class="note" style="margin-top:0">Версия приложения: 2026-11-10 · навигация v106 · 🎤 виден и в движении — новый маршрут голосом во время поездки · кнопка → отвечает всегда</p>
   <div class="row" style="margin:0 0 8px;align-items:center"><button class="btn" id="upd-go">Проверить обновление</button><span class="note" style="margin:0">Сборка <b id="upd-build"></b></span></div>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/dima/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/dima/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -7191,7 +7192,7 @@ $('#map').addEventListener('pointerdown', () => { RideUI.touch = Date.now(); syn
 // iPhone can keep the app suspended for days: on every return to the screen and every 30 min the app asks the site for
 // its current build (version.json, a few bytes) and reloads itself when a newer one is out. Never in the middle of a
 // ride or navigation — then it waits until both are finished. Bump APP_BUILD together with version.json.
-const APP_BUILD = '105';
+const APP_BUILD = '106';
 const Upd = { pending: false, t: 0, mv: 0 };
 setInterval(() => { try { if (GPS.fix && GPS.fix.spd > 1.5 && Date.now() - GPS.fix.t < 10000) Upd.mv = Date.now(); } catch {} }, 5000);
 async function checkUpdate(force) {
@@ -7307,7 +7308,7 @@ window.addEventListener('offline', () => toast('Нет интернета — р
 const Voice = (() => {
   const T3 = (ru, en, he) => LANG === 'ru' ? ru : LANG === 'he' ? he : en;
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  let rec = null, listening = false, busy = false, gotFinal = false, alts = [];
+  let rec = null, listening = false, busy = false, gotFinal = false, alts = [], curHeard = '';   // curHeard: what the recognizer has heard so far
   const el = id => document.getElementById(id);
   const home = () => lsGet('home', null);
   // Spoken answer even when turn-by-turn voice is off: the rider asked by voice.
@@ -7425,7 +7426,7 @@ const Voice = (() => {
     if (!SR || busy) return;
     if (!retry) tries = 0;
     stop(); wakeStop();
-    const my = lsn; listening = true; el('vc-mic').classList.add('rec'); status(T3('Слушаю…', 'Listening…', 'מקשיב…'));
+    const my = lsn; listening = true; curHeard = ''; el('vc-mic').classList.add('rec'); status(T3('Слушаю…', 'Listening…', 'מקשיב…'));
     if (!unlocked) { unlocked = true; unlockSpeech(); }
     await micFree();
     if (my !== lsn || !listening || el('vc').hidden) return;   // stopped or closed while waiting
@@ -7437,7 +7438,7 @@ const Voice = (() => {
     r.onaudiostart = () => { audio = seenAudio = true; clearTimeout(wd); };
     r.onresult = e => {
       if (rec !== r) return; any = true; clearTimeout(wd);
-      const res = e.results[e.results.length - 1]; const txt = res[0].transcript.trim(); heard(txt);
+      const res = e.results[e.results.length - 1]; const txt = res[0].transcript.trim(); heard(txt); curHeard = txt;
       if (res.isFinal && !gotFinal) { gotFinal = true; const all = [...res].map(a => a.transcript.trim()).filter(Boolean); stop(); run(all); }
     };
     r.onerror = e => {
@@ -7617,7 +7618,14 @@ const Voice = (() => {
     renderLang();
     el('vc-langs').querySelectorAll('[data-l]').forEach(b => b.onclick = () => { setLang(b.dataset.l); if (SR && !busy) listen(); });
     el('vc-sethome').onclick = () => { if (!busy) run(LANG === 'he' ? 'זכור בית' : LANG === 'ru' ? 'запомни дом' : 'remember home'); };
-    const submit = () => { const q = el('vc-q').value.trim(); if (!q || busy) return; stop(); sugClear(); el('vc-q').value = ''; el('vc-q').blur(); run(q); };
+    // «→»: what is typed; while the phone is still listening (iPhone can take a while to finish) — what it has heard so far.
+    const submit = () => {
+      let q = el('vc-q').value.trim();
+      if (!q && listening && curHeard) q = curHeard;
+      if (busy) { status(T3('Уже ищу — секунду…', 'Already on it — one moment…', 'כבר מחפש — רגע…')); return; }
+      if (!q) { status(T3('Скажите адрес (🎤) или напишите его в поле', 'Say the address (🎤) or type it in the field', 'אמרו את הכתובת (🎤) או כתבו אותה בשדה'), 'err'); el('vc-q').focus(); return; }
+      stop(); sugClear(); el('vc-q').value = ''; el('vc-q').blur(); run(q);
+    };
     el('vc-q').addEventListener('input', () => { clearTimeout(sugT); sugSeq++; const v = el('vc-q').value.trim(); if (v.length < 3) { sugClear(); return; } sugT = setTimeout(() => suggest(v), 450); });
     el('vc-go').onclick = submit;
     el('vc-q').addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
