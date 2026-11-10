@@ -78,6 +78,11 @@ async def main():
         await ride(pg, t6, 70, spd=1.4, lat0=32.15)
         check('on foot at 5 km/h: recording on by itself', await pg.evaluate("Ride.status") == 'rec')
         await pg.evaluate("Ride.stop(true)"); await pg.evaluate("AutoRec.quietUntil = 0; S.act = 'bike'; RO.mode = 'bike'")
+        # 6b. (v107) A slow MTB start uphill at 7 km/h in bike mode: recording starts too (within ~40 s)
+        t6b = await pg.evaluate("Date.now()")
+        await ride(pg, t6b, 45, spd=1.95, lat0=32.155)
+        check('bike mode, slow start uphill at 7 km/h: recording on by itself (v107: from 6 km/h)', await pg.evaluate("Ride.status") == 'rec')
+        await pg.evaluate("Ride.stop(true)"); await pg.evaluate("AutoRec.quietUntil = 0")
         # 7. Manual pause and riding on: one reminder, the ride stays paused.
         await pg.evaluate("Ride.start()"); t7 = await pg.evaluate("Date.now()")
         la = await ride(pg, t7, 5, lat0=32.16); await pg.evaluate("Ride.pause(); window.__lastToasts = ''")

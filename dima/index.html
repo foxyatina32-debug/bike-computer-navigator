@@ -88,6 +88,7 @@ const tr = (() => {
   Object.assign(D, {"Версия приложения: 2026-11-10 · навигация v104 · автомасштаб в навигации: крупнее перед поворотом и на малой скорости": ["App version: 2026-11-10 · navigation v104 · auto-zoom in navigation: closer before a turn and at low speed", "גרסת האפליקציה: 2026-11-10 · ניווט v104 · זום אוטומטי בניווט: קרוב יותר לפני פנייה ובמהירות נמוכה"], "Автомасштаб в навигации: крупнее перед поворотом и на малой скорости, дальше — на большой": ["Auto-zoom in navigation: closer before a turn and at low speed, farther at high speed", "זום אוטומטי בניווט: קרוב יותר לפני פנייה ובמהירות נמוכה, רחוק יותר במהירות גבוהה"]});
   Object.assign(D, {"Версия приложения: 2026-11-10 · навигация v105 · микрофон сам не включается — голос только по кнопке 🎤 · автомасштаб в навигации": ["App version: 2026-11-10 · navigation v105 · the microphone never turns on by itself — voice only with the 🎤 button · auto-zoom in navigation", "גרסת האפליקציה: 2026-11-10 · ניווט v105 · המיקרופון לא נדלק מעצמו — קול רק בכפתור 🎤 · זום אוטומטי בניווט"]});
   Object.assign(D, {"Версия приложения: 2026-11-10 · навигация v106 · 🎤 виден и в движении — новый маршрут голосом во время поездки · кнопка → отвечает всегда": ["App version: 2026-11-10 · navigation v106 · 🎤 stays on screen on the move — a new route by voice during a ride · the → button always responds", "גרסת האפליקציה: 2026-11-10 · ניווט v106 · 🎤 נשאר על המסך בתנועה — מסלול חדש בקול בזמן רכיבה · כפתור → תמיד מגיב"], "Режим «В поездке»: в движении прятать лишние кнопки на карте (🎤 остаётся; касание карты — вернуть все)": ["«Riding» mode: hide extra map buttons on the move (🎤 stays; tap the map to bring them all back)", "מצב «ברכיבה»: להסתיר כפתורים מיותרים במפה בתנועה (🎤 נשאר; נגיעה במפה מחזירה את כולם)"]});
+  Object.assign(D, {"Версия приложения: 2026-11-10 · навигация v107 · автозапись с 6 км/ч (медленный старт в подъём) · надёжный запуск на иврите и английском": ["App version: 2026-11-10 · navigation v107 · auto-recording from 6 km/h (slow start uphill) · reliable start in Hebrew and English", "גרסת האפליקציה: 2026-11-10 · ניווט v107 · הקלטה אוטומטית מ-6 קמ״ש (התחלה איטית בעלייה) · הפעלה אמינה בעברית ובאנגלית"], "Приложение не запустилось из-за ошибки в программе. Закройте его и откройте снова.": ["The app did not start because of an error in the program. Close it and open it again.", "האפליקציה לא עלתה בגלל שגיאה בתוכנה. סגרו אותה ופתחו שוב."]});
   const k = LANG === 'he' ? 1 : 0, CY = 'А-Яа-яЁё', CYR = /[А-Яа-яЁё]/;
   const map = new Map(), low = new Map();
   for (const ru in D) { map.set(ru, D[ru][k]); const l = ru.toLowerCase(); if (!low.has(l)) low.set(l, D[ru][k]); }
@@ -122,12 +123,22 @@ const tr = (() => {
     return t;
   };
 })();
+// The app failed to start (an error in the program before the map came up): say that on the start screen, with the error.
+window.addEventListener('error', e => { try {
+  const n = document.getElementById('nojs'), w = document.getElementById('nojs-why');
+  if (!n || n.hidden || !w || window.__veloLibFail) return;
+  w.textContent = 'Приложение не запустилось из-за ошибки в программе. Закройте его и откройте снова.' + (e && e.message ? ' (' + e.message + ')' : '');
+} catch {} });
 if (LANG !== 'ru') {
   const ATTRS = ['placeholder', 'title', 'aria-label', 'alt'], CYR = /[А-Яа-яЁё]/;
   const trAttrs = el => { for (const a of ATTRS) { const v = el.getAttribute(a); if (v && CYR.test(v)) { const t = tr(v); if (t !== v) el.setAttribute(a, t); } } };
   const trNode = n => {
-    if (n.nodeType === 3) { const v = n.nodeValue; if (CYR.test(v)) { const t = tr(v); if (t !== v) n.nodeValue = t; } return; }
-    if (n.nodeType !== 1 || n.tagName === 'SCRIPT' || n.tagName === 'STYLE' || n.tagName === 'TEXTAREA') return;
+    if (n.nodeType === 3) {
+      // Never the program's own text: while the page loads, the inline script arrives as text nodes too, and a translated
+      // string inside it (an apostrophe in «didn't», Hebrew quotes) broke the code → the app did not start in EN/HE.
+      const pn = n.parentNode && n.parentNode.nodeName; if (pn === 'SCRIPT' || pn === 'STYLE' || pn === 'TEXTAREA' || pn === 'NOSCRIPT') return;
+      const v = n.nodeValue; if (CYR.test(v)) { const t = tr(v); if (t !== v) n.nodeValue = t; } return; }
+    if (n.nodeType !== 1 || n.tagName === 'SCRIPT' || n.tagName === 'STYLE' || n.tagName === 'TEXTAREA' || n.tagName === 'NOSCRIPT') return;
     trAttrs(n);
     if (n.tagName === 'META' && n.name === 'apple-mobile-web-app-title') n.content = tr(n.content);
     for (let c = n.firstChild; c; c = c.nextSibling) trNode(c);
@@ -1286,7 +1297,7 @@ body.wide #hello{left:calc((100vw - var(--mapr)) / 2)}
   </details>
   <details class="grp" data-g="about"><summary><span>ℹ️ О приложении</span><small>Версия, Safari и Chrome, источники карт</small></summary>
   <h3>О приложении</h3>
-  <p class="note" style="margin-top:0">Версия приложения: 2026-11-10 · навигация v106 · 🎤 виден и в движении — новый маршрут голосом во время поездки · кнопка → отвечает всегда</p>
+  <p class="note" style="margin-top:0">Версия приложения: 2026-11-10 · навигация v107 · автозапись с 6 км/ч (медленный старт в подъём) · надёжный запуск на иврите и английском</p>
   <div class="row" style="margin:0 0 8px;align-items:center"><button class="btn" id="upd-go">Проверить обновление</button><span class="note" style="margin:0">Сборка <b id="upd-build"></b></span></div>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/dima/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/dima/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -1466,7 +1477,7 @@ body.wide #hello{left:calc((100vw - var(--mapr)) / 2)}
 <script>
 "use strict";
 // Hide the "open in Safari" screen once scripts run; keep it if the map library failed to load.
-if (typeof L === 'undefined') { document.getElementById('nojs-why').textContent = 'Не загрузилась библиотека карт. Проверьте интернет и откройте приложение по ссылке в Safari.'; throw new Error('Leaflet not loaded'); }
+if (typeof L === 'undefined') { window.__veloLibFail = true; document.getElementById('nojs-why').textContent = 'Не загрузилась библиотека карт. Проверьте интернет и откройте приложение по ссылке в Safari.'; throw new Error('Leaflet not loaded'); }
 document.getElementById('nojs').hidden = true;
 /* ================= helpers ================= */
 const $ = s => document.querySelector(s);
@@ -2912,12 +2923,12 @@ setInterval(() => {
 setInterval(() => Ride.persist(), 20000);
 /* ---- Запись без кнопки ▶: поехали — запись включается сама; на ручной паузе — напоминание ----
    Без этого поездка по навигации без нажатия ▶ не сохранялась. Двигаться нужно ~20 с и дальше 60 м, со скоростью
-   велосипеда (от 9 км/ч) или пешехода (от 4 км/ч) и не быстрее 43 км/ч; точки этих секунд входят в поездку.
+   велосипеда (от 6 км/ч — медленный старт в подъём) или пешехода (от 4 км/ч) и не быстрее 43 км/ч; точки этих секунд входят в поездку.
    В режиме «Авто» и 15 мин после ■ запись сама не начинается. Выключается в Настройках. */
 const AutoRec = {
   buf: [], quietUntil: 0, pauseSince: 0, pauseSaid: false,
   quiet(ms = 15 * 60e3) { this.quietUntil = Date.now() + ms; this.buf = []; },
-  vMin() { return curMode() === 'foot' || /^(walk|hike|run)$/.test(S.act || '') ? 1.1 : 2.5; },
+  vMin() { return curMode() === 'foot' || /^(walk|hike|run)$/.test(S.act || '') ? 1.1 : 1.6; },
   onFix(f) {
     const car = curMode() === 'car' || S.act === 'car', vMin = this.vMin();
     const moving = !f.jump && f.acc <= 35 && !GPS.still && f.spd >= vMin && f.spd <= 12;
@@ -7192,7 +7203,7 @@ $('#map').addEventListener('pointerdown', () => { RideUI.touch = Date.now(); syn
 // iPhone can keep the app suspended for days: on every return to the screen and every 30 min the app asks the site for
 // its current build (version.json, a few bytes) and reloads itself when a newer one is out. Never in the middle of a
 // ride or navigation — then it waits until both are finished. Bump APP_BUILD together with version.json.
-const APP_BUILD = '106';
+const APP_BUILD = '107';
 const Upd = { pending: false, t: 0, mv: 0 };
 setInterval(() => { try { if (GPS.fix && GPS.fix.spd > 1.5 && Date.now() - GPS.fix.t < 10000) Upd.mv = Date.now(); } catch {} }, 5000);
 async function checkUpdate(force) {
