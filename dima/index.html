@@ -90,6 +90,7 @@ const tr = (() => {
   Object.assign(D, {"Версия приложения: 2026-11-10 · навигация v106 · 🎤 виден и в движении — новый маршрут голосом во время поездки · кнопка → отвечает всегда": ["App version: 2026-11-10 · navigation v106 · 🎤 stays on screen on the move — a new route by voice during a ride · the → button always responds", "גרסת האפליקציה: 2026-11-10 · ניווט v106 · 🎤 נשאר על המסך בתנועה — מסלול חדש בקול בזמן רכיבה · כפתור → תמיד מגיב"], "Режим «В поездке»: в движении прятать лишние кнопки на карте (🎤 остаётся; касание карты — вернуть все)": ["«Riding» mode: hide extra map buttons on the move (🎤 stays; tap the map to bring them all back)", "מצב «ברכיבה»: להסתיר כפתורים מיותרים במפה בתנועה (🎤 נשאר; נגיעה במפה מחזירה את כולם)"]});
   Object.assign(D, {"Версия приложения: 2026-11-10 · навигация v107 · автозапись с 6 км/ч (медленный старт в подъём) · надёжный запуск на иврите и английском": ["App version: 2026-11-10 · navigation v107 · auto-recording from 6 km/h (slow start uphill) · reliable start in Hebrew and English", "גרסת האפליקציה: 2026-11-10 · ניווט v107 · הקלטה אוטומטית מ-6 קמ״ש (התחלה איטית בעלייה) · הפעלה אמינה בעברית ובאנגלית"], "Приложение не запустилось из-за ошибки в программе. Закройте его и откройте снова.": ["The app did not start because of an error in the program. Close it and open it again.", "האפליקציה לא עלתה בגלל שגיאה בתוכנה. סגרו אותה ופתחו שוב."]});
   Object.assign(D, {"Версия приложения: 2026-11-10 · навигация v108 · кнопка SOS не закрывает легенду и логотип Mapy.com и не прячется под легендой": ["App version: 2026-11-10 · navigation v108 · the SOS button no longer covers the legend or the Mapy.com logo, nor hides under the legend", "גרסת האפליקציה: 2026-11-10 · ניווט v108 · כפתור SOS כבר לא מכסה את המקרא ואת הלוגו של Mapy.com ולא מוסתר מתחת למקרא"]});
+  Object.assign(D, {"Версия приложения: 2026-11-10 · навигация v109 · кнопка «Где я» всегда на экране — и при открытой, и при свёрнутой панели": ["App version: 2026-11-10 · navigation v109 · the «Where am I» button is always on screen — with the panel open or folded", "גרסת האפליקציה: 2026-11-10 · ניווט v109 · כפתור «איפה אני» תמיד על המסך — גם כשהלוח פתוח וגם כשהוא מקופל"]});
   const k = LANG === 'he' ? 1 : 0, CY = 'А-Яа-яЁё', CYR = /[А-Яа-яЁё]/;
   const map = new Map(), low = new Map();
   for (const ru in D) { map.set(ru, D[ru][k]); const l = ru.toLowerCase(); if (!low.has(l)) low.set(l, D[ru][k]); }
@@ -371,9 +372,9 @@ label.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
 .mini .ma{grid-column:1/-1;font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
 .hud.compact .ctrls,.hud.compact .pager,.hud.compact .foot,.hud.compact .grab{display:none}
 .hud.compact .mini{display:grid}
-.locfab{position:absolute;right:0;top:-62px;width:52px;height:52px;border-radius:50%;display:none;place-items:center;background:var(--glass-btn);border:1px solid var(--line);box-shadow:0 4px 16px rgba(0,0,0,.4)}
+.locfab{position:absolute;right:0;top:-62px;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--glass-btn);border:1px solid var(--line);box-shadow:0 4px 16px rgba(0,0,0,.4)}
 .locfab svg{width:26px;height:26px;color:var(--accent)}
-.hud.compact .locfab{display:grid}
+/* «Где я» is on screen with the panel open and folded alike (v109) */
 .locfab.off{background:var(--accent)}
 .locfab.off svg{color:var(--accent-ink)}
 .legend{position:fixed;z-index:19;left:max(12px,env(safe-area-inset-left,0px));max-width:min(220px,62vw);padding:7px 9px 6px;border-radius:12px;background:rgba(13,19,27,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.1);font-size:10.5px;line-height:1.25;color:#e8edf2;cursor:pointer;-webkit-user-select:none;user-select:none}
@@ -1298,7 +1299,7 @@ body.wide #hello{left:calc((100vw - var(--mapr)) / 2)}
   </details>
   <details class="grp" data-g="about"><summary><span>ℹ️ О приложении</span><small>Версия, Safari и Chrome, источники карт</small></summary>
   <h3>О приложении</h3>
-  <p class="note" style="margin-top:0">Версия приложения: 2026-11-10 · навигация v108 · кнопка SOS не закрывает легенду и логотип Mapy.com и не прячется под легендой</p>
+  <p class="note" style="margin-top:0">Версия приложения: 2026-11-10 · навигация v109 · кнопка «Где я» всегда на экране — и при открытой, и при свёрнутой панели</p>
   <div class="row" style="margin:0 0 8px;align-items:center"><button class="btn" id="upd-go">Проверить обновление</button><span class="note" style="margin:0">Сборка <b id="upd-build"></b></span></div>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/dima/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/dima/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -1817,7 +1818,9 @@ function placeGpxBtn() {
     if (!tab.hidden) { const t = tab.getBoundingClientRect(), a = sos.getBoundingClientRect();
       if (a.top < t.bottom + 6 && a.bottom > t.top - 6) { let y = t.bottom + 10; if (y + a.height > lim) y = t.top - 10 - a.height; sos.style.top = y + 'px'; } } }
   ['#z-in', '#z-out', '#z-me'].forEach(k => { const el = $(k); el.hidden = !zOn; el.style.top = zy + 'px'; zy += el.offsetHeight + (k === '#z-out' ? 14 : 6); });
-  ['#t-gpx', '#t-ret', '#t-compass', '#t-mic', '#t-sos', '#z-in', '#z-out', '#z-me'].forEach(k => { const el = $(k); el.classList.remove('ovh'); if (el.getBoundingClientRect().bottom + (k === '#t-compass' ? 18 : 0) > lim) el.classList.add('ovh'); });
+  const lf = $('#c-loc'), lr = lf && getComputedStyle(lf).display !== 'none' && !$('#hud').hidden ? lf.getBoundingClientRect() : null;
+  ['#t-gpx', '#t-ret', '#t-compass', '#t-mic', '#t-sos', '#z-in', '#z-out', '#z-me'].forEach(k => { const el = $(k); el.classList.remove('ovh'); const r = el.getBoundingClientRect();
+    if (r.bottom + (k === '#t-compass' ? 18 : 0) > lim || (lr && lr.width && r.bottom > lr.top - 6 && r.top < lr.bottom && r.right > lr.left && r.left < lr.right)) el.classList.add('ovh'); });
 }
 window.addEventListener('resize', () => setTimeout(placeGpxBtn, 50));
 function syncSheetMax() {
@@ -7219,7 +7222,7 @@ $('#map').addEventListener('pointerdown', () => { RideUI.touch = Date.now(); syn
 // iPhone can keep the app suspended for days: on every return to the screen and every 30 min the app asks the site for
 // its current build (version.json, a few bytes) and reloads itself when a newer one is out. Never in the middle of a
 // ride or navigation — then it waits until both are finished. Bump APP_BUILD together with version.json.
-const APP_BUILD = '108';
+const APP_BUILD = '109';
 const Upd = { pending: false, t: 0, mv: 0 };
 setInterval(() => { try { if (GPS.fix && GPS.fix.spd > 1.5 && Date.now() - GPS.fix.t < 10000) Upd.mv = Date.now(); } catch {} }, 5000);
 async function checkUpdate(force) {

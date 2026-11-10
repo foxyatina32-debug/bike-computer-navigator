@@ -11,8 +11,9 @@ async def main():
     async with async_playwright() as p:
         for lang, vp in (('ru', (390, 844)), ('he', (375, 667)), ('en', (375, 667))):
             b, ctx, pg, log = await open_app(p, url + f'?lang={lang}', Mocks(), viewport=vp)
-            z = await pg.evaluate("['z-in','z-out','z-me'].map(i => { const e = document.getElementById(i), r = e.getBoundingClientRect(); return !e.hidden && !e.classList.contains('ovh') && r.right <= innerWidth && r.width > 30; })")
-            check(f'[{lang}] zoom and «my place» buttons on the map', all(z), z)
+            z = await pg.evaluate("['z-in','z-out','z-me','c-loc'].map(i => { const e = document.getElementById(i), r = e.getBoundingClientRect(); return !e.hidden && !e.classList.contains('ovh') && getComputedStyle(e).display !== 'none' && r.right <= innerWidth && r.width > 30; })")
+            # v109: «Где я» above the panel is always there; on a small screen the «my place» button of the zoom column (same job) steps aside for it
+            check(f'[{lang}] zoom and «my place» buttons on the map', z[0] and z[1] and (z[2] or z[3]), z)
             z0 = await pg.evaluate("map.getZoom()"); await pg.click('#z-in'); await pg.wait_for_timeout(400); z1 = await pg.evaluate("map.getZoom()"); await pg.click('#z-out'); await pg.wait_for_timeout(400)
             check(f'[{lang}] «+» / «−» zoom', z1 == z0 + 1 and await pg.evaluate("map.getZoom()") == z0, (z0, z1))
             await pg.evaluate("showTab('routes'); routeSeg('plan'); document.getElementById('pl-fromgps').checked = false; Plan.wps = []; addWp([32.09, 34.88], 'Старт'); addWp([32.1, 34.9], 'Финиш')")
