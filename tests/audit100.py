@@ -1,7 +1,7 @@
 # v100 audit fixes: own sections (pieces of way the map lacks) go into the backup and come back on restore; the
 # «Сохранить участок?» question no longer covers the ride panel or dims the map; ids are escaped in the lists and a
 # backup with odd ids is not inserted.
-import asyncio, sys, os, json
+import asyncio, sys, os, json, tempfile
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from harness import serve, Mocks, open_app
 from playwright.async_api import async_playwright
@@ -22,7 +22,7 @@ async def main():
         bad = '"><img src=x onerror="window.__pwned=1">'
         bk = {'app': 'velokomp', 'ver': 2, 'rides': [{'id': bad, 'name': 'x', 'start': 1, 'track': []}, {'id': 'ok1', 'name': 'Норм', 'start': 1790000000000, 'end': 1790000600000, 'dist': 1000, 'movingMs': 600000, 'track': [[32.09, 34.88, 0, 1790000000000], [32.1, 34.88, 0, 1790000600000]]}],
               'routes': [], 'myWays': [WAY, {'id': 'w2', 'coords': [[95, 34.8], [32.1, 34.8]]}]}
-        path = '/tmp/claude-0/-home-claude/dbab2f42-fb46-580b-9989-372f3297d602/scratchpad/bk100.json'
+        path = os.path.join(tempfile.mkdtemp(prefix='velo-'), 'bk100.json')
         open(path, 'w', encoding='utf-8').write(json.dumps(bk, ensure_ascii=False))
         await pg.evaluate("window.__lastToasts = ''")
         await pg.set_input_files('#bk-file', path); await pg.wait_for_timeout(1500)

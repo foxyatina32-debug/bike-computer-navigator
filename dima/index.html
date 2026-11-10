@@ -62,7 +62,7 @@ const tr = (() => {
   Object.assign(D, {"Режим приложения":["App mode","מצב האפליקציה"],"Pro-режим (для продвинутых)":["Pro mode (advanced)","מצב Pro (למתקדמים)"],"Добавляет ключи карт (Thunderforest, Mapy.com, Google), карты и маршруты Google, свои карты MBTiles, загрузку через прокси и все слои карты. Без него — только бесплатные карты: OpenStreetMap, Israel Hiking, CyclOSM, OpenTopoMap":["Adds map keys (Thunderforest, Mapy.com, Google), Google maps and routes, your own MBTiles maps, loading through a proxy and all map layers. Without it — only the free maps: OpenStreetMap, Israel Hiking, CyclOSM, OpenTopoMap","מוסיף מפתחות מפה (Thunderforest, ‏Mapy.com, ‏Google), מפות ומסלולי Google, מפות MBTiles משלכם, טעינה דרך פרוקסי וכל שכבות המפה. בלעדיו — רק המפות החינמיות: OpenStreetMap, ‏Israel Hiking, ‏CyclOSM, ‏OpenTopoMap"],"Pro-режим включён: ключи, Google, MBTiles и все слои":["Pro mode on: keys, Google, MBTiles and all layers","מצב Pro פעיל: מפתחות, Google, ‏MBTiles וכל השכבות"],"Обычный режим: только бесплатные карты":["Basic mode: free maps only","מצב בסיסי: מפות חינמיות בלבד"],
   "Что показывать в ячейке?":["What should this cell show?","מה להציג בתא?"],"Выберите показатель. Долгое нажатие на любую карточку открывает этот выбор":["Pick a metric. A long press on any card opens this choice","בחרו מדד. לחיצה ארוכה על כל כרטיס פותחת את הבחירה"],"Вернуть все карточки как было":["Reset all cards","החזר את כל הכרטיסים"],"Карточки — как было":["Cards reset","הכרטיסים אופסו"],"Карточки на главном экране настраиваются: долгое нажатие на карточку — выбрать, что в ней показывать":["The cards on the main screen are customizable: long-press a card to choose what it shows","הכרטיסים במסך הראשי ניתנים להתאמה: לחיצה ארוכה על כרטיס — בחירת מה יוצג בו"],
   "сейчас":["now","עכשיו"],"скорость в движении":["moving speed","מהירות בתנועה"],"максимальная скорость":["top speed","מהירות מרבית"],"за поездку":["this ride","ברכיבה"],"высоты за поездку":["climb this ride","טיפוס ברכיבה"],"над уровнем моря":["above sea level","מעל פני הים"],"Уклон":["Gradient","שיפוע"],"подъём / спуск, %":["up / down, %","עלייה / ירידה, %"],"км до финиша":["km to finish","ק\"מ לסיום"],"время":["time","זמן"],"время на часах":["clock time","שעה"],"текущее время":["current time","השעה עכשיו"],"Точность GPS":["GPS accuracy","דיוק GPS"],"± метров":["± meters","± מטרים"],"Время":["Time","זמן"]});
-  Object.assign(D, {"Свой прокси (Cloudflare Worker)":["Your own proxy (Cloudflare Worker)","פרוקסי משלכם (Cloudflare Worker)"],"Ваш собственный бесплатный помощник в Cloudflare: загружает маршруты с сайтов, которые не дают браузеру скачать файл, разворачивает короткие ссылки Google и нужен для Strava. Как развернуть —":["Your own free helper on Cloudflare: downloads routes from sites that block browser downloads, expands short Google links and is needed for Strava. How to deploy —","עוזר חינמי משלכם ב-Cloudflare: מוריד מסלולים מאתרים שחוסמים הורדה מהדפדפן, פותח קישורי Google מקוצרים ונדרש ל-Strava. איך להתקין —"],"инструкция":["instructions","הוראות"],"(5 минут)":["(5 minutes)","(5 דקות)"],"Проверить и сохранить":["Check and save","בדוק ושמור"],"Проверяю…":["Checking…","בודק…"],"Адрес удалён — загрузка через общие прокси (если включено)":["Address removed — public proxies are used (if enabled)","הכתובת נמחקה — שימוש בפרוקסי ציבורי (אם מופעל)"],"Адрес должен начинаться с https://":["The address must start with https://","הכתובת חייבת להתחיל ב-https://"],"по этому адресу не прокси Велокомпа":["this address is not a Velocomp proxy","בכתובת הזו אין פרוקסי של Velocomp"],"Прокси работает":["The proxy works","הפרוקסי עובד"],"Strava настроена":["Strava is configured","Strava מוגדרת"],"(Strava в нём не настроена)":["(Strava is not configured in it)","(Strava לא מוגדרת בו)"],"Сохранено":["Saved","נשמר"]});
+  Object.assign(D, {"Свой прокси (Cloudflare Worker)":["Your own proxy (Cloudflare Worker)","פרוקסי משלכם (Cloudflare Worker)"],"Ваш собственный бесплатный помощник в Cloudflare: загружает маршруты с сайтов, которые не дают браузеру скачать файл, разворачивает короткие ссылки Google без публичных сервисов. Как развернуть —":["Your own free helper on Cloudflare: downloads routes from sites that block browser downloads, expands short Google links and is needed for Strava. How to deploy —","עוזר חינמי משלכם ב-Cloudflare: מוריד מסלולים מאתרים שחוסמים הורדה מהדפדפן, פותח קישורי Google מקוצרים ונדרש ל-Strava. איך להתקין —"],"инструкция":["instructions","הוראות"],"(5 минут)":["(5 minutes)","(5 דקות)"],"Проверить и сохранить":["Check and save","בדוק ושמור"],"Проверяю…":["Checking…","בודק…"],"Адрес удалён — загрузка через общие прокси (если включено)":["Address removed — public proxies are used (if enabled)","הכתובת נמחקה — שימוש בפרוקסי ציבורי (אם מופעל)"],"Адрес должен начинаться с https://":["The address must start with https://","הכתובת חייבת להתחיל ב-https://"],"по этому адресу не прокси Велокомпа":["this address is not a Velocomp proxy","בכתובת הזו אין פרוקסי של Velocomp"],"Прокси работает":["The proxy works","הפרוקסי עובד"],"Strava настроена":["Strava is configured","Strava מוגדרת"],"(Strava в нём не настроена)":["(Strava is not configured in it)","(Strava לא מוגדרת בו)"],"Сохранено":["Saved","נשמר"]});
   Object.assign(D, {"адрес не отвечает":["the address does not answer","הכתובת לא עונה"]});
   Object.assign(D, {"Получить:":["Get it:","השגה:"],"→ Pricing → Hobby Project (бесплатно) → API key":["→ Pricing → Hobby Project (free) → API key","→ Pricing → Hobby Project (חינם) → API key"],"→ My Account (вход через аккаунт Seznam) → API Project → ключ создаётся сразу":["→ My Account (sign in with a Seznam account) → API Project → the key is created at once","→ My Account (כניסה עם חשבון Seznam) → API Project → המפתח נוצר מיד"]});
   Object.assign(D, {"Все поездки, маршруты и настройки одним файлом. iPhone иногда очищает данные сайтов — держите копию в «Файлах» или iCloud Drive. Файл подходит и для переноса на другой телефон":["All rides, routes and settings in one file. iPhone sometimes clears website data — keep a copy in Files or iCloud Drive. The file also moves everything to another phone","כל הרכיבות, המסלולים וההגדרות בקובץ אחד. iPhone מוחק לפעמים נתוני אתרים — שמרו עותק ב'קבצים' או ב-iCloud Drive. הקובץ מתאים גם להעברה לטלפון אחר"],"Сохранить копию":["Save a copy","שמירת עותק"],"Напоминать сохранить копию раз в неделю":["Remind me to save a copy weekly","להזכיר לשמור עותק פעם בשבוע"],"Последняя копия:":["Last copy:","עותק אחרון:"],"Копий ещё не было":["No copies yet","עדיין אין עותקים"],"Копия скачана — она в «Загрузках»":["Copy downloaded — it is in Downloads","העותק הורד — הוא בהורדות"],"Копия сохранена":["Copy saved","העותק נשמר"],"Сохранить копию данных?":["Save a copy of your data?","לשמור עותק של הנתונים?"],"хранятся только на этом телефоне":["are stored only on this phone","שמורים רק בטלפון הזה"],"Последняя копия —":["Last copy —","עותק אחרון —"],"Копии ещё не было":["No copy yet","עדיין אין עותק"],"iPhone иногда очищает данные сайтов. Копия в «Файлах» или iCloud Drive сбережёт поездки, маршруты и настройки":["iPhone sometimes clears website data. A copy in Files or iCloud Drive keeps your rides, routes and settings","iPhone מוחק לפעמים נתוני אתרים. עותק ב'קבצים' או ב-iCloud Drive ישמור על הרכיבות, המסלולים וההגדרות"],"Откроется меню: «Сохранить в Файлы» → iCloud Drive":["The menu opens: Save to Files → iCloud Drive","ייפתח תפריט: שמירה ב'קבצים' ← iCloud Drive"],"Напомнить через неделю":["Remind me in a week","להזכיר בעוד שבוע"],"Не сейчас":["Not now","לא עכשיו"],"и настройки — перезапускаю":["and settings — restarting","וההגדרות — מפעיל מחדש"],"и":["and","ו"]});
@@ -83,6 +83,7 @@ const tr = (() => {
   Object.assign(D, {"Неточная геопозиция": ["Approximate location", "מיקום לא מדויק"], "Настройки iPhone → Конфиденциальность и безопасность → Службы геолокации → «Сайты Safari» → включите «Точная геопозиция».": ["iPhone Settings → Privacy & Security → Location Services → “Safari Websites” → turn on “Precise Location”.", "הגדרות האייפון ← פרטיות ואבטחה ← שירותי מיקום ← „אתרי Safari” ← הפעילו „מיקום מדויק”."], "Настройки iPhone → Chrome → Геопозиция → включите «Точная геопозиция».": ["iPhone Settings → Chrome → Location → turn on “Precise Location”.", "הגדרות האייפון ← Chrome ← מיקום ← הפעילו „מיקום מדויק”."], "Настройки Android → Местоположение → Разрешения приложений → Chrome → включите «Точное местоположение».": ["Android Settings → Location → App permissions → Chrome → turn on “Use precise location”.", "הגדרות אנדרואיד ← מיקום ← הרשאות אפליקציות ← Chrome ← הפעילו „מיקום מדויק”."], "Компьютер определяет место по сети — точность до километров. Для навигации откройте приложение на телефоне.": ["A computer finds its place from the network — accurate only to kilometres. For navigation open the app on your phone.", "מחשב מאתר מיקום לפי הרשת — בדיוק של קילומטרים. לניווט פתחו את האפליקציה בטלפון."]});
   Object.assign(D, {"Нет доступа к геолокации": ["No access to location", "אין גישה למיקום"], "Повторить": ["Retry", "נסה שוב"], "Настройки iPhone → Конфиденциальность и безопасность → Службы геолокации: включите их, затем в Safari «аА» → «Настройки веб-сайта» → «Геопозиция» → «Разрешить».": ["iPhone Settings → Privacy & Security → Location Services: turn them on, then in Safari “aA” → “Website Settings” → “Location” → “Allow”.", "הגדרות האייפון ← פרטיות ואבטחה ← שירותי מיקום: הפעילו אותם, ואז ב-Safari „aA” ← „הגדרות אתר” ← „מיקום” ← „אפשר”."], "Настройки iPhone → Chrome → Геопозиция → «При использовании приложения». Службы геолокации (Конфиденциальность и безопасность) тоже должны быть включены.": ["iPhone Settings → Chrome → Location → “While Using the App”. Location Services (Privacy & Security) must be on too.", "הגדרות האייפון ← Chrome ← מיקום ← „בזמן השימוש ביישום”. גם שירותי המיקום (פרטיות ואבטחה) צריכים להיות מופעלים."], "Значок слева от адреса → «Разрешения» → «Местоположение» → «Разрешить». И включите геолокацию в шторке Android.": ["The icon left of the address → “Permissions” → “Location” → “Allow”. And turn on location in the Android quick settings.", "הסמל משמאל לכתובת ← „הרשאות” ← „מיקום” ← „אפשר”. והפעילו מיקום בהגדרות המהירות של אנדרואיד."], "Значок слева от адресной строки → разрешите доступ к местоположению.": ["The icon left of the address bar → allow location access.", "הסמל משמאל לשורת הכתובת ← אפשרו גישה למיקום."], "Потом нажмите «Повторить».": ["Then tap “Retry”.", "ואז הקישו „נסה שוב”."], "Нет GPS — беру последнюю известную точку": ["No GPS — using the last known position", "אין GPS — משתמש במיקום הידוע האחרון"], "мин назад": ["min ago", "דק׳ לפני כן"], "Жду GPS… или отметьте старт на карте": ["Waiting for GPS… or mark the start on the map", "ממתין ל-GPS… או סמנו את ההתחלה במפה"], "Режим «В поездке»: в движении прятать лишние кнопки на карте (касание карты — вернуть)": ["“Riding” mode: hide extra map buttons while moving (tap the map to bring them back)", "מצב „ברכיבה”: להסתיר כפתורים מיותרים במפה בזמן תנועה (הקשה על המפה מחזירה אותם)"]});
   Object.assign(D, {"Едете своей дорогой — маршрут перестроен к финишу": ["Riding your own way — route rebuilt to the finish", "נוסעים בדרך משלכם — המסלול חושב מחדש עד הסיום"], "Мой участок": ["My section", "הקטע שלי"], "Удалить участок": ["Delete section", "מחק קטע"], "Не удалось сохранить участок в телефоне": ["Could not save the section on the phone", "לא ניתן לשמור את הקטע בטלפון"], "Участок удалён": ["Section deleted", "הקטע נמחק"], "Вы проехали участок, которого нет на карте. Сохранить его?": ["You rode a section that is not on the map. Save it?", "רכבתם בקטע שאינו במפה. לשמור אותו?"], "Вы проехали участок, которого нет на карте": ["You rode a section that is not on the map", "רכבתם בקטע שאינו במפה"], "Участок сохранён": ["Section saved", "הקטע נשמר"], "Нет ответа — участок не сохранён": ["No answer — section not saved", "אין תשובה — הקטע לא נשמר"], "Сохранить участок?": ["Save this section?", "לשמור את הקטע?"], "Он появится на карте пунктиром и будет учитываться при следующих поездках": ["It will appear on the map as a dashed line and be used on future rides", "הוא יופיע במפה כקו מקווקו וישמש ברכיבות הבאות"], "Для дальнейшего использования": ["For future use", "לשימוש בהמשך"], "Нет": ["No", "לא"], "Ничего не сохранять": ["Don't save anything", "לא לשמור"], "Спрашивать, сохранить ли участок, которого нет на карте": ["Ask whether to save a section that is not on the map", "לשאול אם לשמור קטע שאינו במפה"]});
+  Object.assign(D, {"Версия приложения: 2026-11-10 · навигация v102 · запись поездки включается сама, когда вы поехали · ключи карт не попадают в резервную копию": ["App version: 2026-11-10 · navigation v102 · ride recording starts by itself when you start moving · map keys are not put into the backup", "גרסת האפליקציה: 2026-11-10 · ניווט v102 · הקלטת הרכיבה מתחילה מעצמה כשמתחילים לנסוע · מפתחות המפות לא נכנסים לגיבוי"], "Начинать запись поездки, когда вы поехали (кроме режима «Авто»)": ["Start recording the ride when you start moving (except Car mode)", "להתחיל להקליט את הרכיבה כשמתחילים לנסוע (חוץ ממצב רכב)"], "▶ Вы поехали — запись поездки включена. Выключить можно в Настройках": ["▶ You are moving — ride recording is on. You can turn this off in Settings", "▶ התחלתם לנסוע — הקלטת הרכיבה הופעלה. אפשר לכבות בהגדרות"], "Запись поездки включена": ["Ride recording is on", "הקלטת הרכיבה הופעלה"], "⏸ Запись на паузе — нажмите ▶, чтобы записывать дальше": ["⏸ Recording is paused — tap ▶ to keep recording", "⏸ ההקלטה מושהית — הקישו ▶ כדי להמשיך להקליט"], "Запись поездки на паузе": ["Ride recording is paused", "הקלטת הרכיבה מושהית"], "Что рядом": ["Nearby", "מה בסביבה"], "Не удалось прочитать поездки из памяти телефона. Они не удалены — закройте и снова откройте приложение.": ["Could not read the rides from the phone's storage. They are not deleted — close the app and open it again.", "לא הצלחתי לקרוא את הרכיבות מזיכרון הטלפון. הן לא נמחקו — סגרו את האפליקציה ופתחו אותה שוב."], "Ваш собственный бесплатный помощник в Cloudflare: загружает маршруты с сайтов, которые не дают браузеру скачать файл, разворачивает короткие ссылки Google без публичных сервисов. Как развернуть —": ["Your own free helper on Cloudflare: downloads routes from sites that block browser downloads and expands short Google links without public services. How to deploy —", "עוזר חינמי משלכם ב-Cloudflare: מוריד מסלולים מאתרים שחוסמים הורדה מהדפדפן ופותח קישורי Google מקוצרים בלי שירותים ציבוריים. איך להתקין —"], "✓ Прокси работает. Сохранено.": ["✓ The proxy works. Saved.", "✓ הפרוקסי עובד. נשמר."], "Короткие ссылки Google (maps.app.goo.gl) открываются через публичный сервис всегда, если не настроен свой прокси.": ["Short Google links (maps.app.goo.gl) always go through a public service unless your own proxy is set up.", "קישורי Google מקוצרים (maps.app.goo.gl) עוברים תמיד דרך שירות ציבורי, אלא אם הוגדר פרוקסי משלכם."]});
   const k = LANG === 'he' ? 1 : 0, CY = 'А-Яа-яЁё', CYR = /[А-Яа-яЁё]/;
   const map = new Map(), low = new Map();
   for (const ru in D) { map.set(ru, D[ru][k]); const l = ru.toLowerCase(); if (!low.has(l)) low.set(l, D[ru][k]); }
@@ -1104,6 +1105,7 @@ body.wide #hello{left:calc((100vw - var(--mapr)) / 2)}
       <div class="row"><button class="btn pri" id="url-go">Загрузить</button><button class="btn" id="url-paste">Вставить из буфера</button></div>
       <p class="note" id="url-stat" style="margin:0"></p>
       <label class="chk pro-only"><input type="checkbox" id="url-proxy"> Через прокси, если сайт блокирует прямую загрузку</label>
+      <p class="note pro-only" style="margin:0 0 8px 34px">Короткие ссылки Google (maps.app.goo.gl) открываются через публичный сервис всегда, если не настроен свой прокси.</p>
       <details class="more"><summary>Что можно вставить?</summary><p class="note" style="margin:6px 0 0">Понимает: прямые ссылки на файлы (свой сайт, GitHub, Dropbox, Google Drive*), Komoot (публичный тур или ссылка «Поделиться»*), Israel Hiking Map (ссылка «Поделиться»), OpenStreetMap relation/way, bikerouter.de, Google Maps (маршрут из A в B, точка или место, короткая ссылка maps.app.goo.gl**) — перестраивается под ваш велосипед. Можно вставить и сам текст GPX/KML. Strava, Wikiloc, Trailforks, AllTrails требуют входа — скачайте у них GPX и добавьте файлом.<br>** короткая ссылка Google разворачивается через allorigins.win / corsproxy.io<br>* может понадобиться «Через прокси»: ссылка тогда проходит через сторонний сервис (corsproxy.io / allorigins).</p></details>
     </div>
     <h3>Мои сайты с маршрутами</h3>
@@ -1188,6 +1190,7 @@ body.wide #hello{left:calc((100vw - var(--mapr)) / 2)}
   <p class="note" style="margin:0 0 6px">Карточки на главном экране настраиваются: долгое нажатие на карточку — выбрать, что в ней показывать.</p>
   <div class="row" style="margin:0 0 8px;align-items:center"><span style="flex:1">Вес, кг — для подсчёта калорий</span><input type="number" id="s-weight" inputmode="decimal" min="25" max="250" step="1" placeholder="—" style="width:84px"></div>
   <label class="chk"><input type="checkbox" id="s-autopause" checked> Автопауза на остановках</label>
+  <label class="chk"><input type="checkbox" id="s-autorec" checked> Начинать запись поездки, когда вы поехали (кроме режима «Авто»)</label>
   <label class="chk"><input type="checkbox" id="s-voice" checked> Звук (голосовые подсказки навигации)</label>
   <button class="btn sm" id="voice-test" style="margin:0 0 8px 34px">🔊 Проверить голос</button>
   <label class="chk"><input type="checkbox" id="s-wakeword"> «Привет, Вело» — голосовые команды без кнопки, пока приложение открыто</label>
@@ -1274,13 +1277,13 @@ body.wide #hello{left:calc((100vw - var(--mapr)) / 2)}
   <p class="note" id="g-st"></p>
   <p class="note" id="g-use"></p>
   <h3 data-pro>Свой прокси (Cloudflare Worker)</h3>
-  <p class="note" style="margin-top:0">Ваш собственный бесплатный помощник в Cloudflare: загружает маршруты с сайтов, которые не дают браузеру скачать файл, разворачивает короткие ссылки Google и нужен для Strava. Как развернуть — <a href="https://github.com/foxyatina32-debug/bike-computer-navigator#свой-прокси-cloudflare-worker" target="_blank" rel="noopener">инструкция</a> (5 минут).</p>
+  <p class="note" style="margin-top:0">Ваш собственный бесплатный помощник в Cloudflare: загружает маршруты с сайтов, которые не дают браузеру скачать файл, разворачивает короткие ссылки Google без публичных сервисов. Как развернуть — <a href="https://github.com/foxyatina32-debug/bike-computer-navigator#свой-прокси-cloudflare-worker" target="_blank" rel="noopener">инструкция</a> (5 минут).</p>
   <div class="row"><input type="url" id="wk-url" placeholder="https://velocomp.ваше-имя.workers.dev" autocomplete="off" autocapitalize="off" spellcheck="false" style="flex:1;min-width:0"><button class="btn pri" id="wk-save">Проверить и сохранить</button></div>
   <p class="note" id="wk-st"></p>
   </details>
   <details class="grp" data-g="about"><summary><span>ℹ️ О приложении</span><small>Версия, Safari и Chrome, источники карт</small></summary>
   <h3>О приложении</h3>
-  <p class="note" style="margin-top:0">Версия приложения: 2026-10-31 · навигация v99 · едете своей дорогой — маршрут перестраивается к финишу, а не тянет назад · участки, которых нет на карте, можно сохранить</p>
+  <p class="note" style="margin-top:0">Версия приложения: 2026-11-10 · навигация v102 · запись поездки включается сама, когда вы поехали · ключи карт не попадают в резервную копию</p>
   <div class="row" style="margin:0 0 8px;align-items:center"><button class="btn" id="upd-go">Проверить обновление</button><span class="note" style="margin:0">Сборка <b id="upd-build"></b></span></div>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/dima/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/dima/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -1547,7 +1550,7 @@ const DB = {
 };
 
 /* ================= settings ================= */
-const S = Object.assign({ compass: true, headingUp: true, orient: 'compass', autopause: true, voice: true, reroute: true, tofinish: false, newways: true, wake: true, darkmap: true, extnav: 'auto', urlProxy: false, compact: false, compactNav: true, places: true }, lsGet('settings', {}));
+const S = Object.assign({ compass: true, headingUp: true, orient: 'compass', autopause: true, autorec: true, voice: true, reroute: true, tofinish: false, newways: true, wake: true, darkmap: true, extnav: 'auto', urlProxy: false, compact: false, compactNav: true, places: true }, lsGet('settings', {}));
 if (!('orient' in (lsGet('settings', {}) || {}))) S.orient = S.headingUp === false ? 'north' : 'compass'; // older builds had only on/off
 S.headingUp = S.orient !== 'north';
 const saveS = () => lsSet('settings', S);
@@ -1627,7 +1630,7 @@ const G_NIGHT = [
 ];
 const gKey = () => (lsGet('gkey', '') || '').trim();
 // Requests to Google this month (counted on this phone) — to stay inside the free monthly allowance.
-const G_FREE = { routes: 10000, tiles: 100000, places: 5000 };
+const G_FREE = { routes: 10000, tiles: 100000, places: 5000, nearby: 1000 };   // «Что рядом» с часами работы — у Google уровень Enterprise
 const gUse = (() => {
   const mon = () => new Date().toISOString().slice(0, 7);
   let u = lsGet('gUse', null); if (!u || u.m !== mon()) u = { m: mon(), routes: 0, tiles: 0, places: 0 };
@@ -1639,8 +1642,8 @@ const gUse = (() => {
 function renderGUse() {
   const el = document.getElementById('g-use'); if (!el) return;
   const u = gUse.get(), n = x => x.toLocaleString(LOC), row = (name, k) => `${name}: ${n(u[k] || 0)} из ~${n(G_FREE[k])}`;
-  const hot = ['routes', 'tiles', 'places'].some(k => (u[k] || 0) > G_FREE[k] * 0.8);
-  el.innerHTML = `Запросы к Google за ${new Date(u.m + '-01').toLocaleDateString(LOC, { month: 'long', year: 'numeric' })} (бесплатно в месяц, на этом телефоне):<br>${row('Маршруты', 'routes')} · ${row('Тайлы карты', 'tiles')} · ${row('Поиск мест', 'places')}` + (hot ? '<br><b style="color:#fca5a5">Близко к бесплатному лимиту — дальше Google начнёт брать плату.</b>' : '');
+  const hot = ['routes', 'tiles', 'places', 'nearby'].some(k => (u[k] || 0) > G_FREE[k] * 0.8);
+  el.innerHTML = `Запросы к Google за ${new Date(u.m + '-01').toLocaleDateString(LOC, { month: 'long', year: 'numeric' })} (бесплатно в месяц, на этом телефоне):<br>${row('Маршруты', 'routes')} · ${row('Тайлы карты', 'tiles')} · ${row('Поиск мест', 'places')} · ${row('Что рядом', 'nearby')}` + (hot ? '<br><b style="color:#fca5a5">Близко к бесплатному лимиту — дальше Google начнёт брать плату.</b>' : '');
 }
 async function gSession(force, mapType = 'roadmap') {
   const key = gKey(); if (!key) throw new Error('введите ключ Google Maps API в Настройках');
@@ -1894,7 +1897,7 @@ setInterval(syncPages, 700); setTimeout(syncPages, 0);
 
 /* ================= settings UI ================= */
 function applySettings() {
-  ['autopause', 'voice', 'reroute', 'tofinish', 'newways', 'wake', 'darkmap'].forEach(k => $('#s-' + k).checked = !!S[k]);
+  ['autopause', 'autorec', 'voice', 'reroute', 'tofinish', 'newways', 'wake', 'darkmap'].forEach(k => $('#s-' + k).checked = !!S[k]);
   $('#s-compactnav').checked = !!S.compactNav; $('#s-ridemode').checked = S.rideMode !== false; $('#s-places').checked = !!S.places; $$('#s-orient button').forEach(b => b.classList.toggle('on', b.dataset.o === S.orient));
   $('#map').classList.toggle('darkmap', !!S.darkmap);
   if (tileLayers.google && tileLayers.google._map) tileLayers.google.refresh();
@@ -1954,7 +1957,7 @@ $('#g-save').onclick = async () => {
   try { await googleRoute([[32.0853, 34.7818], [32.0800, 34.7806]], {}, { quiet: true }); $('#g-st').textContent += ' ✓ Маршруты Google работают.'; }
   catch (e) { $('#g-st').textContent += ' ✗ Маршруты Google: ' + e.message; }
 };
-['autopause', 'voice', 'reroute', 'tofinish', 'newways', 'wake', 'darkmap'].forEach(k => $('#s-' + k).onchange = e => { S[k] = e.target.checked; saveS(); applySettings(); updateWake(); });
+['autopause', 'autorec', 'voice', 'reroute', 'tofinish', 'newways', 'wake', 'darkmap'].forEach(k => $('#s-' + k).onchange = e => { S[k] = e.target.checked; saveS(); applySettings(); updateWake(); });
 $('#s-weight').value = S.weight || '';
 $('#s-zoombtns').checked = S.zoomBtns !== false;
 $('#s-zoombtns').onchange = e => { S.zoomBtns = e.target.checked; saveS(); placeGpxBtn(); };
@@ -2478,7 +2481,7 @@ function onFix(pos) {
     refreshMe();
   }
   gpsDot(fix.acc <= 15 ? 'good' : fix.acc <= 40 ? 'weak' : 'bad');
-  gradeFeed(fix); Ride.onFix(fix); Nav.onFix(fix); renderDash(); Places.onFix(fix); try { NewWays.onFix(fix); } catch {}
+  gradeFeed(fix); try { AutoRec.onFix(fix); } catch {} Ride.onFix(fix); Nav.onFix(fix); renderDash(); Places.onFix(fix); try { NewWays.onFix(fix); } catch {}
 }
 
 /* ================= Экстренно: where I am, ready to send or read out on the phone ================= */
@@ -2670,6 +2673,7 @@ const Ride = {
     else toast('Поездка без трека — не сохранена');
     this.status = 'idle'; this.track = []; this.brk = []; Object.assign(this, { movingMs: 0, dist: 0, max: 0, asc: 0, desc: 0, autoPaused: false, lastFixT: 0 }); if (this.line) this.line.setLatLngs([]);
     await DB.del('kv', 'currentRide').catch(() => {}); renderRecUI(); updateWake(); renderDash();
+    try { AutoRec.quiet(); } catch {}
     return true;
   },
   // Moving time counts only while GPS answers (a fix in the last 5 s). Time without fixes — tunnel, page asleep — is
@@ -2870,6 +2874,38 @@ setInterval(() => {
   renderDash();
 }, 1000);
 setInterval(() => Ride.persist(), 20000);
+/* ---- Запись без кнопки ▶: поехали — запись включается сама; на ручной паузе — напоминание ----
+   Без этого поездка по навигации без нажатия ▶ не сохранялась. Двигаться нужно ~20 с и дальше 60 м, со скоростью
+   велосипеда (от 9 км/ч) или пешехода (от 4 км/ч) и не быстрее 43 км/ч; точки этих секунд входят в поездку.
+   В режиме «Авто» и 15 мин после ■ запись сама не начинается. Выключается в Настройках. */
+const AutoRec = {
+  buf: [], quietUntil: 0, pauseSince: 0, pauseSaid: false,
+  quiet(ms = 15 * 60e3) { this.quietUntil = Date.now() + ms; this.buf = []; },
+  vMin() { return curMode() === 'foot' || /^(walk|hike|run)$/.test(S.act || '') ? 1.1 : 2.5; },
+  onFix(f) {
+    const car = curMode() === 'car' || S.act === 'car', vMin = this.vMin();
+    const moving = !f.jump && f.acc <= 35 && !GPS.still && f.spd >= vMin && f.spd <= 12;
+    // Paused by hand and riding on: say so once per pause (the ride itself stays on pause — the rider chose that).
+    if (Ride.status === 'paused' && !Ride.restored && !car) {
+      if (moving) { if (!this.pauseSince) this.pauseSince = f.t; if (!this.pauseSaid && f.t - this.pauseSince > 60000) { this.pauseSaid = true; toast('⏸ Запись на паузе — нажмите ▶, чтобы записывать дальше', 7000); say('Запись поездки на паузе'); } }
+      else if (f.spd < vMin * 0.5) this.pauseSince = 0;
+    } else { this.pauseSince = 0; if (Ride.status === 'rec') this.pauseSaid = false; }
+    if (Ride.status !== 'idle' || !S.autorec || car || Date.now() < this.quietUntil) { this.buf = []; return; }
+    const b = this.buf, last = b[b.length - 1];
+    if (last && f.t - last[3] > 15000) b.length = 0;            // no fixes for a while: start counting again
+    if (!moving) { if (f.jump || f.spd < vMin * 0.5 || f.spd > 12) b.length = 0; return; }
+    b.push([f.lat, f.lon, f.alt != null ? Math.round(f.alt * 10) / 10 : null, f.t]);
+    if (b.length < 5 || b[b.length - 1][3] - b[0][3] < 20000 || hav(b[0], b[b.length - 1]) < 60) return;
+    const pts = b.slice(); b.length = 0;
+    let d = 0; for (let i = 1; i < pts.length; i++) d += hav(pts[i - 1], pts[i]);
+    Ride.start();
+    Object.assign(Ride, { startTs: pts[0][3], movingMs: pts[pts.length - 1][3] - pts[0][3], dist: d, track: pts });
+    Ride.mAtFix = Ride.movingMs; Ride.lastFixT = pts[pts.length - 1][3];
+    if (Ride.line) Ride.line.setLatLngs(segLL(Ride.track, Ride.brk));
+    Ride.persist(); renderRecUI(); renderDash();
+    toast('▶ Вы поехали — запись поездки включена. Выключить можно в Настройках', 6000); say('Запись поездки включена');
+  }
+};
 try { if (navigator.storage && navigator.storage.persisted) navigator.storage.persisted().then(ok => { if (!ok && navigator.storage.persist) navigator.storage.persist().catch(() => {}); }).catch(() => {}); } catch {}
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') Ride.persist(); });
 
@@ -3378,7 +3414,7 @@ function mixHtml(mix) {
 const RPOI_T = { bicycle_store: ['🔧', 'веломагазин'], convenience_store: ['🏪', 'магазин'], gas_station: ['⛽', 'заправка'], cafe: ['☕', 'кафе'] };
 const RPOI = { layer: null, list: [] };
 async function searchRiderPOIsNearby(lat, lng, radius = 3000) {
-  gUse('places');
+  gUse('nearby');
   const j = await fetchJSON('https://places.googleapis.com/v1/places:searchNearby', { method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': gKey(), 'X-Goog-FieldMask': 'places.id,places.displayName,places.location,places.primaryType,places.types,places.regularOpeningHours.openNow,places.formattedAddress' },
     body: JSON.stringify({ includedTypes: Object.keys(RPOI_T), maxResultCount: 20, rankPreference: 'DISTANCE', languageCode: LANG === 'he' ? 'he' : LANG === 'en' ? 'en' : 'ru', regionCode: 'IL',
@@ -5594,7 +5630,9 @@ function lazyMaps(root, list) {
 }
 
 async function renderRides() {
-  const all = (await DB.all('rides')).sort((a, b) => b.start - a.start);
+  let all;
+  try { all = (await DB.allStrict('rides')).sort((a, b) => b.start - a.start); }
+  catch { HS.list = []; $('#ride-list').innerHTML = '<div class="empty">Не удалось прочитать поездки из памяти телефона. Они не удалены — закройте и снова откройте приложение.</div>'; return; }
   HS.list = all;
   const types = Object.keys(ACTS).filter(k => all.some(r => actOf(r) === k));
   if (HS.type !== 'all' && !types.includes(HS.type)) HS.type = 'all';
@@ -5936,12 +5974,13 @@ $('#act-file').onchange = async e => {
 // ---- backup: all rides, routes and settings in one file ----
 /* ---- Backup: one file with rides, routes and settings through the share menu (the rider chooses where) ---- */
 const BK_SKIP = ['gsess', 'gsess2', 'activeNav', 'navLeft', 'updTried', 'updatedFrom', 'lastBackup', 'bkNag', 'view', 'zoom'];
+const BK_KEYS = ['gkey', 'tfkey', 'mapykey'];   // personal API keys: not written into the file (it may be sent to someone)
 try { localStorage.removeItem('velo:bkNag'); } catch {}
 async function makeBackupFile() {
   const ls = {};
-  for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (!k || !k.startsWith('velo:')) continue; const n = k.slice(5); if (BK_SKIP.includes(n)) continue; ls[n] = localStorage.getItem(k); }
+  for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (!k || !k.startsWith('velo:')) continue; const n = k.slice(5); if (BK_SKIP.includes(n) || BK_KEYS.includes(n)) continue; ls[n] = localStorage.getItem(k); }
   const data = { app: 'velokomp', ver: 2, exported: new Date().toISOString(), settings: S, ls, rides: await DB.allStrict('rides'), routes: await DB.allStrict('routes'), myWays: ((await DB.get('kv', 'myWays')) || {}).ways || [] };
-  return new File([JSON.stringify(data)], `velokomp-backup-${new Date().toISOString().slice(0, 10)}.json`, { type: 'application/json' });
+  return new File([JSON.stringify(data)], `velocomp-backup-${new Date().toISOString().slice(0, 10)}.json`, { type: 'application/json' });
 }
 async function saveBackup() {
   let file; try { file = await makeBackupFile(); } catch { toast('Копия не сделана: не удалось прочитать поездки или маршруты. Перезапустите приложение и попробуйте снова', 6000); return false; }
@@ -6741,7 +6780,7 @@ $('#wk-save').onclick = async () => {
   if (!w) { lsSet('worker', ''); $('#wk-st').textContent = 'Адрес удалён — загрузка через общие прокси (если включено).'; return; }
   if (!/^https:\/\//.test(w)) { $('#wk-st').textContent = '✗ Адрес должен начинаться с https://'; return; }
   $('#wk-st').textContent = 'Проверяю…';
-  try { const j = await workerHealth(w); lsSet('worker', w); $('#wk-st').textContent = '✓ Прокси работает' + (j.strava ? ', Strava настроена' : ' (Strava в нём не настроена)') + '. Сохранено.'; }
+  try { const j = await workerHealth(w); lsSet('worker', w); $('#wk-st').textContent = '✓ Прокси работает. Сохранено.'; }
   catch (e) { $('#wk-st').textContent = '✗ ' + e.message; }
 };
 
@@ -7117,7 +7156,7 @@ $('#map').addEventListener('pointerdown', () => { RideUI.touch = Date.now(); syn
 // iPhone can keep the app suspended for days: on every return to the screen and every 30 min the app asks the site for
 // its current build (version.json, a few bytes) and reloads itself when a newer one is out. Never in the middle of a
 // ride or navigation — then it waits until both are finished. Bump APP_BUILD together with version.json.
-const APP_BUILD = '101';
+const APP_BUILD = '102';
 const Upd = { pending: false, t: 0, mv: 0 };
 setInterval(() => { try { if (GPS.fix && GPS.fix.spd > 1.5 && Date.now() - GPS.fix.t < 10000) Upd.mv = Date.now(); } catch {} }, 5000);
 async function checkUpdate(force) {

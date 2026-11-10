@@ -26,7 +26,7 @@ async def main():
         check('cancelled share → not counted as a copy', not await pg.evaluate("lsGet('lastBackup', 0)"))
         await pg.evaluate("window.__cancel = false"); await pg.click('#bk-exp'); await pg.wait_for_timeout(500)
         raw = await pg.evaluate("window.__shared"); d = json.loads(raw)
-        check('copy file: rides, routes, settings, card layout; no temporary keys', d['app'] == 'velokomp' and len(d['rides']) == 1 and len(d['routes']) == 1 and 'dashSlots' in d['ls'] and 'settings' in d['ls'] and 'gsess2' not in d['ls'] and (await pg.evaluate("window.__fname")).startswith('velokomp-backup-'), list(d['ls'])[:8])
+        check('copy file: rides, routes, settings, card layout; no temporary keys', d['app'] == 'velokomp' and len(d['rides']) == 1 and len(d['routes']) == 1 and 'dashSlots' in d['ls'] and 'settings' in d['ls'] and 'gsess2' not in d['ls'] and (await pg.evaluate("window.__fname")).startswith('velocomp-backup-'), list(d['ls'])[:8])
         t1 = await pg.evaluate("document.getElementById('bk-last').textContent")
         check('last copy date shown', t1.startswith('Последняя копия:'), t1)
         open(os.path.join(SHOT, 'backup.json'), 'w').write(raw)
