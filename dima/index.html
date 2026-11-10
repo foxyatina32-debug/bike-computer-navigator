@@ -89,6 +89,7 @@ const tr = (() => {
   Object.assign(D, {"Версия приложения: 2026-11-10 · навигация v105 · микрофон сам не включается — голос только по кнопке 🎤 · автомасштаб в навигации": ["App version: 2026-11-10 · navigation v105 · the microphone never turns on by itself — voice only with the 🎤 button · auto-zoom in navigation", "גרסת האפליקציה: 2026-11-10 · ניווט v105 · המיקרופון לא נדלק מעצמו — קול רק בכפתור 🎤 · זום אוטומטי בניווט"]});
   Object.assign(D, {"Версия приложения: 2026-11-10 · навигация v106 · 🎤 виден и в движении — новый маршрут голосом во время поездки · кнопка → отвечает всегда": ["App version: 2026-11-10 · navigation v106 · 🎤 stays on screen on the move — a new route by voice during a ride · the → button always responds", "גרסת האפליקציה: 2026-11-10 · ניווט v106 · 🎤 נשאר על המסך בתנועה — מסלול חדש בקול בזמן רכיבה · כפתור → תמיד מגיב"], "Режим «В поездке»: в движении прятать лишние кнопки на карте (🎤 остаётся; касание карты — вернуть все)": ["«Riding» mode: hide extra map buttons on the move (🎤 stays; tap the map to bring them all back)", "מצב «ברכיבה»: להסתיר כפתורים מיותרים במפה בתנועה (🎤 נשאר; נגיעה במפה מחזירה את כולם)"]});
   Object.assign(D, {"Версия приложения: 2026-11-10 · навигация v107 · автозапись с 6 км/ч (медленный старт в подъём) · надёжный запуск на иврите и английском": ["App version: 2026-11-10 · navigation v107 · auto-recording from 6 km/h (slow start uphill) · reliable start in Hebrew and English", "גרסת האפליקציה: 2026-11-10 · ניווט v107 · הקלטה אוטומטית מ-6 קמ״ש (התחלה איטית בעלייה) · הפעלה אמינה בעברית ובאנגלית"], "Приложение не запустилось из-за ошибки в программе. Закройте его и откройте снова.": ["The app did not start because of an error in the program. Close it and open it again.", "האפליקציה לא עלתה בגלל שגיאה בתוכנה. סגרו אותה ופתחו שוב."]});
+  Object.assign(D, {"Версия приложения: 2026-11-10 · навигация v108 · кнопка SOS не закрывает легенду и логотип Mapy.com и не прячется под легендой": ["App version: 2026-11-10 · navigation v108 · the SOS button no longer covers the legend or the Mapy.com logo, nor hides under the legend", "גרסת האפליקציה: 2026-11-10 · ניווט v108 · כפתור SOS כבר לא מכסה את המקרא ואת הלוגו של Mapy.com ולא מוסתר מתחת למקרא"]});
   const k = LANG === 'he' ? 1 : 0, CY = 'А-Яа-яЁё', CYR = /[А-Яа-яЁё]/;
   const map = new Map(), low = new Map();
   for (const ru in D) { map.set(ru, D[ru][k]); const l = ru.toLowerCase(); if (!low.has(l)) low.set(l, D[ru][k]); }
@@ -1297,7 +1298,7 @@ body.wide #hello{left:calc((100vw - var(--mapr)) / 2)}
   </details>
   <details class="grp" data-g="about"><summary><span>ℹ️ О приложении</span><small>Версия, Safari и Chrome, источники карт</small></summary>
   <h3>О приложении</h3>
-  <p class="note" style="margin-top:0">Версия приложения: 2026-11-10 · навигация v107 · автозапись с 6 км/ч (медленный старт в подъём) · надёжный запуск на иврите и английском</p>
+  <p class="note" style="margin-top:0">Версия приложения: 2026-11-10 · навигация v108 · кнопка SOS не закрывает легенду и логотип Mapy.com и не прячется под легендой</p>
   <div class="row" style="margin:0 0 8px;align-items:center"><button class="btn" id="upd-go">Проверить обновление</button><span class="note" style="margin:0">Сборка <b id="upd-build"></b></span></div>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/dima/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/dima/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -1721,10 +1722,12 @@ function setBase(k) {
 function mapyLogo() {
   let el = $('#mapy-logo'); const on = !!(BASES[baseKey] && BASES[baseKey].mapy);
   if (!on) { if (el) el.hidden = true; return; }
+  const was = !el || el.hidden;
   if (!el) { el = document.createElement('a'); el.id = 'mapy-logo'; el.className = 'mapy-logo'; el.href = 'https://mapy.com/'; el.target = '_blank'; el.rel = 'noopener'; el.innerHTML = '<img src="https://api.mapy.com/img/api/logo.svg" alt="Mapy.com">'; document.body.appendChild(el); }
   el.hidden = false;
   const hud = $('#hud'), bottom = (hud.hidden ? $('.tabs') : hud).getBoundingClientRect().top;
   el.style.top = Math.max(0, bottom - 34) + 'px';
+  if (was) setTimeout(placeGpxBtn, 0);   // the logo just appeared: the SOS button steps above it
 }
 function toggleOver(k, on) {
   if (on) tileLayers[k].addTo(map); else map.removeLayer(tileLayers[k]);
@@ -1803,7 +1806,16 @@ function placeGpxBtn() {
   let zy = $('#t-mic').getBoundingClientRect().top + $('#t-mic').offsetHeight + 18; const zOn = S.zoomBtns !== false;
   // SOS: bottom-left above the ride panel (mirrors the «где я» button), out of the way of the left-edge legend tab.
   { const hr = $('#hud').hidden ? null : $('#hud').getBoundingClientRect(), wide = document.body.classList.contains('wide');
-    $('#t-sos').style.top = (!wide && hr && hr.top > 260 ? hr.top - 58 : zy) + 'px'; }
+    $('#t-sos').style.top = (!wide && hr && hr.top > 260 ? hr.top - 58 : zy) + 'px';
+    // Never on top of the legend tab on the left edge (landscape): below it, or above it when there is no room below.
+    const sos = $('#t-sos'), tab = $('#legend-tab');
+    try { legendPos(); } catch {}
+    // Nor on top of the Mapy.com logo (bottom-left above the panel; their terms want it visible): SOS goes above it.
+    const ml = $('#mapy-logo');
+    if (ml && !ml.hidden) { const hudEl = $('#hud'); ml.style.top = Math.max(0, (hudEl.hidden ? $('.tabs') : hudEl).getBoundingClientRect().top - 34) + 'px';
+      const l = ml.getBoundingClientRect(), a = sos.getBoundingClientRect(); if (a.bottom > l.top - 6 && a.top < l.bottom) sos.style.top = Math.max(0, l.top - 10 - a.height) + 'px'; }
+    if (!tab.hidden) { const t = tab.getBoundingClientRect(), a = sos.getBoundingClientRect();
+      if (a.top < t.bottom + 6 && a.bottom > t.top - 6) { let y = t.bottom + 10; if (y + a.height > lim) y = t.top - 10 - a.height; sos.style.top = y + 'px'; } } }
   ['#z-in', '#z-out', '#z-me'].forEach(k => { const el = $(k); el.hidden = !zOn; el.style.top = zy + 'px'; zy += el.offsetHeight + (k === '#z-out' ? 14 : 6); });
   ['#t-gpx', '#t-ret', '#t-compass', '#t-mic', '#t-sos', '#z-in', '#z-out', '#z-me'].forEach(k => { const el = $(k); el.classList.remove('ovh'); if (el.getBoundingClientRect().bottom + (k === '#t-compass' ? 18 : 0) > lim) el.classList.add('ovh'); });
 }
@@ -6243,7 +6255,8 @@ function updateLegend() {
   try {
     const tab = $('#legend-tab'), el = $('#legend'), ihm = /^ihm_mtb/.test(baseKey) || map.hasLayer(tileLayers.ihm_ov_mtb), trl = trailGroup.getLayers().length > 0;
     if (!ihm && !trl) { tab.hidden = el.hidden = true; Legend.open = false; return; }
-    tab.hidden = false; tab.classList.toggle('on', Legend.open);
+    const was = tab.hidden; tab.hidden = false; tab.classList.toggle('on', Legend.open);
+    if (was) setTimeout(placeGpxBtn, 0);   // the tab just appeared: the SOS button steps out of its way
     if (!Legend.open) { el.hidden = true; legendPos(); return; }
     const L1 = (c, t, cls = '') => `<div class="ln"><i class="${cls}" style="border-color:${c}"></i>${t}</div>`;
     let h = '';
@@ -6264,6 +6277,9 @@ function legendPos() {
   // Opened on purpose and closed by a tap, so on small screens it may lie over the dashboard, but never over the tab bar.
   const ptop = top + tab.offsetHeight + 6, bottom = $('.tabs').getBoundingClientRect().top - 8;
   el.style.top = ptop + 'px'; el.style.maxHeight = Math.max(60, bottom - ptop) + 'px';
+  // The open legend never hides the SOS button: where they would meet, the legend moves to the right of it.
+  el.style.left = ''; const s = $('#t-sos');
+  if (s && !s.hidden && !s.classList.contains('ovh')) { const a = s.getBoundingClientRect(), b = el.getBoundingClientRect(); if (a.bottom > b.top && a.top < b.bottom && a.width) el.style.left = Math.round(a.right + 8) + 'px'; }
 }
 $('#legend-tab').onclick = () => { Legend.open = !Legend.open; updateLegend(); };
 $('#legend').onclick = () => { Legend.open = false; updateLegend(); };
@@ -7203,7 +7219,7 @@ $('#map').addEventListener('pointerdown', () => { RideUI.touch = Date.now(); syn
 // iPhone can keep the app suspended for days: on every return to the screen and every 30 min the app asks the site for
 // its current build (version.json, a few bytes) and reloads itself when a newer one is out. Never in the middle of a
 // ride or navigation — then it waits until both are finished. Bump APP_BUILD together with version.json.
-const APP_BUILD = '107';
+const APP_BUILD = '108';
 const Upd = { pending: false, t: 0, mv: 0 };
 setInterval(() => { try { if (GPS.fix && GPS.fix.spd > 1.5 && Date.now() - GPS.fix.t < 10000) Upd.mv = Date.now(); } catch {} }, 5000);
 async function checkUpdate(force) {
