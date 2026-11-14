@@ -91,6 +91,22 @@ const tr = (() => {
   Object.assign(D, {"Версия приложения: 2026-11-10 · навигация v107 · автозапись с 6 км/ч (медленный старт в подъём) · надёжный запуск на иврите и английском": ["App version: 2026-11-10 · navigation v107 · auto-recording from 6 km/h (slow start uphill) · reliable start in Hebrew and English", "גרסת האפליקציה: 2026-11-10 · ניווט v107 · הקלטה אוטומטית מ-6 קמ״ש (התחלה איטית בעלייה) · הפעלה אמינה בעברית ובאנגלית"], "Приложение не запустилось из-за ошибки в программе. Закройте его и откройте снова.": ["The app did not start because of an error in the program. Close it and open it again.", "האפליקציה לא עלתה בגלל שגיאה בתוכנה. סגרו אותה ופתחו שוב."]});
   Object.assign(D, {"Версия приложения: 2026-11-10 · навигация v108 · кнопка SOS не закрывает легенду и логотип Mapy.com и не прячется под легендой": ["App version: 2026-11-10 · navigation v108 · the SOS button no longer covers the legend or the Mapy.com logo, nor hides under the legend", "גרסת האפליקציה: 2026-11-10 · ניווט v108 · כפתור SOS כבר לא מכסה את המקרא ואת הלוגו של Mapy.com ולא מוסתר מתחת למקרא"]});
   Object.assign(D, {"Версия приложения: 2026-11-10 · навигация v109 · кнопка «Где я» всегда на экране — и при открытой, и при свёрнутой панели": ["App version: 2026-11-10 · navigation v109 · the «Where am I» button is always on screen — with the panel open or folded", "גרסת האפליקציה: 2026-11-10 · ניווט v109 · כפתור «איפה אני» תמיד על המסך — גם כשהלוח פתוח וגם כשהוא מקופל"]});
+  Object.assign(D, {"Версия приложения: 2026-11-14 · навигация v110 · проехал — сохрани как маршрут: предложение после поездки и кнопка «В мои маршруты» в Истории": ["App version: 2026-11-14 · navigation v110 · ridden it — keep it as a route: offered after the ride and a «To my routes» button in History", "גרסת האפליקציה: 2026-11-14 · ניווט v110 · רכבת — שמור כמסלול: הצעה בסוף הרכיבה וכפתור «למסלולים שלי» בהיסטוריה"],
+    "Сохранить как маршрут?": ["Save as a route?", "לשמור כמסלול?"],
+    "⭐ В мои маршруты": ["⭐ To my routes", "⭐ למסלולים שלי"],
+    "В мои маршруты": ["To my routes", "למסלולים שלי"],
+    "В моих маршрутах": ["In my routes", "במסלולים שלי"],
+    "«Маршруты → Мои» — потом можно проехать по нему с навигацией": ["«Routes → Mine» — ride it later with navigation", "«מסלולים ← שלי» — אפשר לרכוב בו אחר כך עם ניווט"],
+    "Чтобы потом проехать по нему с навигацией": ["To ride it later with navigation", "כדי לרכוב בו אחר כך עם ניווט"],
+    "📄 Файл GPX": ["📄 GPX file", "📄 קובץ GPX"],
+    "Сохранить в «Файлы» или отправить": ["Save to «Files» or send", "שמור ב«קבצים» או שלח"],
+    "Не надо": ["No, thanks", "לא צריך"],
+    "Название маршрута": ["Route name", "שם המסלול"],
+    "Уже есть в «Маршруты → Мои»": ["Already in «Routes → Mine»", "כבר נמצא ב«מסלולים ← שלי»"],
+    "Трек слишком короткий для маршрута": ["The track is too short for a route", "המסלול המוקלט קצר מדי"],
+    "⭐ Маршрут сохранён в «Маршруты → Мои»": ["⭐ Route saved to «Routes → Mine»", "⭐ המסלול נשמר ב«מסלולים ← שלי»"],
+    "Не удалось сохранить маршрут": ["Couldn't save the route", "לא ניתן לשמור את המסלול"],
+    "Моя поездка": ["My ride", "הרכיבה שלי"]});
   const k = LANG === 'he' ? 1 : 0, CY = 'А-Яа-яЁё', CYR = /[А-Яа-яЁё]/;
   const map = new Map(), low = new Map();
   for (const ru in D) { map.set(ru, D[ru][k]); const l = ru.toLowerCase(); if (!low.has(l)) low.set(l, D[ru][k]); }
@@ -1299,7 +1315,7 @@ body.wide #hello{left:calc((100vw - var(--mapr)) / 2)}
   </details>
   <details class="grp" data-g="about"><summary><span>ℹ️ О приложении</span><small>Версия, Safari и Chrome, источники карт</small></summary>
   <h3>О приложении</h3>
-  <p class="note" style="margin-top:0">Версия приложения: 2026-11-10 · навигация v109 · кнопка «Где я» всегда на экране — и при открытой, и при свёрнутой панели</p>
+  <p class="note" style="margin-top:0">Версия приложения: 2026-11-14 · навигация v110 · проехал — сохрани как маршрут: предложение после поездки и кнопка «В мои маршруты» в Истории</p>
   <div class="row" style="margin:0 0 8px;align-items:center"><button class="btn" id="upd-go">Проверить обновление</button><span class="note" style="margin:0">Сборка <b id="upd-build"></b></span></div>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/dima/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/dima/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -1364,9 +1380,17 @@ body.wide #hello{left:calc((100vw - var(--mapr)) / 2)}
   <h2>Поездка</h2>
   <button class="btn opt" id="rdm-ren"><b>Переименовать</b></button>
   <button class="btn opt" id="rdm-map"><b>Показать на большой карте</b></button>
+  <button class="btn opt" id="rdm-route"><b>⭐ В мои маршруты</b><span>Чтобы потом проехать по нему с навигацией</span></button>
   <button class="btn opt" id="rdm-gpx"><b>Экспорт GPX</b><span>С временем — для Strava, Garmin и других</span></button>
   <button class="btn opt dng" id="rdm-del"><b>Удалить поездку</b></button>
   <button class="cancel" id="rdm-x">Закрыть</button>
+</div></div>
+<div class="ask" id="ask-asroute" hidden><div class="box">
+  <h2>Сохранить как маршрут?</h2>
+  <p id="ar-info"></p>
+  <button class="btn pri opt" id="ar-yes"><b>⭐ В мои маршруты</b><span>«Маршруты → Мои» — потом можно проехать по нему с навигацией</span></button>
+  <button class="btn opt" id="ar-gpx"><b>📄 Файл GPX</b><span>Сохранить в «Файлы» или отправить</span></button>
+  <button class="cancel" id="ar-no">Не надо</button>
 </div></div>
 <div class="ask" id="ask-card" hidden><div class="box">
   <h2>Открытка</h2>
@@ -2718,13 +2742,14 @@ const Ride = {
   },
   async stop(save = true) {
     if (this.status === 'idle') return true;
+    this.lastSaved = null;
     const ride = { id: uid(), name: autoRideName(this.startTs, S.act || 'bike'),
       start: this.startTs, end: Date.now(), type: S.act || 'bike', dist: this.dist, movingMs: this.movingMs, max: this.max, asc: this.asc, desc: this.desc, track: this.track };
     if (this.brk && this.brk.length) ride.brk = this.brk.slice();
     if (Nav.rid) ride.routeId = Nav.rid;
     if (!save) toast('Поездка удалена без сохранения');
     else if (this.track.length > 1) {
-      try { await DB.put('rides', ride); toast(`Сохранено: ${fmtKm(this.dist)} км, ${fmtDur(this.movingMs)}`); }
+      try { await DB.put('rides', ride); this.lastSaved = ride; toast(`Сохранено: ${fmtKm(this.dist)} км, ${fmtDur(this.movingMs)}`); }
       catch {
         // Not saved → nothing is thrown away: the ride stays (on pause) with its emergency copy, ■ tries again.
         this.pause();
@@ -2820,7 +2845,7 @@ $('#c-stop').onclick = () => {
   $('#ask-stop-info').textContent = `${fmtKm(Ride.dist)} км · ${fmtClock(Ride.movingMs)} в движении`;
   $('#ask-stop').hidden = false;
 };
-$('#st-save').onclick = () => { $('#ask-stop').hidden = true; Ride.stop(true); };
+$('#st-save').onclick = async () => { $('#ask-stop').hidden = true; if (await Ride.stop(true)) offerAsRoute(Ride.lastSaved); };
 $('#st-del').onclick = () => {
   if (Date.now() - delArmed < 4000) { delArmed = 0; $('#ask-stop').hidden = true; Ride.stop(false); return; }
   delArmed = Date.now(); $('#st-del b').textContent = 'Точно удалить? Нажмите ещё раз';
@@ -5826,6 +5851,7 @@ async function openRide(id) {
       <div class="seg" id="rd-type" style="margin-top:10px">${Object.entries(ACTS).map(([k, x]) => `<button data-t="${k}" class="${k === actOf(r) ? 'on' : ''}">${x.ic} ${x.n}</button>`).join('')}</div>
     </div>
     ${sp.length ? `<details class="more rdspl"><summary>${tr('По километрам')}</summary><table class="spl"><tr><th>км</th><th>время</th><th>${a.pace ? 'темп' : 'км/ч'}</th><th></th><th>высота</th></tr>${sp.map(s => { const sv = s.len / (s.ms / 1000); return `<tr><td>${s.part ? s.km.toFixed(2) : s.km}</td><td>${fmtClock(s.ms)}</td><td>${a.pace ? fmtPace(sv) : kmh(sv)}</td><td class="bar"><i style="width:${Math.round(sv / fast * 100)}%"></i></td><td>${s.de == null ? '—' : (s.de > 0 ? '+' : '') + Math.round(s.de) + ' м'}</td></tr>`; }).join('')}</table></details>` : ''}
+    <button class="btn rdexp" id="rd-asroute">${r.savedRoute ? '✓ ' + tr('В моих маршрутах') : '⭐ ' + tr('В мои маршруты')}</button>
     <button class="btn rdexp" id="rd-gpx">⇪ ${tr('Экспорт')}</button>`;
   const fromList = !$('#sheet-history').hidden, fromRoute = !$('#sheet-rinfo').hidden;
   if (!fromRoute && fromList) HS.fromRoute = null;
@@ -5865,6 +5891,7 @@ async function openRide(id) {
   if ($('#rd-wt')) $('#rd-wt').onclick = () => openSetting('#s-weight');
   $$('#rd-type button').forEach(b => b.onclick = async () => { r.type = b.dataset.t; await DB.put('rides', r); openRide(r.id); });
   $('#rd-gpx').onclick = () => shareGpx(r.name, tr0, true, actOf(r), r.brk);
+  $('#rd-asroute').onclick = async () => { if (await rideToRoute(r) && HS.cur === r && !$('#sheet-ride').hidden) openRide(r.id); };
   $('#rd-more').onclick = () => { $('#ask-ride').hidden = false; $('#rdm-del').innerHTML = `<b>${tr('Удалить поездку')}</b>`; delete $('#rdm-del').dataset.armed; };
 }
 $('#rdm-ren').onclick = async () => { const r = HS.cur; $('#ask-ride').hidden = true; if (!r) return; const n = prompt(trx('Название'), rideTitle(r)); if (n && n.trim()) { r.name = n.trim().slice(0, 80); await DB.put('rides', r); openRide(r.id); } };
@@ -5873,6 +5900,37 @@ $('#rdm-gpx').onclick = () => { $('#ask-ride').hidden = true; const r = HS.cur; 
 $('#rdm-del').onclick = () => { const b = $('#rdm-del'); if (!b.dataset.armed) { b.dataset.armed = 1; b.innerHTML = `<b>${tr('Точно удалить?')}</b>`; return; }
   $('#ask-ride').hidden = true; const r = HS.cur; if (!r) return; DB.del('rides', r.id).then(() => { HS.seg = 'list'; closeRide(); toast('Поездка удалена'); }); };
 $('#rdm-x').onclick = () => $('#ask-ride').hidden = true;
+$('#rdm-route').onclick = async () => { $('#ask-ride').hidden = true; const r = HS.cur; if (await rideToRoute(r) && HS.cur === r && !$('#sheet-ride').hidden) openRide(r.id); };
+/* ---- A ridden track → a route in «Маршруты → Мои» (v110): offered after «Завершить и сохранить», and a button in the ride ---- */
+function rideRouteCoords(r) {
+  const t = ((r && r.track) || []).filter(q => q && isFinite(q[0]) && isFinite(q[1]));
+  if (t.length < 2) return null;
+  // GPS writes a point every second: thin it out (3 m tolerance keeps every bend of a singletrack).
+  return simplifyIdx(t, 3).map(i => [t[i][0], t[i][1], t[i][2] != null && isFinite(t[i][2]) ? t[i][2] : null]);
+}
+async function rideToRoute(r, askName = true) {
+  if (!r) return null;
+  if (r.savedRoute) { const have = await DB.get('routes', r.savedRoute).catch(() => null); if (have) { toast('Уже есть в «Маршруты → Мои»', 3000); return have; } }
+  const c = rideRouteCoords(r);
+  if (!c || cumDist(c).pop() < 100) { toast('Трек слишком короткий для маршрута', 3000); return null; }
+  let name = rideTitle(r) + ' · ' + fmtShortDay(r.start);
+  if (askName) { const n = prompt(trx('Название маршрута'), name); if (n === null) return null; if (n.trim()) name = n.trim().slice(0, 80); }
+  try {
+    const rec = await saveRoute(name, c, 'Моя поездка');
+    r.savedRoute = rec.id; await DB.put('rides', r).catch(() => {});
+    toast('⭐ Маршрут сохранён в «Маршруты → Мои»', 3500);
+    return rec;
+  } catch { toast('Не удалось сохранить маршрут', 3500); return null; }
+}
+// After a ride: not when it followed a route that is already saved, and not for a few metres around the house.
+function offerAsRoute(r) {
+  if (!r || r.routeId || (r.dist || 0) < 500 || !rideRouteCoords(r)) return;
+  $('#ar-info').textContent = `${rideTitle(r)} · ${fmtKm(r.dist)} км`;
+  $('#ask-asroute').hidden = false;
+  $('#ar-yes').onclick = async () => { $('#ask-asroute').hidden = true; await rideToRoute(r); };
+  $('#ar-gpx').onclick = () => { $('#ask-asroute').hidden = true; shareGpx(rideTitle(r), r.track || [], false, actOf(r), r.brk); };
+  $('#ar-no').onclick = () => { $('#ask-asroute').hidden = true; };
+}
 // Postcard: with a photo from the phone or without.
 let cardRide = null;
 function openCardAsk(r) { if (!r) return; cardRide = r; $('#ask-card').hidden = false; }
@@ -7222,7 +7280,7 @@ $('#map').addEventListener('pointerdown', () => { RideUI.touch = Date.now(); syn
 // iPhone can keep the app suspended for days: on every return to the screen and every 30 min the app asks the site for
 // its current build (version.json, a few bytes) and reloads itself when a newer one is out. Never in the middle of a
 // ride or navigation — then it waits until both are finished. Bump APP_BUILD together with version.json.
-const APP_BUILD = '109';
+const APP_BUILD = '110';
 const Upd = { pending: false, t: 0, mv: 0 };
 setInterval(() => { try { if (GPS.fix && GPS.fix.spd > 1.5 && Date.now() - GPS.fix.t < 10000) Upd.mv = Date.now(); } catch {} }, 5000);
 async function checkUpdate(force) {
