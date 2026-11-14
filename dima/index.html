@@ -91,6 +91,7 @@ const tr = (() => {
   Object.assign(D, {"Версия приложения: 2026-11-10 · навигация v107 · автозапись с 6 км/ч (медленный старт в подъём) · надёжный запуск на иврите и английском": ["App version: 2026-11-10 · navigation v107 · auto-recording from 6 km/h (slow start uphill) · reliable start in Hebrew and English", "גרסת האפליקציה: 2026-11-10 · ניווט v107 · הקלטה אוטומטית מ-6 קמ״ש (התחלה איטית בעלייה) · הפעלה אמינה בעברית ובאנגלית"], "Приложение не запустилось из-за ошибки в программе. Закройте его и откройте снова.": ["The app did not start because of an error in the program. Close it and open it again.", "האפליקציה לא עלתה בגלל שגיאה בתוכנה. סגרו אותה ופתחו שוב."]});
   Object.assign(D, {"Версия приложения: 2026-11-10 · навигация v108 · кнопка SOS не закрывает легенду и логотип Mapy.com и не прячется под легендой": ["App version: 2026-11-10 · navigation v108 · the SOS button no longer covers the legend or the Mapy.com logo, nor hides under the legend", "גרסת האפליקציה: 2026-11-10 · ניווט v108 · כפתור SOS כבר לא מכסה את המקרא ואת הלוגו של Mapy.com ולא מוסתר מתחת למקרא"]});
   Object.assign(D, {"Версия приложения: 2026-11-10 · навигация v109 · кнопка «Где я» всегда на экране — и при открытой, и при свёрнутой панели": ["App version: 2026-11-10 · navigation v109 · the «Where am I» button is always on screen — with the panel open or folded", "גרסת האפליקציה: 2026-11-10 · ניווט v109 · כפתור «איפה אני» תמיד על המסך — גם כשהלוח פתוח וגם כשהוא מקופל"]});
+  Object.assign(D, {"Версия приложения: 2026-11-14 · навигация v111 · кнопка ■ Стоп всегда видна: красная, и в свёрнутой панели тоже": ["App version: 2026-11-14 · navigation v111 · the ■ Stop button is always visible: red, in the folded panel too", "גרסת האפליקציה: 2026-11-14 · ניווט v111 · כפתור ■ עצור תמיד גלוי: אדום, גם בלוח המקופל"]});
   Object.assign(D, {"Версия приложения: 2026-11-14 · навигация v110 · проехал — сохрани как маршрут: предложение после поездки и кнопка «В мои маршруты» в Истории": ["App version: 2026-11-14 · navigation v110 · ridden it — keep it as a route: offered after the ride and a «To my routes» button in History", "גרסת האפליקציה: 2026-11-14 · ניווט v110 · רכבת — שמור כמסלול: הצעה בסוף הרכיבה וכפתור «למסלולים שלי» בהיסטוריה"],
     "Сохранить как маршрут?": ["Save as a route?", "לשמור כמסלול?"],
     "⭐ В мои маршруты": ["⭐ To my routes", "⭐ למסלולים שלי"],
@@ -612,7 +613,8 @@ body.pv-on #hud{display:none!important}
 #c-play{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 #c-play.rec{background:#38bdf8;border-color:#38bdf8;color:#0f172a}
 #c-play.paused svg{display:none}
-#c-stop{background:rgba(248,113,113,.16);border-color:rgba(248,113,113,.45);color:#fecaca}
+#c-stop{background:#ef4444;border-color:#ef4444;color:#fff}
+#c-stop svg{color:#fff}
 #c-stop:disabled{background:var(--glass-hi);border-color:var(--line);color:#94a3b8;opacity:.8}
 #c-stop.arm{background:var(--warn);border-color:var(--warn);color:#fff}
 .cb.on{border-color:var(--accent);color:var(--accent)}
@@ -623,6 +625,12 @@ body.pv-on #hud{display:none!important}
 .mini{border-radius:16px;padding:8px 10px 6px 8px;grid-template-columns:40px repeat(4,auto) 32px}
 .mini .mp{width:40px;height:40px;border-radius:12px;background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .mini .mp.rec{background:#38bdf8;color:#0f172a}
+/* v111: ■ always visible in the folded panel while a ride is recorded or paused — solid red, not glass */
+.mini.has-stop{grid-template-columns:40px 40px repeat(4,auto) 32px}
+.mini .ms{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:#ef4444;border:1px solid #ef4444;color:#fff;box-shadow:0 4px 14px rgba(239,68,68,.45)}
+.mini .ms svg{width:20px;height:20px}
+.mini .ms:active{transform:scale(.94)}
+@media (max-width:359px){.mini.has-stop{grid-template-columns:34px 34px repeat(4,auto) 28px;gap:4px 3px;padding-left:6px;padding-right:6px}.mini.has-stop .mp,.mini.has-stop .ms{width:34px;height:34px;border-radius:10px}.mini.has-stop .ex{width:28px;height:28px}.mini.has-stop .c b{font-size:14px}.mini.has-stop .c.sp b{font-size:17px}.mini.has-stop .c span{font-size:9px}}
 .mini .c b{font-size:clamp(15px,4.8vw,19px)}
 .mini .c.sp b{font-size:clamp(19px,6vw,24px)}
 .mini .c span{font-size:10px}
@@ -981,6 +989,7 @@ body.wide #hello{left:calc((100vw - var(--mapr)) / 2)}
   <button class="locfab" id="c-loc" aria-label="Где я — вернуться к моему местоположению"><svg viewBox="0 0 24 24"><path d="M20.5 3.5 3.5 10.6l7.2 2.7 2.7 7.2Z" fill="currentColor"/></svg></button>
   <div class="mini glass" id="mini">
     <button class="mp" id="m-play" aria-label="Старт"></button>
+    <button class="ms" id="m-stop" aria-label="Завершить поездку" hidden><svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="3.5" fill="currentColor"/></svg></button>
     <div class="c sp"><b id="m-speed">0</b><span>км/ч</span></div>
     <div class="c"><b id="m-dist">0.00</b><span>км</span></div>
     <div class="c"><b id="m-time">00:00</b><span>время</span></div>
@@ -1315,7 +1324,7 @@ body.wide #hello{left:calc((100vw - var(--mapr)) / 2)}
   </details>
   <details class="grp" data-g="about"><summary><span>ℹ️ О приложении</span><small>Версия, Safari и Chrome, источники карт</small></summary>
   <h3>О приложении</h3>
-  <p class="note" style="margin-top:0">Версия приложения: 2026-11-14 · навигация v110 · проехал — сохрани как маршрут: предложение после поездки и кнопка «В мои маршруты» в Истории</p>
+  <p class="note" style="margin-top:0">Версия приложения: 2026-11-14 · навигация v111 · кнопка ■ Стоп всегда видна: красная, и в свёрнутой панели тоже</p>
   <div class="row" style="margin:0 0 8px;align-items:center"><button class="btn" id="upd-go">Проверить обновление</button><span class="note" style="margin:0">Сборка <b id="upd-build"></b></span></div>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/dima/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/dima/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -2080,6 +2089,7 @@ function setCompact(on, remember) {
 $('#hud-min').onclick = () => setCompact(true, true);
 $('#hud-max').onclick = () => setCompact(false, true);
 $('#m-play').onclick = () => $('#c-play').click();
+$('#m-stop').onclick = () => $('#c-stop').click();
 // Swipe down on the cards to collapse, swipe up on the bar to expand.
 (() => {
   let y0 = null, x0 = null;
@@ -2834,6 +2844,7 @@ function renderRecUI() {
   const mp = $('#m-play'); mp.innerHTML = Ride.status === 'rec' ? PAUSE : PLAY; mp.classList.toggle('rec', Ride.status === 'rec'); mp.setAttribute('aria-label', p.getAttribute('aria-label') || 'Старт');
   p.setAttribute('aria-label', Ride.status === 'rec' ? 'Пауза' : Ride.status === 'paused' ? 'Продолжить' : 'Старт');
   $('#c-stop').disabled = Ride.status === 'idle';
+  $('#m-stop').hidden = Ride.status === 'idle'; $('#mini').classList.toggle('has-stop', Ride.status !== 'idle');
   renderMetrics();
 }
 $('#c-play').onclick = () => Ride.status === 'rec' ? Ride.pause() : Ride.start();
@@ -7280,7 +7291,7 @@ $('#map').addEventListener('pointerdown', () => { RideUI.touch = Date.now(); syn
 // iPhone can keep the app suspended for days: on every return to the screen and every 30 min the app asks the site for
 // its current build (version.json, a few bytes) and reloads itself when a newer one is out. Never in the middle of a
 // ride or navigation — then it waits until both are finished. Bump APP_BUILD together with version.json.
-const APP_BUILD = '110';
+const APP_BUILD = '111';
 const Upd = { pending: false, t: 0, mv: 0 };
 setInterval(() => { try { if (GPS.fix && GPS.fix.spd > 1.5 && Date.now() - GPS.fix.t < 10000) Upd.mv = Date.now(); } catch {} }, 5000);
 async function checkUpdate(force) {
