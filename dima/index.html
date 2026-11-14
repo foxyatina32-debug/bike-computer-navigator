@@ -91,6 +91,21 @@ const tr = (() => {
   Object.assign(D, {"Версия приложения: 2026-11-10 · навигация v107 · автозапись с 6 км/ч (медленный старт в подъём) · надёжный запуск на иврите и английском": ["App version: 2026-11-10 · navigation v107 · auto-recording from 6 km/h (slow start uphill) · reliable start in Hebrew and English", "גרסת האפליקציה: 2026-11-10 · ניווט v107 · הקלטה אוטומטית מ-6 קמ״ש (התחלה איטית בעלייה) · הפעלה אמינה בעברית ובאנגלית"], "Приложение не запустилось из-за ошибки в программе. Закройте его и откройте снова.": ["The app did not start because of an error in the program. Close it and open it again.", "האפליקציה לא עלתה בגלל שגיאה בתוכנה. סגרו אותה ופתחו שוב."]});
   Object.assign(D, {"Версия приложения: 2026-11-10 · навигация v108 · кнопка SOS не закрывает легенду и логотип Mapy.com и не прячется под легендой": ["App version: 2026-11-10 · navigation v108 · the SOS button no longer covers the legend or the Mapy.com logo, nor hides under the legend", "גרסת האפליקציה: 2026-11-10 · ניווט v108 · כפתור SOS כבר לא מכסה את המקרא ואת הלוגו של Mapy.com ולא מוסתר מתחת למקרא"]});
   Object.assign(D, {"Версия приложения: 2026-11-10 · навигация v109 · кнопка «Где я» всегда на экране — и при открытой, и при свёрнутой панели": ["App version: 2026-11-10 · navigation v109 · the «Where am I» button is always on screen — with the panel open or folded", "גרסת האפליקציה: 2026-11-10 · ניווט v109 · כפתור «איפה אני» תמיד על המסך — גם כשהלוח פתוח וגם כשהוא מקופל"]});
+  Object.assign(D, {"Версия приложения: 2026-11-14 · навигация v112 · сохранение в одно нажатие: ■ → «✓ Сохранить», «+ файл GPX» или «Только в Историю»": ["App version: 2026-11-14 · navigation v112 · one-tap saving: ■ → «✓ Save», «+ GPX file» or «History only»", "גרסת האפליקציה: 2026-11-14 · ניווט v112 · שמירה בלחיצה אחת: ■ ← «✓ שמור», «+ קובץ GPX» או «רק להיסטוריה»"],
+    "✓ Сохранить": ["✓ Save", "✓ שמור"],
+    "В Историю и в «Мои маршруты»": ["To History and «My routes»", "להיסטוריה ול«המסלולים שלי»"],
+    "✓ Сохранено": ["✓ Saved", "✓ נשמר"],
+    "Сохранено": ["Saved", "נשמר"],
+    "Поездка сохранена": ["Ride saved", "הרכיבה נשמרה"],
+    "в Истории и в «Маршруты → Мои»": ["in History and «Routes → Mine»", "בהיסטוריה וב«מסלולים ← שלי»"],
+    "В Истории. Маршрут сохранить не удалось": ["In History. Couldn't save the route", "בהיסטוריה. לא ניתן לשמור את המסלול"],
+    "В Истории. Маршрут уже есть в «Маршруты → Мои»": ["In History. The route is already in «Routes → Mine»", "בהיסטוריה. המסלול כבר נמצא ב«מסלולים ← שלי»"],
+    "В Истории": ["In History", "בהיסטוריה"],
+    "📄 Файл": ["📄 File", "📄 קובץ"],
+    "📄 Сохранить + файл GPX": ["📄 Save + GPX file", "📄 שמור + קובץ GPX"],
+    "И сразу «Сохранить в Файлы», Strava, WhatsApp": ["And right away «Save to Files», Strava, WhatsApp", "ומיד «שמור בקבצים», Strava, WhatsApp"],
+    "Только в Историю": ["History only", "רק להיסטוריה"],
+    "Без добавления в «Мои маршруты»": ["Without adding to «My routes»", "בלי להוסיף ל«המסלולים שלי»"]});
   Object.assign(D, {"Версия приложения: 2026-11-14 · навигация v111 · кнопка ■ Стоп всегда видна: красная, и в свёрнутой панели тоже": ["App version: 2026-11-14 · navigation v111 · the ■ Stop button is always visible: red, in the folded panel too", "גרסת האפליקציה: 2026-11-14 · ניווט v111 · כפתור ■ עצור תמיד גלוי: אדום, גם בלוח המקופל"]});
   Object.assign(D, {"Версия приложения: 2026-11-14 · навигация v110 · проехал — сохрани как маршрут: предложение после поездки и кнопка «В мои маршруты» в Истории": ["App version: 2026-11-14 · navigation v110 · ridden it — keep it as a route: offered after the ride and a «To my routes» button in History", "גרסת האפליקציה: 2026-11-14 · ניווט v110 · רכבת — שמור כמסלול: הצעה בסוף הרכיבה וכפתור «למסלולים שלי» בהיסטוריה"],
     "Сохранить как маршрут?": ["Save as a route?", "לשמור כמסלול?"],
@@ -515,6 +530,7 @@ body.pv-on #hud{display:none!important}
 .ask.nb .box h2{margin-top:0}
 .ask.nb .note{display:none}
 .ask .box{width:100%;max-width:440px;background:#161d28;border:1px solid var(--line);border-radius:26px;padding:18px 16px 14px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.ask .box{max-height:calc(100dvh - var(--tabs-b) - 24px - env(safe-area-inset-top,0px));overflow-y:auto;-webkit-overflow-scrolling:touch}
 .ask h2{margin:0 0 4px;font-size:21px;font-weight:800}
 .ask p{margin:0 0 14px;color:var(--muted);font-size:14px}
 .ask .opt{width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;margin-bottom:8px;padding:12px 14px;font-family:inherit;cursor:pointer}
@@ -526,6 +542,14 @@ body.pv-on #hud{display:none!important}
 .ask .opt b{font-size:16px}.ask .opt span{font-size:13px;font-weight:500;opacity:.8}
 .ask .cancel{width:100%;background:none;border:0;color:var(--muted);font:inherit;font-size:15px;padding:8px}
 .toast{pointer-events:none;position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--top) + 136px);background:var(--glass-hi);border:1px solid var(--line);color:var(--ink);padding:11px 18px;border-radius:16px;z-index:100;width:max-content;max-width:calc(100% - 32px);box-shadow:0 8px 30px rgba(0,0,0,.5);font-size:15px;font-weight:600}
+/* v112: after «✓ Сохранить» — what was saved, «Переименовать» and «📄 Файл» */
+.savebar{position:fixed;z-index:101;top:calc(var(--top) + 60px);left:max(10px,env(safe-area-inset-left,0px));right:max(10px,env(safe-area-inset-right,0px));max-width:460px;margin:0 auto;border-radius:18px;padding:12px;display:grid;gap:10px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.savebar .sb-t{display:grid;gap:2px;min-width:0}
+.savebar .sb-t b{font-size:16px;color:#4ade80}
+.savebar .sb-t span{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.savebar .sb-row{display:flex;gap:8px}
+.savebar .sb-row .btn{flex:1;min-height:44px;min-width:0;padding:0 10px;white-space:nowrap}
+.savebar .sb-row .sb-x{flex:none;width:44px;padding:0}
 .me{width:30px;height:30px;position:relative}
 .wp{width:28px;height:28px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--route);border:2px solid #fff;display:grid;place-items:center}
 .wp span{transform:rotate(45deg);color:#fff;font-weight:800;font-size:13px}
@@ -1324,7 +1348,7 @@ body.wide #hello{left:calc((100vw - var(--mapr)) / 2)}
   </details>
   <details class="grp" data-g="about"><summary><span>ℹ️ О приложении</span><small>Версия, Safari и Chrome, источники карт</small></summary>
   <h3>О приложении</h3>
-  <p class="note" style="margin-top:0">Версия приложения: 2026-11-14 · навигация v111 · кнопка ■ Стоп всегда видна: красная, и в свёрнутой панели тоже</p>
+  <p class="note" style="margin-top:0">Версия приложения: 2026-11-14 · навигация v112 · сохранение в одно нажатие: ■ → «✓ Сохранить», «+ файл GPX» или «Только в Историю»</p>
   <div class="row" style="margin:0 0 8px;align-items:center"><button class="btn" id="upd-go">Проверить обновление</button><span class="note" style="margin:0">Сборка <b id="upd-build"></b></span></div>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/dima/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/dima/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -1394,13 +1418,6 @@ body.wide #hello{left:calc((100vw - var(--mapr)) / 2)}
   <button class="btn opt dng" id="rdm-del"><b>Удалить поездку</b></button>
   <button class="cancel" id="rdm-x">Закрыть</button>
 </div></div>
-<div class="ask" id="ask-asroute" hidden><div class="box">
-  <h2>Сохранить как маршрут?</h2>
-  <p id="ar-info"></p>
-  <button class="btn pri opt" id="ar-yes"><b>⭐ В мои маршруты</b><span>«Маршруты → Мои» — потом можно проехать по нему с навигацией</span></button>
-  <button class="btn opt" id="ar-gpx"><b>📄 Файл GPX</b><span>Сохранить в «Файлы» или отправить</span></button>
-  <button class="cancel" id="ar-no">Не надо</button>
-</div></div>
 <div class="ask" id="ask-card" hidden><div class="box">
   <h2>Открытка</h2>
   <p>Картинка с треком и результатами — для WhatsApp, Instagram и галереи.</p>
@@ -1452,7 +1469,9 @@ body.wide #hello{left:calc((100vw - var(--mapr)) / 2)}
 <div class="ask" id="ask-stop" hidden><div class="box">
   <h2>Завершить поездку?</h2>
   <p id="ask-stop-info"></p>
-  <button class="btn pri opt" id="st-save"><b>Завершить и сохранить</b><span>Поездка попадёт в Историю</span></button>
+  <button class="btn pri opt" id="st-save"><b>✓ Сохранить</b><span>В Историю и в «Мои маршруты»</span></button>
+  <button class="btn opt" id="st-file"><b>📄 Сохранить + файл GPX</b><span>И сразу «Сохранить в Файлы», Strava, WhatsApp</span></button>
+  <button class="btn opt" id="st-hist"><b>Только в Историю</b><span>Без добавления в «Мои маршруты»</span></button>
   <button class="btn opt dng" id="st-del"><b>Удалить без сохранения</b><span>Трек и статистика будут стёрты</span></button>
   <button class="cancel" id="st-cont">Продолжить поездку</button>
 </div></div>
@@ -1498,6 +1517,10 @@ body.wide #hello{left:calc((100vw - var(--mapr)) / 2)}
   <div class="v3bot"><span class="v3hint">Два пальца: наклон и поворот</span><button class="rdbtn" id="v3-flat">⟂ 2D / 3D</button><button class="rdbtn fly" id="v3-fly">▶ Пролёт</button></div>
 </div>
 <div class="toast" id="toast" hidden></div>
+<div class="savebar glass" id="savebar" hidden role="status">
+  <div class="sb-t"><b id="sb-title">✓ Сохранено</b><span id="sb-sub"></span></div>
+  <div class="sb-row"><button class="btn" id="sb-ren">Переименовать</button><button class="btn" id="sb-gpx">📄 Файл</button><button class="btn sb-x" id="sb-x" aria-label="Закрыть">✕</button></div>
+</div>
 <div class="geohelp glass" id="geohelp" hidden role="alert">
   <div class="gh-h"><b id="gh-t">📍 Нет доступа к геолокации</b><button class="gh-x" id="gh-x" aria-label="Закрыть">×</button></div>
   <p id="gh-how"></p>
@@ -2856,7 +2879,17 @@ $('#c-stop').onclick = () => {
   $('#ask-stop-info').textContent = `${fmtKm(Ride.dist)} км · ${fmtClock(Ride.movingMs)} в движении`;
   $('#ask-stop').hidden = false;
 };
-$('#st-save').onclick = async () => { $('#ask-stop').hidden = true; if (await Ride.stop(true)) offerAsRoute(Ride.lastSaved); };
+$('#st-save').onclick = async () => { $('#ask-stop').hidden = true; if (await Ride.stop(true)) quickSave(Ride.lastSaved); };
+$('#st-hist').onclick = async () => { $('#ask-stop').hidden = true; if (await Ride.stop(true)) quickSave(Ride.lastSaved, false); };
+// The share sheet has to open right on the tap (iOS needs the tap itself), so the file is made from the ride as it is now.
+$('#st-file').onclick = async () => {
+  $('#ask-stop').hidden = true;
+  if (Ride.track.length > 1) {
+    const r = { start: Ride.startTs, dist: Ride.dist, type: S.act || 'bike', name: autoRideName(Ride.startTs, S.act || 'bike') };
+    shareGpx(autoRouteName(r, ''), Ride.track.slice(), true, r.type, (Ride.brk || []).slice());
+  }
+  if (await Ride.stop(true)) quickSave(Ride.lastSaved);
+};
 $('#st-del').onclick = () => {
   if (Date.now() - delArmed < 4000) { delArmed = 0; $('#ask-stop').hidden = true; Ride.stop(false); return; }
   delArmed = Date.now(); $('#st-del b').textContent = 'Точно удалить? Нажмите ещё раз';
@@ -5919,12 +5952,12 @@ function rideRouteCoords(r) {
   // GPS writes a point every second: thin it out (3 m tolerance keeps every bend of a singletrack).
   return simplifyIdx(t, 3).map(i => [t[i][0], t[i][1], t[i][2] != null && isFinite(t[i][2]) ? t[i][2] : null]);
 }
-async function rideToRoute(r, askName = true) {
+async function rideToRoute(r, askName = true, preset) {
   if (!r) return null;
   if (r.savedRoute) { const have = await DB.get('routes', r.savedRoute).catch(() => null); if (have) { toast('Уже есть в «Маршруты → Мои»', 3000); return have; } }
   const c = rideRouteCoords(r);
   if (!c || cumDist(c).pop() < 100) { toast('Трек слишком короткий для маршрута', 3000); return null; }
-  let name = rideTitle(r) + ' · ' + fmtShortDay(r.start);
+  let name = preset || rideTitle(r) + ' · ' + fmtShortDay(r.start);
   if (askName) { const n = prompt(trx('Название маршрута'), name); if (n === null) return null; if (n.trim()) name = n.trim().slice(0, 80); }
   try {
     const rec = await saveRoute(name, c, 'Моя поездка');
@@ -5933,14 +5966,52 @@ async function rideToRoute(r, askName = true) {
     return rec;
   } catch { toast('Не удалось сохранить маршрут', 3500); return null; }
 }
-// After a ride: not when it followed a route that is already saved, and not for a few metres around the house.
-function offerAsRoute(r) {
-  if (!r || r.routeId || (r.dist || 0) < 500 || !rideRouteCoords(r)) return;
-  $('#ar-info').textContent = `${rideTitle(r)} · ${fmtKm(r.dist)} км`;
-  $('#ask-asroute').hidden = false;
-  $('#ar-yes').onclick = async () => { $('#ask-asroute').hidden = true; await rideToRoute(r); };
-  $('#ar-gpx').onclick = () => { $('#ask-asroute').hidden = true; shareGpx(rideTitle(r), r.track || [], false, actOf(r), r.brk); };
-  $('#ar-no').onclick = () => { $('#ask-asroute').hidden = true; };
+/* ---- v112: one tap «✓ Сохранить»: the ride goes to History and, as a route, to «Маршруты → Мои» with an automatic
+   name «Town · 14 нояб. · 46 км» (no keyboard). Not for a short ride and not for a ride along a route that is already saved.
+   Then a bar: «Переименовать» / «📄 Файл» (iOS lets a web app put a file into «Файлы» only through the share sheet). ---- */
+async function rideTown(r) {
+  const p = ((r && r.track) || []).find(q => q && isFinite(q[0]) && isFinite(q[1])); if (!p) return '';
+  try {
+    const j = await fetchJSON(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=14&accept-language=${GEO_LANG}&lat=${(+p[0]).toFixed(5)}&lon=${(+p[1]).toFixed(5)}`, {}, 3000);
+    const a = (j && j.address) || {}; return a.city || a.town || a.village || a.hamlet || a.municipality || '';
+  } catch { return ''; }
+}
+function autoRouteName(r, town) {
+  const km = r.dist >= 10000 ? Math.round(r.dist / 1000) : (r.dist / 1000).toFixed(1);
+  return `${town || rideTitle(r)} · ${fmtShortDay(r.start)} · ${km} ${tr('км')}`;
+}
+async function quickSave(r, asRoute = true) {
+  if (!r) return;
+  let rec = null, tried = false;
+  if (asRoute && !r.routeId && (r.dist || 0) >= 500 && rideRouteCoords(r)) {
+    tried = true;
+    rec = await rideToRoute(r, false, autoRouteName(r, await rideTown(r)));
+  }
+  showSaveBar(r, rec, tried);
+}
+let sbT = 0;
+function showSaveBar(r, rec, tried) {
+  $('#toast').hidden = true;
+  const sub = () => rec ? `${rec.name} — ${tr('в Истории и в «Маршруты → Мои»')}` : tried ? tr('В Истории. Маршрут сохранить не удалось')
+    : r.routeId ? tr('В Истории. Маршрут уже есть в «Маршруты → Мои»') : tr('В Истории');
+  $('#sb-title').textContent = '✓ ' + tr(rec ? 'Сохранено' : 'Поездка сохранена');
+  $('#sb-sub').textContent = sub();
+  $('#sb-ren').hidden = !rec;
+  const hide = () => { clearTimeout(sbT); $('#savebar').hidden = true; };
+  $('#savebar').hidden = false; clearTimeout(sbT); sbT = setTimeout(hide, 10000);
+  $('#sb-x').onclick = hide;
+  $('#sb-gpx').onclick = () => { hide(); shareGpx(rec ? rec.name : rideTitle(r), r.track || [], true, actOf(r), r.brk); };
+  $('#sb-ren').onclick = async () => {
+    clearTimeout(sbT);
+    const n = rec ? prompt(trx('Название маршрута'), rec.name) : null;
+    if (n !== null && n.trim()) {
+      rec.name = n.trim().slice(0, 80); r.name = rec.name;
+      await DB.put('routes', rec).catch(() => {}); await DB.put('rides', r).catch(() => {});
+      try { renderRoutes(); } catch {} try { renderRides(); } catch {}
+      $('#sb-sub').textContent = sub();
+    }
+    sbT = setTimeout(hide, 5000);
+  };
 }
 // Postcard: with a photo from the phone or without.
 let cardRide = null;
@@ -7291,7 +7362,7 @@ $('#map').addEventListener('pointerdown', () => { RideUI.touch = Date.now(); syn
 // iPhone can keep the app suspended for days: on every return to the screen and every 30 min the app asks the site for
 // its current build (version.json, a few bytes) and reloads itself when a newer one is out. Never in the middle of a
 // ride or navigation — then it waits until both are finished. Bump APP_BUILD together with version.json.
-const APP_BUILD = '111';
+const APP_BUILD = '112';
 const Upd = { pending: false, t: 0, mv: 0 };
 setInterval(() => { try { if (GPS.fix && GPS.fix.spd > 1.5 && Date.now() - GPS.fix.t < 10000) Upd.mv = Date.now(); } catch {} }, 5000);
 async function checkUpdate(force) {
