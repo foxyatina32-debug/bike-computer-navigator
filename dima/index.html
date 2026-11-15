@@ -1966,10 +1966,14 @@ function placeGpxBtn() {
       const l = ml.getBoundingClientRect(), a = sos.getBoundingClientRect(); if (a.bottom > l.top - 6 && a.top < l.bottom) sos.style.top = Math.max(0, l.top - 10 - a.height) + 'px'; }
     if (!tab.hidden) { const t = tab.getBoundingClientRect(), a = sos.getBoundingClientRect();
       if (a.top < t.bottom + 6 && a.bottom > t.top - 6) { let y = t.bottom + 10; if (y + a.height > lim) y = t.top - 10 - a.height; sos.style.top = y + 'px'; } } }
-  // SOS and the place name (both on the left): SOS moves below the name when there is room (landscape), else the name steps aside.
+  // SOS and the place name (both on the left): SOS moves to the first free spot (below the name, below the legend tab, above
+  // the name) — never onto the legend tab or the Mapy.com logo; only when there is no room the name steps aside.
   { const lw = $('#locw'), sos = $('#t-sos'), a = sos.getBoundingClientRect(), top = parseFloat(lw.style.top) || lw.getBoundingClientRect().top, h = lw.hidden ? 44 : Math.max(lw.offsetHeight, 30);
-    let hit = a.height > 0 && a.bottom > top - 4 && a.top < top + h + 4;
-    if (hit) { const y = top + h + 10; if (y + a.height <= lim - 4) { sos.style.top = y + 'px'; hit = false; } }
+    const box = el => { if (!el || el.hidden) return null; const r = el.getBoundingClientRect(); return r.width > 0 ? r : null; };
+    const tab = box($('#legend-tab')), logo = box($('#mapy-logo')), cp = box($('#t-compass')), cmp = cp && { top: cp.top, bottom: cp.bottom + 18, left: cp.left, right: cp.right };
+    const free = y => y >= 0 && y + a.height <= lim - 4 && !(y < top + h + 4 && y + a.height > top - 4) && ![tab, logo, cmp].some(r => r && y < r.bottom + 6 && y + a.height > r.top - 6 && a.left < r.right + 6 && a.right > r.left - 6);
+    let hit = a.height > 0 && !free(a.top) && a.bottom > top - 4 && a.top < top + h + 4;
+    if (hit) { const y = [top + h + 10, tab ? tab.bottom + 10 : -1, top - 10 - a.height].find(free); if (y != null) { sos.style.top = y + 'px'; hit = false; } }
     lw.classList.toggle('ovh', hit); }
   ['#z-in', '#z-out', '#z-me'].forEach(k => { const el = $(k); el.hidden = !zOn; el.style.top = zy + 'px'; zy += el.offsetHeight + (k === '#z-out' ? 14 : 6); });
   const lf = $('#c-loc'), lr = lf && getComputedStyle(lf).display !== 'none' && !$('#hud').hidden ? lf.getBoundingClientRect() : null;
