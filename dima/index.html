@@ -122,6 +122,7 @@ const tr = (() => {
     "Не удалось сохранить маршрут": ["Couldn't save the route", "לא ניתן לשמור את המסלול"],
     "Моя поездка": ["My ride", "הרכיבה שלי"]});
   Object.assign(D, {"Аккаунт": ["Account", "חשבון"], "Вход по почте — поездки, маршруты и настройки на всех ваших телефонах": ["Sign in with email — rides, routes and settings on all your phones", "כניסה עם אימייל — רכיבות, מסלולים והגדרות בכל הטלפונים שלך"], "Аккаунты пока не подключены: нужен проект Firebase — инструкция в README.": ["Accounts are not set up yet: a Firebase project is needed — see the README.", "החשבונות עוד לא מחוברים: צריך פרויקט Firebase — הוראות ב-README."], "Войдите или зарегистрируйтесь — поездки, маршруты и настройки сохранятся в аккаунте. На другом телефоне войдите под той же почтой, и всё появится там.": ["Sign in or register — rides, routes and settings are kept in your account. On another phone sign in with the same email and everything appears there.", "היכנסו או הירשמו — רכיבות, מסלולים והגדרות יישמרו בחשבון. בטלפון אחר היכנסו עם אותו אימייל והכול יופיע שם."], "Почта": ["Email", "אימייל"], "Пароль (не меньше 6 символов)": ["Password (at least 6 characters)", "סיסמה (לפחות 6 תווים)"], "Войти": ["Sign in", "כניסה"], "Зарегистрироваться": ["Register", "הרשמה"], "Забыли пароль?": ["Forgot password?", "שכחתם סיסמה?"], "Синхронизировать сейчас": ["Sync now", "סנכרון עכשיו"], "Выйти": ["Sign out", "יציאה"], "Синхронизация…": ["Syncing…", "מסנכרן…"], "Синхронизировано": ["Synced", "סונכרן"], "Ещё не синхронизировано": ["Not synced yet", "עוד לא סונכרן"], "Нет интернета — синхронизирую, когда появится": ["No internet — will sync when it is back", "אין אינטרנט — אסנכרן כשיחזור"], "Нет связи с сервером — проверьте интернет": ["No connection to the server — check the internet", "אין חיבור לשרת — בדקו את האינטרנט"], "Эта почта уже зарегистрирована — нажмите «Войти»": ["This email is already registered — tap «Sign in»", "האימייל כבר רשום — הקישו «כניסה»"], "Неверная почта или пароль": ["Wrong email or password", "אימייל או סיסמה שגויים"], "Неверный адрес почты": ["Invalid email address", "כתובת אימייל לא תקינה"], "Введите почту": ["Enter your email", "הזינו אימייל"], "Введите пароль": ["Enter a password", "הזינו סיסמה"], "Пароль слишком короткий — нужно не меньше 6 символов": ["The password is too short — at least 6 characters", "הסיסמה קצרה מדי — לפחות 6 תווים"], "Слишком много попыток — попробуйте позже": ["Too many attempts — try later", "יותר מדי ניסיונות — נסו מאוחר יותר"], "Аккаунт отключён": ["The account is disabled", "החשבון מושבת"], "Вход по почте не включён в проекте Firebase": ["Email sign-in is not enabled in the Firebase project", "כניסה עם אימייל לא מופעלת בפרויקט Firebase"], "Вход устарел — войдите снова": ["Your sign-in expired — sign in again", "הכניסה פגה — היכנסו שוב"], "Ошибка сервера": ["Server error", "שגיאת שרת"], "Вы не вошли в аккаунт": ["You are not signed in", "לא נכנסתם לחשבון"], "Нет доступа к базе — проверьте правила Firestore (README)": ["No access to the database — check the Firestore rules (README)", "אין גישה למסד הנתונים — בדקו את כללי Firestore (README)"], "В проекте Firebase не создана база Firestore": ["No Firestore database in the Firebase project", "לא נוצר מסד Firestore בפרויקט Firebase"], "Ошибка синхронизации": ["Sync error", "שגיאת סנכרון"], "Из аккаунта": ["From the account", "מהחשבון"], "Настройки из аккаунта — перезапуск…": ["Settings from the account — restarting…", "הגדרות מהחשבון — מפעיל מחדש…"], "Настройки из аккаунта применятся после поездки": ["Settings from the account will apply after the ride", "ההגדרות מהחשבון יחולו אחרי הרכיבה"], "Письмо для смены пароля отправлено на": ["A password reset email was sent to", "מייל לאיפוס סיסמה נשלח אל"], "Вы вошли": ["Signed in", "נכנסתם"], "Выйти из аккаунта? Поездки и маршруты останутся на этом телефоне.": ["Sign out? Rides and routes stay on this phone.", "לצאת מהחשבון? הרכיבות והמסלולים יישארו בטלפון הזה."], "Вы вышли из аккаунта": ["Signed out", "יצאתם מהחשבון"]});
+  Object.assign(D, {"В Истории. Сохраняю как маршрут…": ["In History. Saving as a route…", "בהיסטוריה. שומר כמסלול…"]});
   Object.assign(D, {"Старт: адрес или координаты": ["Start: address or coordinates", "התחלה: כתובת או קואורדינטות"], "Финиш: адрес или координаты": ["Finish: address or coordinates", "סיום: כתובת או קואורדינטות"], "Голосовая команда": ["Voice command", "פקודה קולית"], "Говорить": ["Speak", "לדבר"]});
   const k = LANG === 'he' ? 1 : 0, CY = 'А-Яа-яЁё', CYR = /[А-Яа-яЁё]/;
   const map = new Map(), low = new Map();
@@ -1932,8 +1933,11 @@ function placeGpxBtn() {
       const l = ml.getBoundingClientRect(), a = sos.getBoundingClientRect(); if (a.bottom > l.top - 6 && a.top < l.bottom) sos.style.top = Math.max(0, l.top - 10 - a.height) + 'px'; }
     if (!tab.hidden) { const t = tab.getBoundingClientRect(), a = sos.getBoundingClientRect();
       if (a.top < t.bottom + 6 && a.bottom > t.top - 6) { let y = t.bottom + 10; if (y + a.height > lim) y = t.top - 10 - a.height; sos.style.top = y + 'px'; } } }
-  { const lw = $('#locw'), a = $('#t-sos').getBoundingClientRect(), top = parseFloat(lw.style.top) || lw.getBoundingClientRect().top, h = lw.hidden ? 44 : Math.max(lw.offsetHeight, 30);
-    lw.classList.toggle('ovh', !$('#t-sos').classList.contains('ovh') && a.height > 0 && a.bottom > top - 4 && a.top < top + h + 4); }
+  // SOS and the place name (both on the left): SOS moves below the name when there is room (landscape), else the name steps aside.
+  { const lw = $('#locw'), sos = $('#t-sos'), a = sos.getBoundingClientRect(), top = parseFloat(lw.style.top) || lw.getBoundingClientRect().top, h = lw.hidden ? 44 : Math.max(lw.offsetHeight, 30);
+    let hit = a.height > 0 && a.bottom > top - 4 && a.top < top + h + 4;
+    if (hit) { const y = top + h + 10; if (y + a.height <= lim - 4) { sos.style.top = y + 'px'; hit = false; } }
+    lw.classList.toggle('ovh', hit); }
   ['#z-in', '#z-out', '#z-me'].forEach(k => { const el = $(k); el.hidden = !zOn; el.style.top = zy + 'px'; zy += el.offsetHeight + (k === '#z-out' ? 14 : 6); });
   const lf = $('#c-loc'), lr = lf && getComputedStyle(lf).display !== 'none' && !$('#hud').hidden ? lf.getBoundingClientRect() : null;
   ['#t-gpx', '#t-ret', '#t-compass', '#t-mic', '#t-sos', '#z-in', '#z-out', '#z-me'].forEach(k => { const el = $(k); el.classList.remove('ovh'); const r = el.getBoundingClientRect();
@@ -6065,18 +6069,20 @@ async function quickSave(r, asRoute = true) {
   let rec = null, tried = false;
   if (asRoute && !r.routeId && (r.dist || 0) >= 500 && rideRouteCoords(r)) {
     tried = true;
+    showSaveBar(r, null, false, true);
     rec = await rideToRoute(r, false, autoRouteName(r, await rideTown(r)));
   }
   showSaveBar(r, rec, tried);
 }
 let sbT = 0;
-function showSaveBar(r, rec, tried) {
+function showSaveBar(r, rec, tried, pending) {
   $('#toast').hidden = true;
-  const sub = () => rec ? `${rec.name} — ${tr('в Истории и в «Маршруты → Мои»')}` : tried ? tr('В Истории. Маршрут сохранить не удалось')
+  if (pending) $('#savebar').dataset.pending = '1'; else delete $('#savebar').dataset.pending;
+  const sub = () => pending ? tr('В Истории. Сохраняю как маршрут…') : rec ? `${rec.name} — ${tr('в Истории и в «Маршруты → Мои»')}` : tried ? tr('В Истории. Маршрут сохранить не удалось')
     : r.routeId ? tr('В Истории. Маршрут уже есть в «Маршруты → Мои»') : tr('В Истории');
   $('#sb-title').textContent = '✓ ' + tr(rec ? 'Сохранено' : 'Поездка сохранена');
   $('#sb-sub').textContent = sub();
-  $('#sb-ren').hidden = !rec;
+  $('#sb-ren').hidden = !rec; $('#sb-gpx').hidden = !!pending;
   const hide = () => { clearTimeout(sbT); $('#savebar').hidden = true; };
   $('#savebar').hidden = false; clearTimeout(sbT); sbT = setTimeout(hide, 10000);
   $('#sb-x').onclick = hide;
