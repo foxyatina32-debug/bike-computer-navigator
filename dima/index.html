@@ -2045,6 +2045,7 @@ function showTab(t, fromHistory) {
   $('#hud').hidden = t !== 'rec' && !document.body.classList.contains('wide'); // wide screen: instruments stay beside the panel
   if (t !== 'ab') { try { abHide(); } catch {} }
   if (t !== 'rec') { const h = $('#hello'); if (h && !h.hidden) { h.classList.remove('on'); h.hidden = true; } }   // the greeting belongs to the map
+  if (t !== 'rec' && !$('#savebar').hidden) { clearTimeout(sbT); $('#savebar').hidden = true; }   // the «Сохранено» bar too: it would cover the map in «Построить»
   if (t !== 'rec' && typeof nearPvClose === 'function') nearPvClose();
   syncSheetMax();
   try {

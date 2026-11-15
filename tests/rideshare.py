@@ -37,6 +37,9 @@ async def main():
             await rd.go(PATH, v=6); await rd.stand(3)
             if not await pg.is_visible('#c-stop'): await pg.click('#hud-max'); await pg.clock.run_for(400)
             await pg.click('#c-stop'); await pg.clock.run_for(200); await pg.click('#st-save'); await pg.clock.run_for(1500)
+            for _ in range(40):   # the route name waits for the town (a network answer in real time): «Сохраняю…» meanwhile
+                if not await pg.evaluate("!!document.getElementById('savebar').dataset.pending"): break
+                await pg.wait_for_timeout(100); await pg.clock.run_for(100)
             check(f'[{lang}] after saving — «📤 Отправить друзьям» in the bar', await pg.is_visible('#sb-share'), await pg.evaluate("document.getElementById('sb-share').textContent"))
             n0 = sum('tile-cyclosm' in c for c in m.calls)
             await pg.click('#sb-share'); await pg.clock.run_for(300)
