@@ -55,6 +55,32 @@
 - `ALLOWED_ORIGINS` — адреса приложения, которым можно пользоваться воркером. По умолчанию `https://foxyatina32-debug.github.io`.
 - `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET` — заготовка в воркере; в самом приложении подключения Strava пока нет (поездки в Strava — через файл GPX).
 
+## Аккаунт (вход по почте и паролю)
+
+Настройки → «👤 Аккаунт»: регистрация и вход по почте и паролю. Поездки, маршруты, свои участки дорог и настройки (вместе с ключами карт) сами сохраняются в аккаунте — после каждого изменения, при запуске и раз в 5 минут; без интернета изменения ждут и уходят, когда связь появится. На другом телефоне достаточно войти под той же почтой — всё появится там. «Забыли пароль?» присылает письмо для смены пароля. Пароль на телефоне не хранится. Если одно и то же изменили на двух телефонах, остаётся более позднее изменение.
+
+Аккаунты работают через Firebase (Google), бесплатно. Один раз нужно создать проект:
+
+1. [console.firebase.google.com](https://console.firebase.google.com) → **Create a project** (Google Analytics можно выключить).
+2. **Build → Authentication → Get started → Sign-in method → Email/Password** → включить → **Save**.
+3. **Build → Firestore Database → Create database** → расположение, например `eur3 (europe-west)` → **Start in production mode**. Вкладка **Rules** → заменить всё на текст ниже → **Publish**:
+
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}
+```
+
+4. ⚙️ **Project settings → General → Your apps → `</>` (Web)** → любое имя → **Register app**. Из показанного `firebaseConfig` нужны два значения: `apiKey` и `projectId`. Их вписывают в `dima/index.html` в строку `const FB = Object.assign({ apiKey: '', projectId: '' }, …` — это не секрет: ключ Firebase только называет проект, а чужие данные закрыты правилами из шага 3.
+5. Необязательно: Google Cloud Console → «APIs & Services» → «Credentials» → этот ключ → «Websites» → `https://foxyatina32-debug.github.io/*`; **Authentication → Templates** → язык писем — русский.
+
+Бесплатного тарифа Firebase (Spark) хватает с запасом: длинная поездка занимает в базе около 0,5–1 МБ (трек сжимается), лимит — 1 ГБ.
+
 ## Резервная копия
 
 Настройки → «Данные» → **📦 Сохранить копию** — откроется меню «Поделиться», куда сохранить файл, выбираете вы. В одном файле лежат все поездки, маршруты, свои участки дорог и настройки, включая раскладку карточек. Личные ключи карт (Google, Thunderforest, Mapy.com) в файл не попадают — файл могут переслать; после восстановления на новом телефоне их нужно вставить заново. «Восстановить из файла» возвращает всё остальное, подходит и для переезда на новый телефон.
