@@ -25,6 +25,10 @@ async def ride_and_stop(pg, rd, path, v=6, how='#st-save'):
     if not await pg.is_visible('#c-stop'): await pg.click('#hud-max'); await pg.clock.run_for(400)
     await pg.click('#c-stop'); await pg.clock.run_for(200)
     await pg.click(how); await pg.clock.run_for(1200)
+    # the route name waits for the town (a network answer in real time): the bar shows «Сохраняю…» meanwhile
+    for _ in range(40):
+        if not await pg.evaluate("!!document.getElementById('savebar').dataset.pending"): break
+        await pg.wait_for_timeout(100); await pg.clock.run_for(100)
 
 async def main():
     url = serve(8851); m = Mocks()

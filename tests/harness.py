@@ -4,7 +4,7 @@ import asyncio, http.server, threading, os, re, json, base64, sys
 import subprocess
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
-# The app under test: the personal version in dima/ (the root copy is frozen for friends). VELO_APP_DIR=. tests the root.
+# The app under test: dima/ (the only version). VELO_APP_DIR=<folder> tests another copy.
 APP = os.path.normpath(os.path.join(REPO, os.environ.get('VELO_APP_DIR', 'dima')))
 SP = os.path.join(HERE, '.cache')          # served root: /libs/... lives here
 LIBS = os.path.join(SP, 'libs')
