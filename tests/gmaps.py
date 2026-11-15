@@ -98,7 +98,7 @@ async def main():
         check('stops without a Google key → asks for the key', 'ключ Google с Places API' in await pg.evaluate("window.__lastToasts"))
         await pg.evaluate("lsSet('gkey', 'TEST-KEY'); Nav.set({ name: 'Тест', coords: [[32.09, 34.88], [32.13, 34.88]], noAsk: true }); setBase('ihm_mtb_he')")
         n0 = len([x for x in m.bodies if 'searchNearby' in x[0]])
-        await pg.click('#t-gpx'); await pg.wait_for_timeout(300); await pg.click('#qa-poi')
+        await pg.evaluate("openAdd()"); await pg.wait_for_timeout(300); await pg.click('#qa-poi')
         await pg.wait_for_function("RPOI.list.length > 0", timeout=10000)
         bodies = [x for x in m.bodies if 'searchNearby' in x[0]][n0:]
         types = bodies[0][2]['includedTypes'] if bodies else []

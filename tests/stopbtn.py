@@ -23,7 +23,7 @@ async def run(p, url, m, vp, lang):
     tag = f'{vp[0]}×{vp[1]} {lang}'
     b, ctx, pg, log = await open_app(p, url + f'?lang={lang}', m, viewport=vp)
     rd = Rider(pg); await rd.fix(0, 0, 0)
-    await pg.evaluate("setCompact(true, false)"); await pg.clock.run_for(300)
+    await pg.evaluate("setCompact(true, true)"); await pg.clock.run_for(300)
     st = await pg.evaluate(STATE)
     check(f'{tag}: before the ride no ■ in the folded panel', not st['vis'], st)
     await pg.click('#m-play'); await pg.clock.run_for(500)

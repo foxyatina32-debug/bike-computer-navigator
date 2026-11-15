@@ -19,7 +19,7 @@ async def main():
         check('denied: banner shown with the iPhone Safari steps', st['ban'] and st['denied'] and 'Настройки веб-сайта' in st['how'], st)
         await pg.click('#gh-x'); await pg.wait_for_timeout(200)
         await pg.evaluate("window.__lastToasts = ''")
-        await pg.click('#z-me'); await pg.wait_for_timeout(800)
+        await pg.click('#c-loc'); await pg.wait_for_timeout(800)
         st = await pg.evaluate("({ban: !document.getElementById('geohelp').hidden, t: window.__lastToasts})")
         check('denied: «моё место» opens the banner, not «Жду GPS…»', st['ban'] and 'Жду GPS' not in st['t'], st)
         await pg.click('#gh-retry'); await pg.wait_for_timeout(800)

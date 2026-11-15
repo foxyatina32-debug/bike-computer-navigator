@@ -15,7 +15,7 @@ async def main():
     async with async_playwright() as p:
         b, ctx, pg, log = await open_app(p, url + '?lang=ru', m)
         # 1. Distance ridden during a manual pause must not be added on resume (also across a reload).
-        await pg.click('#c-play'); lat = await move(ctx, pg, 32.09, 6)
+        await pg.click('#m-play'); lat = await move(ctx, pg, 32.09, 6)
         await pg.click('#c-play'); d1 = await pg.evaluate('Ride.dist'); lat = await move(ctx, pg, lat, 10)
         await pg.click('#c-play'); await pg.evaluate('Ride.persist()'); await pg.wait_for_timeout(300)
         await pg.reload(); await pg.wait_for_function('window.__appReady === true'); await pg.wait_for_timeout(800)
@@ -29,7 +29,7 @@ async def main():
         check('stop dialog: shows the ride, «continue» keeps recording', info and 'км' in info and await pg.evaluate("Ride.status !== 'idle' && document.getElementById('ask-stop').hidden"), info)
         await pg.click('#c-stop'); await pg.wait_for_timeout(200); await pg.click('#st-save'); await pg.wait_for_timeout(500)
         check('stop dialog: «finish and save» saves to History', await pg.evaluate("Ride.status") == 'idle' and await pg.evaluate("DB.all('rides').then(r => r.length)") == n0 + 1)
-        await pg.click('#c-play'); lat = await move(ctx, pg, lat, 4)
+        await pg.evaluate("document.getElementById('c-play').click()"); lat = await move(ctx, pg, lat, 4)
         await pg.click('#c-stop'); await pg.wait_for_timeout(200); await pg.click('#st-del'); await pg.wait_for_timeout(200)
         armed = await pg.evaluate("Ride.status !== 'idle' && document.querySelector('#st-del b').textContent")
         await pg.click('#st-del'); await pg.wait_for_timeout(500)

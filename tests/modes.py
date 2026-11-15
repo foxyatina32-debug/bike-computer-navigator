@@ -40,7 +40,7 @@ async def main():
         gm = await pg.evaluate("gmapsUrl([32.1, 34.9], null)")
         check('car: Google Maps hand-off in driving mode', 'travelmode=driving' in gm, gm[-40:])
         # car speeds are not GPS jumps
-        await pg.evaluate("showTab('rec')"); await pg.click('#c-play'); lat = 32.0
+        await pg.evaluate("showTab('rec')"); await pg.click('#m-play'); lat = 32.0
         await ctx.set_geolocation({'latitude': lat, 'longitude': 34.85, 'accuracy': 5}); await pg.wait_for_timeout(1000)
         for _ in range(12): lat += 0.00025; await ctx.set_geolocation({'latitude': lat, 'longitude': 34.85, 'accuracy': 5}); await pg.wait_for_timeout(1000)
         rd = await pg.evaluate("({ d: Ride.dist, max: Ride.max * 3.6 })")
