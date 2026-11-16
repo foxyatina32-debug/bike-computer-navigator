@@ -51,7 +51,7 @@ async def main():
         check('route card: buttons big enough for gloves (44 px)', all(v >= 44 for v in big), big)
         await pg.click('#rt-list [data-more]'); await pg.wait_for_timeout(200)
         vis = await pg.evaluate("[...document.querySelectorAll('#rt-list .rtit .a2 button')].filter(b => b.offsetParent).map(b => b.textContent.trim())")
-        check('«⋯» opens: Свой старт, Карта, Google, Waze, GPX, Удалить', vis == ['Свой старт', 'Карта', 'Google', 'Waze', 'GPX', 'Удалить'], vis)
+        check('«⋯» opens: ⇆ Обратно (v120), Свой старт, Карта, Google, Waze, GPX, Удалить', vis == ['⇆ Обратно', 'Свой старт', 'Карта', 'Google', 'Waze', 'GPX', 'Удалить'], vis)
         await pg.click('#rt-list [data-del]'); await pg.click('#rt-list [data-del]'); await pg.wait_for_timeout(300)
         check('«Удалить» asks once more, then deletes', await pg.evaluate("DB.all('routes').then(r => r.length)") == 0)
         await pg.evaluate(f"DB.put('routes', {{ id: 'r2', name: 'Яркон', coords: {json.dumps(ROUTE)}, dist: 1500, created: Date.now(), src: 'test', source: 'GPX', wpts: [] }}).then(renderRoutes)"); await pg.wait_for_timeout(300)
