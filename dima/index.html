@@ -91,7 +91,7 @@ const tr = (() => {
   Object.assign(D, {"Приложение не запустилось из-за ошибки в программе. Закройте его и откройте снова.": ["The app did not start because of an error in the program. Close it and open it again.", "האפליקציה לא עלתה בגלל שגיאה בתוכנה. סגרו אותה ופתחו שוב."]});
   Object.assign(D, {});
   Object.assign(D, {});
-  Object.assign(D, {"Версия приложения: 2026-11-16 · навигация v122 · «Впереди…»: мост, тоннель, ж/д переезд, лестница, шлагбаум, брод, светофор — карточка со знаком и голос · автомасштаб без рывка": ["App version: 2026-11-16 · navigation v122 · «Ahead…»: bridge, tunnel, level crossing, steps, barrier, ford, traffic lights — a card with a sign and voice · auto-zoom without a jump", "גרסת האפליקציה: 2026-11-16 · ניווט v122 · «לפנינו…»: גשר, מנהרה, מפגש רכבת, מדרגות, מחסום, מעבר מים, רמזור — כרטיס עם תמרור וקול · זום אוטומטי בלי קפיצה"], "✓ Сохранить": ["✓ Save", "✓ שמור"],
+  Object.assign(D, {"Версия приложения: 2026-11-16 · навигация v123 · окно «Вы не на маршруте» сразу, когда вы далеко от маршрута": ["App version: 2026-11-16 · navigation v123 · the «You are not on the route» window at once when the route is far away", "גרסת האפליקציה: 2026-11-16 · ניווט v123 · החלון «אתם לא על המסלול» מיד כשהמסלול רחוק"], "✓ Сохранить": ["✓ Save", "✓ שמור"],
     "В Историю и в «Мои маршруты»": ["To History and «My routes»", "להיסטוריה ול«המסלולים שלי»"],
     "✓ Сохранено": ["✓ Saved", "✓ נשמר"],
     "Сохранено": ["Saved", "נשמר"],
@@ -1448,7 +1448,7 @@ body:not(.wide) .ctrls .cb svg{width:20px;height:20px}
   </details>
   <details class="grp" data-g="about"><summary><span>ℹ️ О приложении</span><small>Версия, Safari и Chrome, источники карт</small></summary>
   <h3>О приложении</h3>
-  <p class="note" style="margin-top:0">Версия приложения: 2026-11-16 · навигация v122 · «Впереди…»: мост, тоннель, ж/д переезд, лестница, шлагбаум, брод, светофор — карточка со знаком и голос · автомасштаб без рывка</p>
+  <p class="note" style="margin-top:0">Версия приложения: 2026-11-16 · навигация v123 · окно «Вы не на маршруте» сразу, когда вы далеко от маршрута</p>
   <div class="row" style="margin:0 0 8px;align-items:center"><button class="btn" id="upd-go">Проверить обновление</button><span class="note" style="margin:0">Сборка <b id="upd-build"></b></span></div>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/dima/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/dima/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -3182,6 +3182,8 @@ $('#mt-reset').onclick = () => { DASH = DASH_DEF.slice(); lsSet('dashSlots', DAS
 })();
 renderSlots();
 setInterval(() => {
+  // Still to decide how to start the route: decide now with the fix we have (iPhone sends few fixes while standing still).
+  try { if (Nav.route && Nav.askPending && !Nav.choosing && GPS.fix && Date.now() - GPS.fix.t < 60000) Nav.onFix(GPS.fix); } catch {}
   Ride.tick();
   spdHist.shift(); spdHist.push(curSpeed()); renderTicks();
   if (GPS.fix && Date.now() - GPS.lastT > 15000) gpsDot('weak');
@@ -4180,7 +4182,13 @@ const Nav = {
     $('#m-rem-c').hidden = false; $('#hello').hidden = true; setCompact(hudWant());
     setupElev(); unlockSpeech(); startGPS(); updateWake(); this.showRemaining(this.route.total, 0);
     if (!r.keepView) fitB(this.line.getBounds());
-    if (GPS.fix) this.onFix(GPS.fix); else this.render();
+    if (GPS.fix) this.onFix(GPS.fix);
+    else {
+      this.render();
+      // GPS not on yet: the last known place (≤ 30 min) is enough to see the route is far away — ask at once, not after the first fix.
+      const lf = lsGet('lastFix', null);
+      if (this.askPending && lf && Date.now() - lf.t < 30 * 60000) { const q = [lf.lat, lf.lon]; if (this.nearest(q).dist > 1000 && hav(q, coords[0]) > 1000) { this.askPending = false; this.offerJoin(q); } }
+    }
     if (!r.keepView && !r.restore) setTimeout(retOffer, 0); else if (r.keepView && $('#t-ret').classList.contains('offer') && !navRetOK()) retHide();
     const prevAN = r.rr ? lsGet('activeNav', null) : null; // after a reroute the route is still the same trip: keep its from → to
     const an = { ...(prevAN && prevAN.from != null ? { from: prevAN.from, to: prevAN.to } : {}), rid: this.rid || null, src: r.source || (prevAN && r.rr ? prevAN.src : null) || null, name: r.name, coords: coords.map(c => [+c[0].toFixed(6), +c[1].toFixed(6), c[2] != null ? Math.round(c[2]) : null]), opts: r.opts || null, wpts: this.wpts, origTotal: this.origTotal, rr: !!r.rr, startLL: this.startLL, ap: this.route.ap || 0, apTo: this.route.apTo || null, at: Date.now() };
@@ -4479,7 +4487,8 @@ const Nav = {
     const p = [f.lat, f.lon];
     if (this.choosing || this.picking) return;
     if (this.askPending) {
-      if (f.acc > 60 && Date.now() - this.setAt < 20000) return this.render();  // wait for a usable fix
+      // A rough fix is enough when the route is far away (its accuracy changes nothing); near it, wait ≤ 20 s for a better one.
+      if (f.acc > 60 && Date.now() - this.setAt < 20000 && this.nearest(p).dist < Math.max(300, f.acc * 3)) return this.render();
       this.askPending = false;
       if (this.checkStart(p)) return;
       // Not on the line (checkStart takes ≤ 60 m) and not at the start: ask — nearest point or the start — even a road away.
@@ -8273,7 +8282,7 @@ $('#map').addEventListener('pointerdown', () => { RideUI.touch = Date.now(); syn
 // iPhone can keep the app suspended for days: on every return to the screen and every 30 min the app asks the site for
 // its current build (version.json, a few bytes) and reloads itself when a newer one is out. Never in the middle of a
 // ride or navigation — then it waits until both are finished. Bump APP_BUILD together with version.json.
-const APP_BUILD = '122';
+const APP_BUILD = '123';
 const Upd = { pending: false, t: 0, mv: 0 };
 setInterval(() => { try { if (GPS.fix && GPS.fix.spd > 1.5 && Date.now() - GPS.fix.t < 10000) Upd.mv = Date.now(); } catch {} }, 5000);
 async function checkUpdate(force) {
