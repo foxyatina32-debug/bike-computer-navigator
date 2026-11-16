@@ -48,7 +48,7 @@ async def main():
         for m in range(172, 260, 12): await at(32.13 + m / 110540, 34.88, 800)
         said = await pg.evaluate("window.__said.join(' | ')"); toasts = await pg.evaluate("window.__lastToasts")
         check('not announced too early (350 m before)', 'спуск' not in early, early)
-        check('announced ~300 m before: «через … метров крутой спуск, … процентов»', 'крутой спуск' in said and 'процентов' in said and 'Впереди крутой спуск' in toasts, said[-140:])
+        check('announced ~300 m before: «через … метров крутой спуск, … процентов»', 'крутой спуск' in said and 'процентов' in said and 'Крутой спуск' in await pg.evaluate("document.getElementById('ahc-t').textContent"), said[-140:])
         # 3. Hairpins: 4 sharp turns within 200 m (zig-zag of 50 m legs).
         r3 = north(32.16, 34.88, 300); e = r3[-1]; la, lo = e[0], e[1]
         for leg in range(4):
