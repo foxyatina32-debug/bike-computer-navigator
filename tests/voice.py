@@ -37,7 +37,9 @@ async def say(pg, text, wait_for):
     # listens stops it): if the phrase was not taken, tap again — up to 3 times — like a person would.
     for k in range(3):
         await pg.evaluate(f"window.__sayNext = {text!r}")
-        await pg.click('#vc-mic')
+        # since v119 the panel closes by itself 2.5 s after a route starts: open it again if it has just closed
+        if await pg.evaluate("document.getElementById('vc').hidden"): await pg.click('#t-mic'); await pg.wait_for_timeout(200)
+        await pg.click('#vc-mic', timeout=5000)
         try: await pg.wait_for_function(wait_for, timeout=15000 if k == 2 else 6000); return
         except Exception:
             if k == 2: raise
