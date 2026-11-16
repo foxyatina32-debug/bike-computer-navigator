@@ -91,7 +91,7 @@ const tr = (() => {
   Object.assign(D, {"Приложение не запустилось из-за ошибки в программе. Закройте его и откройте снова.": ["The app did not start because of an error in the program. Close it and open it again.", "האפליקציה לא עלתה בגלל שגיאה בתוכנה. סגרו אותה ופתחו שוב."]});
   Object.assign(D, {});
   Object.assign(D, {});
-  Object.assign(D, {"Версия приложения: 2026-11-16 · навигация v120 · «⇆ Обратно» в меню маршрута · далеко от маршрута: путь до старта на велосипеде, в Google Maps или в обратную сторону": ["App version: 2026-11-16 · navigation v120 · «⇆ Reverse» in the route menu · far from the route: a way to the start by bike, in Google Maps or the other way round", "גרסת האפליקציה: 2026-11-16 · ניווט v120 · «⇆ הפוך» בתפריט המסלול · רחוק מהמסלול: דרך להתחלה באופניים, ב-Google Maps או בכיוון ההפוך"], "✓ Сохранить": ["✓ Save", "✓ שמור"],
+  Object.assign(D, {"Версия приложения: 2026-11-16 · навигация v121 · автомасштаб без рывка: отметка «вы» сразу на своём месте": ["App version: 2026-11-16 · navigation v121 · auto-zoom without a jump: the «you» mark is in place at once", "גרסת האפליקציה: 2026-11-16 · ניווט v121 · זום אוטומטי בלי קפיצה: סימן «אתם» במקום מיד"], "✓ Сохранить": ["✓ Save", "✓ שמור"],
     "В Историю и в «Мои маршруты»": ["To History and «My routes»", "להיסטוריה ול«המסלולים שלי»"],
     "✓ Сохранено": ["✓ Saved", "✓ נשמר"],
     "Сохранено": ["Saved", "נשמר"],
@@ -1441,7 +1441,7 @@ body:not(.wide) .ctrls .cb svg{width:20px;height:20px}
   </details>
   <details class="grp" data-g="about"><summary><span>ℹ️ О приложении</span><small>Версия, Safari и Chrome, источники карт</small></summary>
   <h3>О приложении</h3>
-  <p class="note" style="margin-top:0">Версия приложения: 2026-11-16 · навигация v120 · «⇆ Обратно» в меню маршрута · далеко от маршрута: путь до старта на велосипеде, в Google Maps или в обратную сторону</p>
+  <p class="note" style="margin-top:0">Версия приложения: 2026-11-16 · навигация v121 · автомасштаб без рывка: отметка «вы» сразу на своём месте</p>
   <div class="row" style="margin:0 0 8px;align-items:center"><button class="btn" id="upd-go">Проверить обновление</button><span class="note" style="margin:0">Сборка <b id="upd-build"></b></span></div>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/dima/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/dima/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -1963,7 +1963,9 @@ function centerOn(ll, zoom, animate = true, lower = 0) {
   // Screen-down offset converted into map pixels (correct also when the map is rotated). `lower` (0…0.5) puts the
   // point that share of the visible height below the middle — the rider in heading-up modes, to see more road ahead.
   const c = map.getSize().divideBy(2), dy = (p.bottom - p.top) / 2 - lower * Math.max(0, window.innerHeight - p.top - p.bottom);
-  const v = map.project(map.containerPointToLatLng(c.add([0, dy])), z).subtract(map.project(map.containerPointToLatLng(c), z));
+  // The offset is measured on the screen at the current zoom; when the zoom changes too (auto-zoom), it is scaled to the new one,
+  // so the animation ends with the rider exactly where they should be (no half-way stop and jump afterwards).
+  const v = map.project(map.containerPointToLatLng(c.add([0, dy])), z).subtract(map.project(map.containerPointToLatLng(c), z)).divideBy(map.getZoomScale(z, map.getZoom()));
   const target = map.unproject(map.project(L.latLng(ll), z).add(v), z);
   if (zoom != null && zoom !== map.getZoom()) map.setView(target, z, { animate }); else map.panTo(target, { animate, duration: .4 });
 }
@@ -8149,7 +8151,7 @@ $('#map').addEventListener('pointerdown', () => { RideUI.touch = Date.now(); syn
 // iPhone can keep the app suspended for days: on every return to the screen and every 30 min the app asks the site for
 // its current build (version.json, a few bytes) and reloads itself when a newer one is out. Never in the middle of a
 // ride or navigation — then it waits until both are finished. Bump APP_BUILD together with version.json.
-const APP_BUILD = '120';
+const APP_BUILD = '121';
 const Upd = { pending: false, t: 0, mv: 0 };
 setInterval(() => { try { if (GPS.fix && GPS.fix.spd > 1.5 && Date.now() - GPS.fix.t < 10000) Upd.mv = Date.now(); } catch {} }, 5000);
 async function checkUpdate(force) {
