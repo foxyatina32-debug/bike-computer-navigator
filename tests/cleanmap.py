@@ -47,7 +47,9 @@ async def main():
             check(f'{tag}: «где я» — 1st tap follows, 2nd turns the map by heading, 3rd north up', f1['f'] and f1['o'] == 'north' and f2['f'] and f2['o'] == 'course' and f3['o'] == 'north' and f2['t'] and cyr == (lang == 'ru'), [f1, f2, f3])
             # navigation: banner with 🔊, no «+ Маршрут» / «⟳ Кольцом»
             await pg.evaluate(f"Nav.set({{name: 'Тест', coords: {json.dumps(ROUTE)}, noAsk: true}})"); await pg.wait_for_timeout(600)
-            check(f'{tag}: navigating — 🔊 in the banner, no «+ Маршрут», no «⟳ Кольцом»', await vis(pg, '#nv-snd') and not await vis(pg, '#t-gpx') and not await vis(pg, '#t-ret'))
+            # v118: «⟳ Кольцом» may be offered for 15 s after the route is picked (small, temporary) — never as a permanent button
+            await pg.evaluate("retHide()")
+            check(f'{tag}: navigating — 🔊 in the banner, no «+ Маршрут», no permanent «⟳ Кольцом»', await vis(pg, '#nv-snd') and not await vis(pg, '#t-gpx') and not await vis(pg, '#t-ret'))
             v0 = await pg.evaluate("S.voice"); await pg.click('#nv-snd'); await pg.wait_for_timeout(300)
             st = await pg.evaluate("({v: S.voice, on: document.getElementById('nv-snd').classList.contains('on'), lab: document.getElementById('nv-snd').getAttribute('aria-label'), x: !!Nav.route})")
             check(f'{tag}: 🔊 switches the voice, the route stays', st['v'] == (not v0) and st['on'] == st['v'] and st['x'] and (lang == 'ru' or not any('Ѐ' <= ch <= 'ӿ' for ch in st['lab'])), st)

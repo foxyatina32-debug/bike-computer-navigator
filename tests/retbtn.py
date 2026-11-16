@@ -1,6 +1,7 @@
 # Back to the start during navigation: a one-way route becomes there-and-back / back another way (v90).
-# v114: no floating «⟳ Кольцом» and «+ Маршрут» on the map while navigating — the map stays clean; the same choice is in
-# «Маршруты» → «Активная навигация» (⇄ Туда и обратно / ⟳ Назад другой дорогой). The mic sits under the route banner.
+# v114: no «+ Маршрут» on the map while navigating; the choice is in «Маршруты» → «Активная навигация» (⇄ Туда и обратно /
+# ⟳ Назад другой дорогой). v118: after a one-way route is picked a small «⟳ Кольцом» sits beside 🎤 for 15 s (also in
+# «В поездке» mode), then goes; one tap — the way back by other roads. Not for a loop, not after a reroute. The mic sits under the banner.
 # With a way to the start in front, the way back goes to the route's own start, not to where the rider set off.
 import asyncio, sys, os, json
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -21,7 +22,21 @@ async def main():
             check(f'{tag}: without navigation «+ Маршрут» on the map, no «⟳ Кольцом»', await pg.is_visible('#t-gpx') and not await pg.is_visible('#t-ret'))
             await pg.evaluate(f"Nav.set({{name: 'Тест', coords: {json.dumps(ROUTE)}, noAsk: true}})"); await pg.wait_for_timeout(600)
             nb, mic = [await pg.evaluate(BOX + f"('{k}')") for k in ('#navb', '#t-mic')]
-            check(f'{tag}: navigating — neither «+ Маршрут» nor «⟳ Кольцом»; 🎤 under the banner', not await pg.is_visible('#t-gpx') and not await pg.is_visible('#t-ret') and mic[1] >= nb[3] and not over(mic, nb), [nb, mic])
+            ret, cmp = [await pg.evaluate(BOX + f"('{k}')") for k in ('#t-ret', '#t-compass')]
+            check(f'{tag}: route picked — no «+ Маршрут»; 🎤 under the banner; small «⟳ Кольцом» beside it', not await pg.is_visible('#t-gpx') and mic[1] >= nb[3] and not over(mic, nb)
+                  and await pg.is_visible('#t-ret') and ret[3] - ret[1] <= 36 and not over(ret, mic) and not over(ret, nb) and not over(ret, cmp) and ret[0] >= 0, [nb, mic, ret])
+            await pg.evaluate("document.body.classList.add('ridemode')")
+            check(f'{tag}: «⟳ Кольцом» stays visible in «В поездке» mode', await pg.evaluate("getComputedStyle(document.getElementById('t-ret')).opacity") == '1')
+            await pg.evaluate("document.body.classList.remove('ridemode')")
+            await pg.wait_for_timeout(15300)
+            check(f'{tag}: «⟳ Кольцом» goes after 15 s untouched', not await pg.is_visible('#t-ret'))
+            await pg.evaluate(f"Nav.set({{name: 'Тест', coords: {json.dumps(ROUTE)}, noAsk: true}})"); await pg.wait_for_timeout(600)
+            await pg.click('#t-ret'); await pg.wait_for_function("Nav.route.name.includes('кольцом')", timeout=10000)
+            st = await pg.evaluate("({loopy: Nav.loopy, d0: hav(Nav.route.coords[0], Nav.route.coords[Nav.route.coords.length - 1])})")
+            check(f'{tag}: tap «⟳ Кольцом» → the route goes back to the start, the button is gone', st['loopy'] and st['d0'] < 5 and not await pg.is_visible('#t-ret'), st)
+            await pg.wait_for_timeout(400)
+            check(f'{tag}: not offered again for the way back (already a loop)', not await pg.is_visible('#t-ret'))
+            await pg.evaluate(f"Nav.set({{name: 'Тест', coords: {json.dumps(ROUTE)}, noAsk: true}})"); await pg.wait_for_timeout(400)
             await pg.evaluate("showTab('routes'); routeSeg('plan')"); await pg.wait_for_timeout(300)
             check(f'{tag}: «Активная навигация» offers both ways back', await pg.is_visible('#nav-back') and await pg.is_visible('#nav-ret'))
             t0 = await pg.evaluate("Nav.route.total")
