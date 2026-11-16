@@ -91,7 +91,7 @@ const tr = (() => {
   Object.assign(D, {"Приложение не запустилось из-за ошибки в программе. Закройте его и откройте снова.": ["The app did not start because of an error in the program. Close it and open it again.", "האפליקציה לא עלתה בגלל שגיאה בתוכנה. סגרו אותה ופתחו שוב."]});
   Object.assign(D, {});
   Object.assign(D, {});
-  Object.assign(D, {"Версия приложения: 2026-11-16 · навигация v123 · окно «Вы не на маршруте» сразу, когда вы далеко от маршрута": ["App version: 2026-11-16 · navigation v123 · the «You are not on the route» window at once when the route is far away", "גרסת האפליקציה: 2026-11-16 · ניווט v123 · החלון «אתם לא על המסלול» מיד כשהמסלול רחוק"], "✓ Сохранить": ["✓ Save", "✓ שמור"],
+  Object.assign(D, {"Версия приложения: 2026-11-16 · навигация v124 · фильтр Калмана сглаживает GPS для навигации · HMM-привязка к маршруту на серпантинах, петлях и параллельных участках": ["App version: 2026-11-16 · navigation v124 · a Kalman filter smooths GPS for navigation · HMM matching to the route on switchbacks, loops and parallel parts", "גרסת האפליקציה: 2026-11-16 · ניווט v124 · מסנן קלמן מחליק את ה-GPS לניווט · התאמת HMM למסלול בסרפנטינות, לולאות וקטעים מקבילים"], "✓ Сохранить": ["✓ Save", "✓ שמור"],
     "В Историю и в «Мои маршруты»": ["To History and «My routes»", "להיסטוריה ול«המסלולים שלי»"],
     "✓ Сохранено": ["✓ Saved", "✓ נשמר"],
     "Сохранено": ["Saved", "נשמר"],
@@ -1448,7 +1448,7 @@ body:not(.wide) .ctrls .cb svg{width:20px;height:20px}
   </details>
   <details class="grp" data-g="about"><summary><span>ℹ️ О приложении</span><small>Версия, Safari и Chrome, источники карт</small></summary>
   <h3>О приложении</h3>
-  <p class="note" style="margin-top:0">Версия приложения: 2026-11-16 · навигация v123 · окно «Вы не на маршруте» сразу, когда вы далеко от маршрута</p>
+  <p class="note" style="margin-top:0">Версия приложения: 2026-11-16 · навигация v124 · фильтр Калмана сглаживает GPS для навигации · HMM-привязка к маршруту на серпантинах, петлях и параллельных участках</p>
   <div class="row" style="margin:0 0 8px;align-items:center"><button class="btn" id="upd-go">Проверить обновление</button><span class="note" style="margin:0">Сборка <b id="upd-build"></b></span></div>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/dima/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/dima/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -2748,7 +2748,8 @@ function onFix(pos) {
     refreshMe();
   }
   gpsDot(fix.acc <= 15 ? 'good' : fix.acc <= 40 ? 'weak' : 'bad');
-  gradeFeed(fix); try { AutoRec.onFix(fix); } catch {} Ride.onFix(fix); Nav.onFix(fix); renderDash(); Places.onFix(fix); try { NewWays.onFix(fix); } catch {}
+  let nf = fix; try { const k = KF.step(fix); nf = { ...fix, lat: k.lat, lon: k.lon, raw: [fix.lat, fix.lon] }; GPS.kf = k; } catch {}
+  gradeFeed(fix); try { AutoRec.onFix(fix); } catch {} Ride.onFix(fix); Nav.onFix(nf); renderDash(); Places.onFix(fix); try { NewWays.onFix(fix); } catch {}
 }
 
 /* ================= Экстренно: where I am, ready to send or read out on the phone ================= */
@@ -3082,6 +3083,52 @@ $('#st-del').onclick = () => {
 $('#st-cont').onclick = () => { $('#ask-stop').hidden = true; };
 
 const spdHist = new Array(10).fill(0);
+/* ---- Kalman filter for navigation: position + velocity on each axis (north, east), constant-velocity model ----
+   Inputs: the GPS position with its own accuracy, and the speed + course the receiver reports (Doppler — steadier than
+   speed from position differences); standing still → zero velocity, so the position does not wander. Output: the smoothed
+   position navigation works with (matching to the route, turns, leaving the route). The recorded track stays raw. */
+const KF = {
+  st: null,   // { lat0, lon0, kx, ky, t, ax: [s, v, P00, P01, P11], ay: [...] }
+  Q: 1.5,     // acceleration variance of a bicycle, (m/s²)²
+  reset(fix) {
+    const kx = 111320 * Math.cos(fix.lat * Math.PI / 180), r2 = Math.max(9, fix.acc * fix.acc);
+    this.st = { lat0: fix.lat, lon0: fix.lon, kx, ky: 110540, t: fix.t, ax: [0, 0, r2, 0, 25], ay: [0, 0, r2, 0, 25] };
+  },
+  predict(a, dt) {
+    const q = this.Q, [s0, v, p00, p01, p11] = a;
+    a[0] = s0 + v * dt;
+    a[2] = p00 + 2 * dt * p01 + dt * dt * p11 + q * dt ** 4 / 4;
+    a[3] = p01 + dt * p11 + q * dt ** 3 / 2;
+    a[4] = p11 + q * dt * dt;
+  },
+  // measurement of the position (k = 0) or of the velocity (k = 1) with variance r
+  update(a, z, r, k) {
+    const [s0, v, p00, p01, p11] = a, S = (k ? p11 : p00) + r, y = z - (k ? v : s0);
+    const g0 = (k ? p01 : p00) / S, g1 = (k ? p11 : p01) / S;
+    a[0] = s0 + g0 * y; a[1] = v + g1 * y;
+    if (k) { a[2] = p00 - g0 * p01; a[3] = p01 - g0 * p11; a[4] = p11 - g1 * p11; }
+    else { a[2] = p00 - g0 * p00; a[3] = p01 - g0 * p01; a[4] = p11 - g1 * p01; }
+  },
+  step(fix) {
+    const st = this.st, dt = st ? (fix.t - st.t) / 1000 : 0;
+    if (!st || fix.jump || fix.acc > 150 || dt <= 0 || dt > 15) { this.reset(fix); return this.out(fix); }
+    const x = (fix.lon - st.lon0) * st.kx, y = (fix.lat - st.lat0) * st.ky, r = Math.max(9, fix.acc * fix.acc);
+    this.predict(st.ax, dt); this.predict(st.ay, dt);
+    // a far-off fix that the jump check let through (signal regained): start again from it rather than glide across
+    if (Math.hypot(x - st.ax[0], y - st.ay[0]) > Math.max(60, 5 * Math.sqrt(r))) { this.reset(fix); return this.out(fix); }
+    this.update(st.ax, x, r, 0); this.update(st.ay, y, r, 0);
+    if (GPS.still || fix.spd === 0) { this.update(st.ax, 0, 0.04, 1); this.update(st.ay, 0, 0.04, 1); }
+    else if (fix.spd >= 1 && fix.hdg != null && !Number.isNaN(fix.hdg)) {
+      const h = fix.hdg * Math.PI / 180; this.update(st.ax, fix.spd * Math.sin(h), 0.36, 1); this.update(st.ay, fix.spd * Math.cos(h), 0.36, 1);
+    }
+    st.t = fix.t;
+    return this.out(fix);
+  },
+  out(fix) {
+    const st = this.st;
+    return { lat: st.lat0 + st.ay[0] / st.ky, lon: st.lon0 + st.ax[0] / st.kx, v: Math.hypot(st.ax[1], st.ay[1]) };
+  }
+};
 function curSpeed() { return GPS.fix && Date.now() - GPS.lastT < 6000 && GPS.spdEma >= 0.4 ? GPS.spdEma : 0; }
 /* ---- Telemetry cells: 12 slots, each shows any metric from the pool; long press on a cell chooses it ---- */
 const METRICS = {
@@ -4221,8 +4268,8 @@ const Nav = {
   reverse() { if (!this.route) return; const r = this.route; this.set({ name: r.name + ' (обратно)', coords: r.coords.slice().reverse(), opts: r.opts, wpts: this.wpts, rid: this.rid }); },
   // Match the rider to the route. With a movement bearing, prefer segments going the same way and close to the
   // current progress — so out-and-back paths and loop start/finish never snap to the opposite direction.
-  locate(p, mv) {
-    const { coords, cum, sb } = this.route; const lat0 = p[0] * D2R, mx = 111320 * Math.cos(lat0), my = 110540;
+  locate(p, mv, track = false, acc = 10) {
+    const { coords, cum, sb } = this.route; const lat0 = p[0] * D2R, mx = 111320 * Math.cos(lat0), my = 110540, cands = [];
     let lo = 0, hi = coords.length - 2;
     // A loop not yet ridden: its start and its finish are the same place — look at both ends whatever the progress.
     const loopStart = this.loopy && !this.midSeen && this.progress < 200;
@@ -4239,8 +4286,40 @@ const Nav = {
       if (loopStart) { if (mv == null) cost += Math.max(0, along - 300) * 0.05; }
       else if (!this.lost) cost += Math.max(0, along - (this.progress + 150)) * 0.05 + Math.max(0, this.progress - 60 - along) * 0.05;
       if (cost < best.cost) best = { cost, dist: d, along, seg: i, sameDir: same };
+      if (track && d <= 200) cands.push({ dist: d, along, seg: i, sameDir: same });
     }
-    return best;
+    if (!track) return best;
+    return this.hmmStep(p, mv, cands, best, acc, loopStart);
+  },
+  /* HMM map matching (Newson & Krumm, «Hidden Markov Map Matching Through Noise and Sparseness», 2009), online:
+     states = places on the route within 200 m; emission = Gaussian in the distance, σ = GPS accuracy (≥ 4 m, as in the
+     paper's 4.07 m); transition = exp(−|way along the route − distance actually covered| / β); Viterbi keeps the most likely
+     sequence. On loops, out-and-back paths and close parallel parts of the route it stays on the branch actually ridden.
+     Lost, a new route, a long gap or a jump → start again from the plain match. */
+  hmmStep(p, mv, cands, plain, acc, loopStart) {
+    const H = this.hmm, now = Date.now(), sig = Math.max(4, Math.min(acc || 10, 30)), beta = 6;
+    // one candidate per pass of the route near the rider: local minima of the distance along consecutive segments
+    const cs = cands.filter((c, k) => !(k > 0 && cands[k - 1].seg === c.seg - 1 && cands[k - 1].dist < c.dist) && !(k < cands.length - 1 && cands[k + 1].seg === c.seg + 1 && cands[k + 1].dist <= c.dist));
+    const emis = c => -0.5 * (c.dist / sig) ** 2 + (mv != null && c.sameDir === false ? -2 : 0);
+    // Start: no history yet — the place on the route known so far (progress) is the prior, so the first fix does not jump to a leg ahead.
+    const prior = c => this.lost ? 0 : -Math.max(0, c.along - (this.progress + 150), this.progress - 60 - c.along) / 30;
+    const seed = () => {
+      const c = cs.map(c => ({ ...c, lp: emis(c) + prior(c) })).sort((a, b) => b.lp - a.lp);
+      this.hmm = { route: this.route, t: now, p, c }; const w = c[0];
+      return !w || this.lost || loopStart ? plain : { cost: w.dist, dist: w.dist, along: w.along, seg: w.seg, sameDir: w.sameDir };
+    };
+    if (!cs.length || this.lost || loopStart || !H || H.route !== this.route || now - H.t > 30000) return seed();
+    const dGC = hav(H.p, p); if (dGC > 300) return seed();
+    let top = -Infinity;
+    const next = cs.map(c => {
+      // way along the route vs distance covered; going back along the route costs double (it is rarely what happens)
+      let b = -Infinity; for (const q of H.c) { const da = c.along - q.along, lp = q.lp - (da >= 0 ? Math.abs(da - dGC) : 2 * -da + dGC) / beta; if (lp > b) b = lp; }
+      const lp = b + emis(c); if (lp > top) top = lp; return { ...c, lp };
+    });
+    next.forEach(c => c.lp -= top);
+    this.hmm = { route: this.route, t: now, p, c: next.filter(c => c.lp > -60).sort((a, b) => b.lp - a.lp).slice(0, 24) };
+    const w = this.hmm.c[0];
+    return { cost: w.dist, dist: w.dist, along: w.along, seg: w.seg, sameDir: w.sameDir };
   },
   // Rider is on the route but away from its start → offer: continue from here / route to the start / restart.
   checkStart(p) {
@@ -4516,8 +4595,8 @@ const Nav = {
     if (this.lastPos && hav(this.lastPos, p) >= 6) { if (mv == null && f.spd >= 0.8 && !f.jump) mv = bearing(this.lastPos, p); this.lastPos = p; }
     else if (!this.lastPos) this.lastPos = p;
     if (mv != null) this.lastMv = mv;
-    let loc = this.locate(p, mv);
-    if (!this.lost && loc.dist > 120) { this.lost = true; loc = this.locate(p, mv); }
+    let loc = this.locate(p, mv, true, f.acc);
+    if (!this.lost && loc.dist > 120) { this.lost = true; loc = this.locate(p, mv, true, f.acc); }
     const lim = 35 + Math.min(f.acc, 40) / 2;
     // Riding against the route: even the best match runs the opposite way for several fixes.
     if (loc.dist <= lim && mv != null && loc.sameDir != null && f.spd >= 1.2 && f.acc <= 30) {
@@ -8282,7 +8361,7 @@ $('#map').addEventListener('pointerdown', () => { RideUI.touch = Date.now(); syn
 // iPhone can keep the app suspended for days: on every return to the screen and every 30 min the app asks the site for
 // its current build (version.json, a few bytes) and reloads itself when a newer one is out. Never in the middle of a
 // ride or navigation — then it waits until both are finished. Bump APP_BUILD together with version.json.
-const APP_BUILD = '123';
+const APP_BUILD = '124';
 const Upd = { pending: false, t: 0, mv: 0 };
 setInterval(() => { try { if (GPS.fix && GPS.fix.spd > 1.5 && Date.now() - GPS.fix.t < 10000) Upd.mv = Date.now(); } catch {} }, 5000);
 async function checkUpdate(force) {
