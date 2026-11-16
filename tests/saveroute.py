@@ -26,9 +26,9 @@ async def ride_and_stop(pg, rd, path, v=6, how='#st-save'):
     await pg.click('#c-stop'); await pg.clock.run_for(200)
     await pg.click(how); await pg.clock.run_for(1200)
     # the route name waits for the town (a network answer in real time): the bar shows «Сохраняю…» meanwhile
-    for _ in range(80):
+    for _ in range(150):
         if not await pg.evaluate("!!document.getElementById('savebar').dataset.pending"): break
-        await pg.wait_for_timeout(100); await pg.clock.run_for(100)
+        await pg.wait_for_timeout(100); await pg.clock.run_for(200)
 
 async def main():
     url = serve(8851); m = Mocks()
@@ -147,6 +147,9 @@ async def main():
             txt = await pg.evaluate("document.getElementById('ask-stop').innerText")
             check(f'[{lang}] save choices translated, no Russian left', want in txt and not any('Ѐ' <= ch <= 'ӿ' for ch in txt), txt.replace('\n', ' | '))
             await pg.click('#st-save'); await pg.clock.run_for(1200)
+            for _ in range(150):   # the route name waits for the town (a network answer in real time)
+                if not await pg.evaluate("!!document.getElementById('savebar').dataset.pending"): break
+                await pg.wait_for_timeout(100); await pg.clock.run_for(200)
             bar = await pg.evaluate("document.getElementById('savebar').innerText")
             check(f'[{lang}] bar translated, no Russian left', bar and not any('Ѐ' <= ch <= 'ӿ' for ch in bar), bar.replace('\n', ' | '))
             rows = await pg.evaluate("document.getElementById('rt-list').innerText")
