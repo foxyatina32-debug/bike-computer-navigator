@@ -91,7 +91,7 @@ const tr = (() => {
   Object.assign(D, {"Приложение не запустилось из-за ошибки в программе. Закройте его и откройте снова.": ["The app did not start because of an error in the program. Close it and open it again.", "האפליקציה לא עלתה בגלל שגיאה בתוכנה. סגרו אותה ופתחו שוב."]});
   Object.assign(D, {});
   Object.assign(D, {});
-  Object.assign(D, {"Версия приложения: 2026-11-16 · навигация v120 · «⇆ Обратно» в меню маршрута · далеко от маршрута: путь до старта на велосипеде, в Google Maps или в обратную сторону": ["App version: 2026-11-16 · navigation v120 · «⇆ Reverse» in the route menu · far from the route: a way to the start by bike, in Google Maps or the other way round", "גרסת האפליקציה: 2026-11-16 · ניווט v120 · «⇆ הפוך» בתפריט המסלול · רחוק מהמסלול: דרך להתחלה באופניים, ב-Google Maps או בכיוון ההפוך"], "✓ Сохранить": ["✓ Save", "✓ שמור"],
+  Object.assign(D, {"Версия приложения: 2026-11-16 · навигация v122 · «Впереди…»: мост, тоннель, ж/д переезд, лестница, шлагбаум, брод, светофор — карточка со знаком и голос · автомасштаб без рывка": ["App version: 2026-11-16 · navigation v122 · «Ahead…»: bridge, tunnel, level crossing, steps, barrier, ford, traffic lights — a card with a sign and voice · auto-zoom without a jump", "גרסת האפליקציה: 2026-11-16 · ניווט v122 · «לפנינו…»: גשר, מנהרה, מפגש רכבת, מדרגות, מחסום, מעבר מים, רמזור — כרטיס עם תמרור וקול · זום אוטומטי בלי קפיצה"], "✓ Сохранить": ["✓ Save", "✓ שמור"],
     "В Историю и в «Мои маршруты»": ["To History and «My routes»", "להיסטוריה ול«המסלולים שלי»"],
     "✓ Сохранено": ["✓ Saved", "✓ נשמר"],
     "Сохранено": ["Saved", "נשמר"],
@@ -131,6 +131,7 @@ const tr = (() => {
     "До старта в Google Maps": ["To the start in Google Maps", "להתחלה ב-Google Maps"], "До маршрута в Google Maps": ["To the route in Google Maps", "למסלול ב-Google Maps"],
     "Навигация Велокомпа останется включённой и подхватит маршрут на месте": ["Velocomp navigation stays on and picks the route up when you get there", "הניווט של Velocomp יישאר פעיל וימשיך במסלול כשתגיעו"],
     "Продолжить навигацию — доберусь сам": ["Keep navigating — I'll get there myself", "להמשיך בניווט — אגיע בעצמי"], "⇆ Обратно": ["⇆ Reverse", "⇆ הפוך"]});
+  Object.assign(D, {"Мост": ["Bridge", "גשר"], "Тоннель": ["Tunnel", "מנהרה"], "Ж/д переезд": ["Level crossing", "מפגש מסילת רכבת"], "Лестница — велосипед в руки": ["Steps — carry the bike", "מדרגות — להרים את האופניים"], "Шлагбаум или ворота": ["Barrier or gate", "מחסום או שער"], "Столбики на дороге": ["Bollards on the way", "עמודונים בדרך"], "Брод — переезд через воду": ["Ford — water crossing", "מעבר מים"], "Светофор": ["Traffic lights", "רמזור"], "Знак «Стоп»": ["Stop sign", "תמרור עצור"], "Уступите дорогу": ["Give way", "תן זכות קדימה"], "Лежачий полицейский": ["Speed bump", "פס האטה"], "Крутой спуск": ["Steep descent", "ירידה תלולה"], "Серпантин": ["Switchbacks", "סרפנטינות"], "сейчас": ["now", "עכשיו"], "через": ["in", "בעוד"], "«Впереди…»: мост, ж/д переезд, лестница, шлагбаум, брод, светофор — карточка и голос": ["«Ahead…»: bridge, level crossing, steps, barrier, ford, lights — a card and voice", "«לפנינו…»: גשר, מפגש רכבת, מדרגות, מחסום, מעבר מים, רמזור — כרטיס וקול"], "мост": ["bridge", "גשר"], "тоннель": ["tunnel", "מנהרה"], "железнодорожный переезд": ["level crossing", "מפגש מסילת רכבת"], "лестница": ["steps", "מדרגות"], "шлагбаум": ["barrier", "מחסום"], "столбики": ["bollards", "עמודונים"], "брод": ["water crossing", "מעבר מים"], "Впереди": ["Ahead", "לפנינו"]});
   Object.assign(D, {"Старт: адрес или координаты": ["Start: address or coordinates", "התחלה: כתובת או קואורדינטות"], "Финиш: адрес или координаты": ["Finish: address or coordinates", "סיום: כתובת או קואורדינטות"], "Голосовая команда": ["Voice command", "פקודה קולית"], "Говорить": ["Speak", "לדבר"]});
   const k = LANG === 'he' ? 1 : 0, CY = 'А-Яа-яЁё', CYR = /[А-Яа-яЁё]/;
   const map = new Map(), low = new Map();
@@ -360,6 +361,11 @@ label.chk{display:flex;gap:12px;align-items:center;padding:7px 0;font-size:15px}
 input[type=number],input[type=password],input[type=url],input[type=email]{padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.07);font-size:16px;color:var(--ink)}
 input[type=number]:focus,input[type=password]:focus,input[type=url]:focus,input[type=email]:focus{outline:none;border-color:var(--accent)}
 #ac-st.bad{color:#ff6b6b}
+.ahc{position:fixed;z-index:44;left:max(10px,env(safe-area-inset-left,0px));display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;border-radius:16px;max-width:min(64vw,260px);box-shadow:0 6px 20px rgba(0,0,0,.4);animation:retIn .25s ease-out;pointer-events:none}
+.ahc[hidden]{display:none}
+.ahc #ahc-i{display:flex;flex:none}.ahc svg{width:46px;height:46px}
+.ahc b{display:block;font-size:16px;line-height:1.15;color:var(--ink)}
+.ahc #ahc-d{display:block;font-size:13.5px;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:2px}
 
 /* ===== «Яркое солнце»: light ride screen for bright daylight (Settings → «Карта и вид» → «Экран») ===== */
 body.sun{--glass:rgba(255,255,255,.93);--glass-hi:rgba(255,255,255,.97);--glass-btn:rgba(255,255,255,.95);--line:rgba(15,23,42,.18);--ink:#0b1220;--muted:#334155;--dim:#5b6676;--acc-t:#7a5a00}
@@ -1341,6 +1347,7 @@ body:not(.wide) .ctrls .cb svg{width:20px;height:20px}
   <label class="chk"><input type="checkbox" id="s-wake" checked> Не гасить экран, пока приложение открыто</label>
   <div id="s-wake-st" style="margin:-4px 0 8px 32px;font-size:12px;color:var(--muted)"></div>
   <label class="chk"><input type="checkbox" id="s-compactnav" checked> Сворачивать панель при навигации</label>
+  <label class="chk"><input type="checkbox" id="s-alerts" checked> «Впереди…»: мост, ж/д переезд, лестница, шлагбаум, брод, светофор — карточка и голос</label>
   <label class="chk"><input type="checkbox" id="s-ridemode" checked> Режим «В поездке»: в движении прятать лишние кнопки на карте (🎤 остаётся; касание карты — вернуть все)</label>
   <label class="chk"><input type="checkbox" id="s-places" checked> Населённые пункты на карте (иврит): где я, впереди, позади</label>
   <h3>Навигатор по умолчанию</h3>
@@ -1441,7 +1448,7 @@ body:not(.wide) .ctrls .cb svg{width:20px;height:20px}
   </details>
   <details class="grp" data-g="about"><summary><span>ℹ️ О приложении</span><small>Версия, Safari и Chrome, источники карт</small></summary>
   <h3>О приложении</h3>
-  <p class="note" style="margin-top:0">Версия приложения: 2026-11-16 · навигация v120 · «⇆ Обратно» в меню маршрута · далеко от маршрута: путь до старта на велосипеде, в Google Maps или в обратную сторону</p>
+  <p class="note" style="margin-top:0">Версия приложения: 2026-11-16 · навигация v122 · «Впереди…»: мост, тоннель, ж/д переезд, лестница, шлагбаум, брод, светофор — карточка со знаком и голос · автомасштаб без рывка</p>
   <div class="row" style="margin:0 0 8px;align-items:center"><button class="btn" id="upd-go">Проверить обновление</button><span class="note" style="margin:0">Сборка <b id="upd-build"></b></span></div>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/dima/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/dima/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -1628,6 +1635,7 @@ body:not(.wide) .ctrls .cb svg{width:20px;height:20px}
   </div>
 </div>
 <div class="toast" id="toast" hidden></div>
+<div class="ahc glass" id="ahc" hidden role="status" aria-live="polite"><span id="ahc-i"></span><div><b id="ahc-t"></b><span id="ahc-d"></span></div></div>
 <div class="savebar glass" id="savebar" hidden role="status">
   <div class="sb-t"><b id="sb-title">✓ Сохранено</b><span id="sb-sub"></span></div>
   <button class="btn pri sb-share" id="sb-share">📤 Отправить друзьям</button>
@@ -1963,7 +1971,9 @@ function centerOn(ll, zoom, animate = true, lower = 0) {
   // Screen-down offset converted into map pixels (correct also when the map is rotated). `lower` (0…0.5) puts the
   // point that share of the visible height below the middle — the rider in heading-up modes, to see more road ahead.
   const c = map.getSize().divideBy(2), dy = (p.bottom - p.top) / 2 - lower * Math.max(0, window.innerHeight - p.top - p.bottom);
-  const v = map.project(map.containerPointToLatLng(c.add([0, dy])), z).subtract(map.project(map.containerPointToLatLng(c), z));
+  // The offset is measured on the screen at the current zoom; when the zoom changes too (auto-zoom), it is scaled to the new one,
+  // so the animation ends with the rider exactly where they should be (no half-way stop and jump afterwards).
+  const v = map.project(map.containerPointToLatLng(c.add([0, dy])), z).subtract(map.project(map.containerPointToLatLng(c), z)).divideBy(map.getZoomScale(z, map.getZoom()));
   const target = map.unproject(map.project(L.latLng(ll), z).add(v), z);
   if (zoom != null && zoom !== map.getZoom()) map.setView(target, z, { animate }); else map.panTo(target, { animate, duration: .4 });
 }
@@ -2192,6 +2202,7 @@ function hush() { try { if (!S.voice && 'speechSynthesis' in window) speechSynth
 $('#s-compactnav').onchange = e => { S.compactNav = e.target.checked; saveS(); };
 $('#s-ridemode').checked = S.rideMode !== false;
 $('#s-ridemode').onchange = e => { S.rideMode = e.target.checked; saveS(); syncRideMode(); };
+$('#s-alerts').checked = S.alerts !== false; $('#s-alerts').onchange = e => { S.alerts = e.target.checked; saveS(); try { Nav.aheadCheck(); } catch {} };
 /* --- route colour and rider icon (Profile) --- */
 const ROUTE_COLORS = ['#ff5fae', '#ff3b30', '#ff9500', '#ffd60a', '#34c759', '#00c7be', '#0a84ff', '#5e5ce6', '#bf5af2', '#ffffff', '#111111'];
 function applyRouteColor(c) {
@@ -4021,6 +4032,111 @@ function buildAhead(coords, cum, cues) {
   return ahead.sort((a, b) => a.d - b.d);
 }
 const plTurns = n => n % 10 === 1 && n % 100 !== 11 ? 'крутой поворот' : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 'крутых поворота' : 'крутых поворотов';
+/* ================= «Впереди…»: road alerts along the route (bridge, level crossing, steps, barrier, ford, lights…) ================= */
+// Data: OpenStreetMap features on the route itself (Overpass, once per route; kept on the phone for the same route offline).
+// Shown as a small card under the turn banner: road-sign style icon, name, distance; important ones also by voice.
+const SG = {
+  warn: s => `<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 4.5 45 41.5H3Z" fill="#fff" stroke="#d62828" stroke-width="4" stroke-linejoin="round"/>${s}</svg>`,
+  info: s => `<svg viewBox="0 0 48 48" aria-hidden="true"><rect x="3" y="3" width="42" height="42" rx="8" fill="#1d5fd1"/>${s}</svg>`
+};
+const RA = {
+  bridge:  { t: 'Мост', say: 'мост', i: SG.info('<path d="M7 29h34M10 29c4-9 24-9 28 0M15 29v7M33 29v7" stroke="#fff" stroke-width="3.2" fill="none" stroke-linecap="round"/><path d="M9 40q3-2.5 6 0t6 0 6 0 6 0 6 0" stroke="#9cc3ff" stroke-width="2.4" fill="none"/>') },
+  tunnel:  { t: 'Тоннель', say: 'тоннель', i: SG.warn('<path d="M14 37V29a10 10 0 0 1 20 0v8" stroke="#111" stroke-width="3.6" fill="none"/><path d="M11 37h26" stroke="#111" stroke-width="3"/>') },
+  rail:    { t: 'Ж/д переезд', say: 'железнодорожный переезд', i: SG.warn('<path d="M16 21 32 37M32 21 16 37" stroke="#111" stroke-width="4" stroke-linecap="round"/>') },
+  steps:   { t: 'Лестница — велосипед в руки', say: 'лестница', i: SG.warn('<path d="M12 37h6v-5h6v-5h6v-5h6" stroke="#111" stroke-width="3.4" fill="none" stroke-linejoin="round"/>') },
+  gate:    { t: 'Шлагбаум или ворота', say: 'шлагбаум', i: SG.warn('<path d="M13 37V23" stroke="#111" stroke-width="3.6" stroke-linecap="round"/><path d="M13 25h24" stroke="#111" stroke-width="5"/><path d="M18 25h4M27 25h4" stroke="#d62828" stroke-width="5"/>') },
+  bollard: { t: 'Столбики на дороге', say: 'столбики', i: SG.warn('<path d="M16 37V25M24 37V25M32 37V25" stroke="#111" stroke-width="4" stroke-linecap="round"/>') },
+  ford:    { t: 'Брод — переезд через воду', say: 'брод', i: SG.warn('<path d="M11 29q3.3-3 6.5 0t6.5 0 6.5 0 6.5 0M11 36q3.3-3 6.5 0t6.5 0 6.5 0 6.5 0" stroke="#1d5fd1" stroke-width="3" fill="none"/>') },
+  signals: { t: 'Светофор', minor: true, i: SG.warn('<rect x="19" y="17" width="10" height="22" rx="3" fill="#111"/><circle cx="24" cy="22" r="2.4" fill="#ff4d4d"/><circle cx="24" cy="28" r="2.4" fill="#ffd23f"/><circle cx="24" cy="34" r="2.4" fill="#3ddc6b"/>') },
+  stop:    { t: 'Знак «Стоп»', minor: true, i: '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M16 3h16l13 13v16L32 45H16L3 32V16Z" fill="#d62828" stroke="#fff" stroke-width="2.5"/><text x="24" y="29" text-anchor="middle" font-size="12.5" font-weight="900" fill="#fff" font-family="system-ui,sans-serif">STOP</text></svg>' },
+  giveway: { t: 'Уступите дорогу', minor: true, i: '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M4 7h40L24 43Z" fill="#fff" stroke="#d62828" stroke-width="5" stroke-linejoin="round"/></svg>' },
+  calming: { t: 'Лежачий полицейский', minor: true, i: SG.warn('<path d="M10 37h7q7-11 14 0h7" stroke="#111" stroke-width="3.6" fill="none" stroke-linejoin="round"/>') },
+  desc:    { t: 'Крутой спуск', i: SG.warn('<path d="M10 23l26 14H10Z" fill="#111"/><text x="33" y="29" text-anchor="middle" font-size="10" font-weight="900" fill="#111" font-family="system-ui,sans-serif">%</text>') },
+  serp:    { t: 'Серпантин', i: SG.warn('<path d="M17 38c11-3-7-7 4-11s-7-7 6-10" stroke="#111" stroke-width="3.4" fill="none" stroke-linecap="round"/>') }
+};
+const RoadAlerts = {
+  els: null, key: null, seq: 0,
+  // Which alert an OSM element is (or null). Steps and fords as ways or nodes; bridges / tunnels only on roads and paths.
+  kindOf(t, isWay) {
+    if (!t) return null;
+    if (t.highway === 'steps') return 'steps';
+    if (t.ford && t.ford !== 'no') return 'ford';
+    if (isWay && t.highway && t.bridge && t.bridge !== 'no') return 'bridge';
+    if (isWay && t.highway && t.tunnel && t.tunnel !== 'no' && t.tunnel !== 'culvert') return 'tunnel';
+    if (!isWay && /^(level_crossing|crossing)$/.test(t.railway || '')) return 'rail';
+    if (!isWay && /^(gate|lift_gate|swing_gate|chain|kissing_gate|stile|turnstile)$/.test(t.barrier || '')) return 'gate';
+    if (!isWay && /^(bollard|cycle_barrier|block|motorcycle_barrier)$/.test(t.barrier || '')) return 'bollard';
+    if (!isWay && t.highway === 'traffic_signals') return 'signals';
+    if (!isWay && t.highway === 'stop') return 'stop';
+    if (!isWay && t.highway === 'give_way') return 'giveway';
+    if (!isWay && t.traffic_calming && t.traffic_calming !== 'no' && t.traffic_calming !== 'island') return 'calming';
+    return null;
+  },
+  // Elements → alerts at their distance along the route. A node counts within 12 m of the line; a way only when the route
+  // runs along it (2+ of its points within 10 m, spread along the route) — a bridge you ride UNDER is not «ahead: bridge».
+  match(els, coords, cum) {
+    if (!els || !els.length || coords.length < 2) return [];
+    const lat0 = coords[0][0], kx = 111320 * Math.cos(lat0 * Math.PI / 180), ky = 110540;
+    const P = coords.map(c => [(c[1] - coords[0][1]) * kx, (c[0] - lat0) * ky]);
+    const near = (la, lo) => {
+      const x = (lo - coords[0][1]) * kx, y = (la - lat0) * ky; let best = 1e9, at = 0;
+      for (let i = 0; i < P.length - 1; i++) {
+        const [ax, ay] = P[i], [bx, by] = P[i + 1], dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy;
+        const t = L2 ? Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / L2)) : 0, qx = ax + t * dx - x, qy = ay + t * dy - y, d = Math.hypot(qx, qy);
+        if (d < best) { best = d; at = cum[i] + t * (cum[i + 1] - cum[i]); }
+      }
+      return [best, at];
+    };
+    const out = [];
+    for (const e of els) {
+      if (e.type === 'node') { const k = this.kindOf(e.tags, false); if (!k) continue; const [d, at] = near(e.lat, e.lon); if (d <= 12) out.push({ kind: k, d: at }); }
+      else if (e.type === 'way' && e.geometry) {
+        const k = this.kindOf(e.tags, true); if (!k) continue;
+        const ats = e.geometry.map(g => near(g.lat, g.lon)).filter(([d]) => d <= 10).map(([, at]) => at);
+        if (ats.length >= 2 && Math.max(...ats) - Math.min(...ats) >= 4) out.push({ kind: k, d: Math.min(...ats), len: Math.max(...ats) - Math.min(...ats) });
+      }
+    }
+    out.sort((a, b) => a.d - b.d);
+    return out.filter((h, i) => !out.slice(0, i).some(o => o.kind === h.kind && h.d - o.d < 60));   // one alert per bridge, crossing…
+  },
+  keyOf(coords) { const s = simplifyIdx(coords, 25).map(i => coords[i][0].toFixed(4) + ',' + coords[i][1].toFixed(4)).join(';'); let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36) + ':' + s.length; },
+  query(coords) {
+    let idx = simplifyIdx(coords, 8); if (idx.length > 400) idx = simplifyIdx(coords, 25);
+    const line = idx.map(i => coords[i][0].toFixed(5) + ',' + coords[i][1].toFixed(5)).join(','), A = `(around:14,${line})`;
+    return `/*ra*/[out:json][timeout:40];(node${A}[railway~"^(level_crossing|crossing)$"];node${A}[highway~"^(traffic_signals|stop|give_way|steps)$"];node${A}[barrier~"^(gate|lift_gate|swing_gate|chain|kissing_gate|stile|turnstile|bollard|cycle_barrier|block|motorcycle_barrier)$"];node${A}[traffic_calming];node${A}[ford];way${A}[highway][bridge][bridge!=no];way${A}[highway][tunnel][tunnel!=no];way${A}[highway=steps];way${A}[ford][ford!=no];);out tags geom;`;
+  },
+  // The route's own alerts merged with the steep-descent / switchback ones computed from its shape.
+  apply(route) { if (!route || !this.els) return; const base = (route.ahead || []).filter(h => h.kind === 'desc' || h.kind === 'serp'); route.ahead = base.concat(this.match(this.els, route.coords, route.cum)).sort((a, b) => a.d - b.d); },
+  async attach(route, fresh) {
+    if (!route) return;
+    if (!fresh && this.els) { this.apply(route); return; }   // a reroute / way back: the data already here
+    const my = ++this.seq, key = this.keyOf(route.coords); this.els = null; this.key = key;
+    if (route.total > 250000) return;
+    let els = null;
+    try { const c = await DB.get('kv', 'ra:' + key); if (c && Array.isArray(c.els)) els = c.els; } catch {}
+    if (!els && navigator.onLine !== false) {
+      try { const j = await overpass(this.query(route.coords)); els = (j && j.elements || []).map(e => ({ type: e.type, lat: e.lat, lon: e.lon, tags: e.tags, geometry: e.geometry && e.geometry.map(g => ({ lat: g.lat, lon: g.lon })) }));
+        DB.put('kv', { id: 'ra:' + key, els, at: Date.now() }).catch(() => {}); } catch {}
+    }
+    if (my !== this.seq || !els) return;
+    this.els = els; if (Nav.route === route) this.apply(route);
+  }
+};
+function aheadCard(show) {
+  const el = $('#ahc'); if (!el) return;
+  if (!show) { if (!el.hidden) { el.hidden = true; el.dataset.k = ''; } return; }
+  const h = show.h, m = RA[h.kind] || {}, k = h.kind + ':' + Math.round(h.d);
+  if (el.dataset.k !== k) {
+    el.dataset.k = k; $('#ahc-i').innerHTML = m.i || '';
+    $('#ahc-t').textContent = h.kind === 'desc' ? `${tr('Крутой спуск')} ${h.pct}%` : h.kind === 'serp' ? `${tr('Серпантин')}: ${h.n} ${tr(plTurns(h.n))}` : tr(m.t || '');
+  }
+  $('#ahc-d').textContent = show.dist <= 15 ? tr('сейчас') : `${tr('через')} ${Math.max(10, Math.round(show.dist / 10) * 10)} ${tr('м')}`;
+  const nb = $('#navb'); el.style.top = ((nb && !nb.hidden ? nb.getBoundingClientRect().bottom : $('.top').getBoundingClientRect().bottom) + 8) + 'px';
+  el.hidden = false;
+  // Never over «⟳ Кольцом» / 🎤 on the right: the card is narrowed to end before them.
+  const rb = ['#t-ret', '#t-mic'].map(q => $(q)).filter(x => x && !x.hidden && getComputedStyle(x).visibility !== 'hidden' && getComputedStyle(x).display !== 'none').map(x => x.getBoundingClientRect()).filter(r => r.width && r.bottom > el.getBoundingClientRect().top && r.top < el.getBoundingClientRect().bottom);
+  el.style.maxWidth = rb.length ? Math.max(150, Math.min(...rb.map(r => r.left)) - el.getBoundingClientRect().left - 8) + 'px' : '';
+}
 const Nav = {
   route: null, line: null, wptLayer: null, setAt: 0, wrongWay: 0, lastFlip: 0, progress: 0, offCount: 0, lost: false, lastReroute: 0, ignoreOffUntil: 0, said: {},
   set(r) {
@@ -4029,6 +4145,7 @@ const Nav = {
     const cum = cumDist(coords);
     this.route = { ...r, coords, cum, total: cum[cum.length - 1], cues: buildCues(coords, cum, r.osrmSteps), asc: ascProfile(coords) };
     this.route.ahead = buildAhead(coords, cum, this.route.cues); this.aheadSaid = {};
+    try { RoadAlerts.attach(this.route, !r.keepView && !r.rr); } catch {}   // bridges, crossings, steps… along the route
     cueStreets(this.route).catch(() => {});
     if (!this.eta) this.eta = { last: null, win: [], T: 0, D: 0, A: 0 }; this.eta.last = null; // learned pace survives reroutes / flips
     // Length of the route as planned: «Всего / Пройдено» stay relative to it after a reroute, «continue from here» or a reload.
@@ -4082,7 +4199,7 @@ const Nav = {
     this.finMk = L.marker(fin, { icon: L.divIcon({ className: '', iconSize: [36, 43], iconAnchor: [5, 42], html: '<svg class="rte-fin" viewBox="0 0 30 36" aria-label="Финиш"><path d="M4 2v33" stroke="#1b1f24" stroke-width="2.6" stroke-linecap="round"/><path d="M4 3h22v14H4Z" fill="#fff" stroke="#1b1f24" stroke-width="1.4"/><path d="M4 3h5.5v4.67H4ZM15 3h5.5v4.67H15ZM9.5 7.67H15v4.66H9.5ZM20.5 7.67H26v4.66h-5.5ZM4 12.33h5.5V17H4ZM15 12.33h5.5V17H15Z" fill="#1b1f24"/></svg>' }), interactive: false, zIndexOffset: 500 }).addTo(map);
   },
   stop() {
-    try { retHide(); } catch {}
+    try { retHide(); aheadCard(null); } catch {}
     if (this.picking) this.pick(false);
     this.askPending = false; this.toStart = false; this.choosing = false; $('#ask-start').hidden = true; $('#ask-join').hidden = true;
     if (this.line) map.removeLayer(this.line); this.line = null; this.route = null; this.rid = null;
@@ -4489,16 +4606,23 @@ const Nav = {
     this.dv = { rem: remaining, left, eta, climb }; renderMetrics();
   },
   aheadCheck() {
-    const r = this.route; if (!r || !r.ahead || !r.ahead.length) return;
-    const mode = (r.opts && r.opts.mode) || 'bike', warn = mode === 'car' ? 600 : mode === 'foot' ? 120 : 300;
+    const r = this.route; if (!r || !r.ahead || !r.ahead.length) { aheadCard(null); return; }
+    const mode = (r.opts && r.opts.mode) || 'bike', warn = mode === 'car' ? 600 : mode === 'foot' ? 120 : 300, small = mode === 'car' ? 150 : mode === 'foot' ? 40 : 90;
+    const on = S.alerts !== false; let show = null;
     for (const h of r.ahead) {
+      const own = h.kind === 'desc' || h.kind === 'serp', m = RA[h.kind] || {};
+      if (!own && !on) continue;
       const k = h.kind + ':' + h.d, dist = h.d - this.progress;
-      if (this.aheadSaid[k] || dist > warn || dist < -20) continue;
+      if (dist > (m.minor ? small : warn) || dist < -15) continue;
+      if (!show || dist < show.dist) show = { h, dist };
+      if (this.aheadSaid[k] || dist < -5) continue;
       this.aheadSaid[k] = 1;
       const when = dist > 40 ? `Через ${Math.max(50, Math.round(dist / 50) * 50)} метров ` : '';
-      if (h.kind === 'desc') { say(`${when}крутой спуск, ${h.pct} процентов, ${Math.round(h.len / 10) * 10} метров`); toast(`⚠ Впереди крутой спуск: ${h.pct}%, ${Math.round(h.len / 10) * 10} м`, 5000); }
-      else { say(`${when}серпантин, ${h.n} ${plTurns(h.n)}`); toast(`⚠ Впереди серпантин: ${h.n} ${plTurns(h.n)}`, 5000); }
+      if (h.kind === 'desc') say(`${when}крутой спуск, ${h.pct} процентов, ${Math.round(h.len / 10) * 10} метров`);
+      else if (h.kind === 'serp') say(`${when}серпантин, ${h.n} ${plTurns(h.n)}`);
+      else if (m.say) say(when ? when + m.say : 'Впереди ' + m.say);
     }
+    aheadCard(show);
   },
   render(off = false, offDist = 0) {
     const r = this.route; this.nextD = null; if (!r) return;
@@ -8149,7 +8273,7 @@ $('#map').addEventListener('pointerdown', () => { RideUI.touch = Date.now(); syn
 // iPhone can keep the app suspended for days: on every return to the screen and every 30 min the app asks the site for
 // its current build (version.json, a few bytes) and reloads itself when a newer one is out. Never in the middle of a
 // ride or navigation — then it waits until both are finished. Bump APP_BUILD together with version.json.
-const APP_BUILD = '120';
+const APP_BUILD = '122';
 const Upd = { pending: false, t: 0, mv: 0 };
 setInterval(() => { try { if (GPS.fix && GPS.fix.spd > 1.5 && Date.now() - GPS.fix.t < 10000) Upd.mv = Date.now(); } catch {} }, 5000);
 async function checkUpdate(force) {

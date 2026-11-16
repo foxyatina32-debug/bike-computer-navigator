@@ -48,7 +48,7 @@ async def main():
         for m in range(172, 260, 12): await at(32.13 + m / 110540, 34.88, 800)
         said = await pg.evaluate("window.__said.join(' | ')"); toasts = await pg.evaluate("window.__lastToasts")
         check('not announced too early (350 m before)', 'спуск' not in early, early)
-        check('announced ~300 m before: «через … метров крутой спуск, … процентов»', 'крутой спуск' in said and 'процентов' in said and 'Впереди крутой спуск' in toasts, said[-140:])
+        check('announced ~300 m before: «через … метров крутой спуск, … процентов»', 'крутой спуск' in said and 'процентов' in said and 'Крутой спуск' in await pg.evaluate("document.getElementById('ahc-t').textContent"), said[-140:])
         # 3. Hairpins: 4 sharp turns within 200 m (zig-zag of 50 m legs).
         r3 = north(32.16, 34.88, 300); e = r3[-1]; la, lo = e[0], e[1]
         for leg in range(4):
@@ -69,6 +69,9 @@ async def main():
         await pg.evaluate("setOrientation('north', true)"); await pg.wait_for_timeout(1200); n = await pg.evaluate(pos)
         check('heading-up: rider ~20% of the view below the middle (more road ahead)', a['y'] - a['mid'] > 0.15 * a['vis'], a)
         check('north up: rider in the middle', abs(n['y'] - n['mid']) < 0.05 * n['vis'], n)
+        # v121: centring with a zoom change (auto-zoom) keeps the offset in screen pixels — no half-way stop and jump
+        z = await pg.evaluate("(() => { const ll = meMarker.getLatLng(), z0 = map.getZoom(), out = []; for (const dz of [-1, 1]) { centerOn([ll.lat, ll.lng], map.getZoom() + dz, false, 0.2); const p = map.latLngToContainerPoint(ll), v = viewPad(); out.push(Math.round(p.y - (v.top + innerHeight - v.bottom) / 2 - 0.2 * (innerHeight - v.top - v.bottom))); } return out; })()")
+        check('centring with a zoom change: the rider is at the right place at once (zoom out and in)', all(abs(d) <= 2 for d in z), z)
         # 5. Emergency screen.
         await pg.evaluate("Nav.stop()"); await pg.wait_for_timeout(300)
         check('SOS button on the map', await pg.is_visible('#t-sos'))
