@@ -85,7 +85,7 @@ async def main():
         b1 = await pg.evaluate("({on: Compass.on, asks: __asks, o: S.orient, perm: Compass.perm})")
         await pg.evaluate(FEED % (320, 100, 1500))
         dg1 = await pg.evaluate("document.getElementById('compass-diag').textContent")
-        check('Settings: «Включить компас» and the status line are shown; a refusal is shown in it', vis and 'Разрешение не дано' in dg0 and 'v126' in dg0, dg0)
+        check('Settings: «Включить компас» and the status line are shown; a refusal is shown in it', vis and 'Разрешение не дано' in dg0 and ('v' + await pg.evaluate('APP_BUILD')) in dg0, dg0)   # the build shown is the current one (was hard-coded v126)
         check('«Включить компас» asks again after a refusal and turns the compass on', b1['on'] and b1['asks'] == 2 and b1['perm'] == 'granted' and b1['o'] == 'compass', b1)
         check('status line: permission, data from the phone, «карта крутится по компасу»', 'Разрешение дано' in dg1 and 'Карта крутится по компасу' in dg1 and 'Данные от телефона' in dg1, dg1)
         await pg.evaluate("DeviceOrientationEvent.requestPermission = () => Promise.reject(new DOMException('x', 'NotAllowedError')); 0")
