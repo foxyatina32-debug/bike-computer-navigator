@@ -91,7 +91,7 @@ const tr = (() => {
   Object.assign(D, {"Приложение не запустилось из-за ошибки в программе. Закройте его и откройте снова.": ["The app did not start because of an error in the program. Close it and open it again.", "האפליקציה לא עלתה בגלל שגיאה בתוכנה. סגרו אותה ופתחו שוב."]});
   Object.assign(D, {});
   Object.assign(D, {});
-  Object.assign(D, {"Версия приложения: 2026-11-17 · навигация v125 · карта снова крутится вокруг вас по компасу телефона; «Где я»: компас ↔ север вверху": ["App version: 2026-11-17 · navigation v125 · the map turns around you with the phone compass again; «Where am I»: compass ↔ north up", "גרסת האפליקציה: 2026-11-17 · ניווט v125 · המפה שוב מסתובבת סביבך לפי מצפן הטלפון; «איפה אני»: מצפן ↔ צפון למעלה"], "✓ Сохранить": ["✓ Save", "✓ שמור"],
+  Object.assign(D, {"🧭 Включить компас": ["🧭 Turn the compass on", "🧭 הפעל מצפן"], "Разрешение дано": ["Permission given", "ההרשאה ניתנה"], "Разрешение не дано": ["Permission refused", "ההרשאה נדחתה"], "Разрешение не запрашивалось": ["Permission not asked yet", "עדיין לא התבקשה הרשאה"], "Запрос не прошёл": ["The request did not go through", "הבקשה לא עברה"], "Разрешение не нужно": ["No permission needed", "לא נדרשת הרשאה"], "Компас выключен": ["Compass off", "המצפן כבוי"], "Компас не слушается": ["Compass not listening", "המצפן לא מאזין"], "Данных от телефона нет": ["No data from the phone", "אין נתונים מהטלפון"], "Данные от телефона": ["Data from the phone", "נתונים מהטלפון"], "Режим карты не «По компасу»": ["Map mode is not «By compass»", "מצב המפה אינו «לפי מצפן»"], "Едете — карта по направлению езды": ["Riding — the map follows the direction of travel", "בנסיעה — המפה לפי כיוון הנסיעה"], "Карта занята жестом": ["The map is busy with a gesture", "המפה עסוקה במחווה"], "Карта крутится по компасу": ["The map turns with the compass", "המפה מסתובבת לפי המצפן"], "Карта": ["Map", "מפה"], "Компас включён": ["Compass on", "המצפן פועל"], "Компас не включился — посмотрите строку под кнопкой": ["The compass did not turn on — see the line under the button", "המצפן לא הופעל — ראו את השורה מתחת לכפתור"], "Доступ к движению и ориентации запрещён. Закройте Chrome полностью (смахните его из списка приложений), откройте снова и нажмите «Включить компас»": ["Motion and orientation access is refused. Close Chrome completely (swipe it away in the app switcher), open it again and tap «Turn the compass on»", "הגישה לתנועה וכיוון נדחתה. סגרו את Chrome לגמרי (החליקו אותו מרשימת האפליקציות), פתחו שוב והקישו «הפעל מצפן»"], "Если карта не крутится: нажмите «Включить компас» и пришлите снимок этой строки": ["If the map does not turn: tap «Turn the compass on» and send a screenshot of this line", "אם המפה לא מסתובבת: הקישו «הפעל מצפן» ושלחו צילום מסך של השורה הזו"], "Версия приложения: 2026-11-17 · навигация v126 · кнопка «Включить компас» и строка состояния компаса в Настройках": ["App version: 2026-11-17 · navigation v126 · «Turn the compass on» button and a compass status line in Settings", "גרסת האפליקציה: 2026-11-17 · ניווט v126 · כפתור «הפעל מצפן» ושורת מצב המצפן בהגדרות"], "✓ Сохранить": ["✓ Save", "✓ שמור"],
     "В Историю и в «Мои маршруты»": ["To History and «My routes»", "להיסטוריה ול«המסלולים שלי»"],
     "✓ Сохранено": ["✓ Saved", "✓ נשמר"],
     "Сохранено": ["Saved", "נשמר"],
@@ -1372,6 +1372,9 @@ body:not(.wide) .ctrls .cb svg{width:20px;height:20px}
   <p class="note" style="margin:6px 0 8px">«По компасу» — карта плавно крутится вслед за телефоном (компас + гироскоп), как в Offroad. «По GPS» — по направлению езды.</p>
   <label class="chk"><input type="checkbox" id="s-compass" checked> Компас телефона — направление, когда стоите или едете медленно</label>
   <p class="note" id="compass-state" style="margin:0 0 6px"></p>
+  <button class="btn" id="s-compass-on" style="margin:0 0 6px">🧭 Включить компас</button>
+  <p class="note" id="compass-diag" style="margin:0 0 6px;font-variant-numeric:tabular-nums"></p>
+  <p class="note" style="margin:0 0 6px">Если карта не крутится: нажмите «Включить компас» и пришлите снимок этой строки.</p>
   </details>
   <details class="grp" data-g="off"><summary><span>📥 Офлайн</span><small>Скачать карты и дороги, обновления, хранилище</small></summary>
   <h3>Офлайн-карта видимой области</h3>
@@ -1448,7 +1451,7 @@ body:not(.wide) .ctrls .cb svg{width:20px;height:20px}
   </details>
   <details class="grp" data-g="about"><summary><span>ℹ️ О приложении</span><small>Версия, Safari и Chrome, источники карт</small></summary>
   <h3>О приложении</h3>
-  <p class="note" style="margin-top:0">Версия приложения: 2026-11-17 · навигация v125 · карта снова крутится вокруг вас по компасу телефона; «Где я»: компас ↔ север вверху</p>
+  <p class="note" style="margin-top:0">Версия приложения: 2026-11-17 · навигация v126 · кнопка «Включить компас» и строка состояния компаса в Настройках</p>
   <div class="row" style="margin:0 0 8px;align-items:center"><button class="btn" id="upd-go">Проверить обновление</button><span class="note" style="margin:0">Сборка <b id="upd-build"></b></span></div>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/dima/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/dima/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -2264,6 +2267,36 @@ $('#s-compass').onchange = async e => {
   else { window.removeEventListener('deviceorientation', onOrient, true); window.removeEventListener('deviceorientationabsolute', onOrientAbs, true); Compass.on = false; Compass.hdg = null; }
   renderCompassState();
 };
+// v126: «Включить компас» — the permission asked straight from a button tap (the surest gesture for iPhone), every time it is
+// pressed; and a live line saying what the compass is doing and why the map does or does not turn.
+$('#s-compass-on').onclick = async () => {
+  S.compass = true; saveS(); Compass.denied = false; Compass.asking = false; Compass.retry = 0;
+  if (Compass.on) { window.removeEventListener('deviceorientation', onOrient, true); window.removeEventListener('deviceorientationabsolute', onOrientAbs, true); Compass.on = false; }
+  const ok = await enableCompass(true);
+  if (ok && S.orient !== 'compass') setOrientation('compass', true);
+  if (Compass.perm === 'denied') toast('Доступ к движению и ориентации запрещён. Закройте Chrome полностью (смахните его из списка приложений), откройте снова и нажмите «Включить компас»', 8000);
+  else toast(ok ? 'Компас включён' : 'Компас не включился — посмотрите строку под кнопкой', 3000);
+  renderCompassState();
+};
+function compassWhy() {
+  if (!S.compass) return 'Компас выключен';
+  if (!Compass.on) return 'Компас не слушается';
+  if (!compassFresh()) return 'Данных от телефона нет';
+  if (S.orient !== 'compass') return 'Режим карты не «По компасу»';
+  if (MapBusy.drag || MapBusy.zoom) return 'Карта занята жестом';
+  if (travelCourse()) return 'Едете — карта по направлению езды';
+  return 'Карта крутится по компасу';
+}
+function renderCompassDiag() {
+  const el = $('#compass-diag'); if (!el) return;
+  const pm = { granted: 'Разрешение дано', denied: 'Разрешение не дано', err: 'Запрос не прошёл', none: 'Разрешение не нужно' }[Compass.perm] || 'Разрешение не запрашивалось';
+  const f = v => v == null || Number.isNaN(v) ? '–' : Math.round(v);
+  const r = Compass.raw || [];
+  el.textContent = [pm + (Compass.perm === 'err' && Compass.err ? ' (' + Compass.err + ')' : ''),
+    'Данные от телефона: ' + (Compass.n || 0) + ' [' + r.map(f).join(' ') + ']',
+    compassWhy(), 'Карта: ' + Math.round(mapHdg) + '°', 'v' + APP_BUILD].join(' · ');
+}
+setInterval(() => { const el = $('#compass-diag'); if (el && el.offsetParent) { renderCompassState(); renderCompassDiag(); } }, 700);
 function renderCompassState() {
   $('#s-compass').checked = !!S.compass;
   $('#compass-state').textContent = !S.compass ? 'Направление только по GPS.' : compassFresh() ? `Компас работает: ${Math.round(Compass.hdg)}° (${compass(Compass.hdg)}).` + (Compass.acc > 25 ? ' Точность низкая — покрутите телефон восьмёркой.' : '') : 'Компас включится после первого нажатия на экран (на iPhone потребуется разрешение).';
@@ -2425,6 +2458,7 @@ function attHeading(a, b, g) {
   return vHor(e) > 0.35 ? vHdg(e) : null;
 }
 function onOrient(e) {
+  Compass.n = (Compass.n || 0) + 1; Compass.raw = [e.alpha, e.beta, e.gamma, e.webkitCompassHeading];
   if (e.alpha == null || e.beta == null || e.gamma == null || Number.isNaN(e.alpha)) {
     // No attitude at all: the plain compass value is all there is.
     if (e.webkitCompassHeading != null && !Number.isNaN(e.webkitCompassHeading)) feedCompass(e.webkitCompassHeading + DECL, e.webkitCompassAccuracy);
@@ -2453,6 +2487,7 @@ function onOrient(e) {
 }
 // Android: the attitude is already relative to north.
 function onOrientAbs(e) {
+  Compass.n = (Compass.n || 0) + 1; if (!Compass.raw) Compass.raw = [e.alpha, e.beta, e.gamma, null];
   if (e.alpha == null || ('webkitCompassHeading' in e && e.webkitCompassHeading != null)) return;
   Att.abs = true;
   const h = e.beta != null && e.gamma != null ? attHeading(e.alpha, e.beta, e.gamma) : (360 - e.alpha) + screenAngle();
@@ -2466,18 +2501,20 @@ async function enableCompass(fromGesture) {
       // real tap (the end of a map drag — the most common first touch) is asked again on the next tap.
       if (!fromGesture || Compass.denied || Compass.asking) return false;
       Compass.asking = true; let r;
-      try { r = await DeviceOrientationEvent.requestPermission(); } catch { r = null; } finally { Compass.asking = false; }
+      try { r = await DeviceOrientationEvent.requestPermission(); } catch (er) { r = null; Compass.perm = 'err'; Compass.err = String(er && (er.name || er.message) || er).slice(0, 60); } finally { Compass.asking = false; }
       if (r == null) return false;
+      Compass.perm = r;
       if (r !== 'granted') { Compass.denied = true; toast('Компас не разрешён — направление только по GPS. Включить: Настройки → Компас телефона', 5000); return false; }
     }
     Att.off = null; Att.abs = false; // the gyroscope's frame restarts with the listener: learn north again
     window.addEventListener('deviceorientation', onOrient, true);
     window.addEventListener('deviceorientationabsolute', onOrientAbs, true);
+    if (!Compass.perm) Compass.perm = typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function' ? 'granted' : 'none';
     Compass.on = true; Compass.onAt = Date.now(); return true;
   } catch { return false; }
 }
 // iPhone needs a tap before the compass may be used: ask on the first touch anywhere.
-['touchend', 'click'].forEach(ev => document.addEventListener(ev, () => { if (S.compass && !Compass.on) enableCompass(true); }, { once: false, passive: true, capture: true }));
+['touchend', 'click'].forEach(ev => document.addEventListener(ev, e => { if (S.compass && !Compass.on && !(e.target && e.target.closest && e.target.closest('#s-compass-on'))) enableCompass(true); }, { once: false, passive: true, capture: true }));
 const compassFresh = () => Compass.on && Compass.hdg != null && Date.now() - Compass.t < 2000;
 setInterval(() => {
   if (!Compass.on || document.hidden || Compass.t >= (Compass.onAt || 0) || Date.now() - Compass.onAt < 4000 || (Compass.retry || 0) >= 3) return;
@@ -8372,7 +8409,7 @@ $('#map').addEventListener('pointerdown', () => { RideUI.touch = Date.now(); syn
 // iPhone can keep the app suspended for days: on every return to the screen and every 30 min the app asks the site for
 // its current build (version.json, a few bytes) and reloads itself when a newer one is out. Never in the middle of a
 // ride or navigation — then it waits until both are finished. Bump APP_BUILD together with version.json.
-const APP_BUILD = '125';
+const APP_BUILD = '126';
 const Upd = { pending: false, t: 0, mv: 0 };
 setInterval(() => { try { if (GPS.fix && GPS.fix.spd > 1.5 && Date.now() - GPS.fix.t < 10000) Upd.mv = Date.now(); } catch {} }, 5000);
 async function checkUpdate(force) {
