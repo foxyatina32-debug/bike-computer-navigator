@@ -44,7 +44,7 @@ async def main():
             await pg.click('#c-loc'); await pg.wait_for_timeout(400)
             f3 = await pg.evaluate("({f: GPS.follow, o: S.orient})")
             cyr = any('Ѐ' <= ch <= 'ӿ' for ch in (f2['t'] or ''))
-            check(f'{tag}: «где я» — 1st tap follows, 2nd turns the map by heading, 3rd north up', f1['f'] and f1['o'] == 'north' and f2['f'] and f2['o'] == 'course' and f3['o'] == 'north' and f2['t'] and cyr == (lang == 'ru'), [f1, f2, f3])
+            check(f'{tag}: «где я» — 1st tap follows, 2nd turns the map by the phone compass, 3rd north up', f1['f'] and f1['o'] == 'north' and f2['f'] and f2['o'] == 'compass' and f3['o'] == 'north' and f2['t'] and cyr == (lang == 'ru'), [f1, f2, f3])
             # navigation: banner with 🔊, no «+ Маршрут» / «⟳ Кольцом»
             await pg.evaluate(f"Nav.set({{name: 'Тест', coords: {json.dumps(ROUTE)}, noAsk: true}})"); await pg.wait_for_timeout(600)
             # v118: «⟳ Кольцом» may be offered for 15 s after the route is picked (small, temporary) — never as a permanent button
