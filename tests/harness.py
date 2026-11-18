@@ -157,6 +157,8 @@ async def open_app(p, url, mocks, viewport=(390, 844), geo=(32.09, 34.88), stora
     if storage: await ctx.add_init_script('(' + json.dumps(storage) + ').forEach(([k,v])=>{ if(!localStorage.getItem(k)) localStorage.setItem(k,v) })')
     # Settings groups all unfolded, so tests can reach every control (a test can preset velo:sgrp itself).
     await ctx.add_init_script("if(!localStorage.getItem('velo:sgrp')) localStorage.setItem('velo:sgrp', JSON.stringify(['ride','map','off','data','adv','about']))")
+    # «Перед выездом» (v130) is a dialog over the map at the start of a route: off unless a test turns it on (tests/preride.py).
+    await ctx.add_init_script("try { const k = 'velo:settings', v = JSON.parse(localStorage.getItem(k) || '{}'); if (!('preRide' in v)) { v.preRide = false; localStorage.setItem(k, JSON.stringify(v)); } } catch (e) {}")
     await ctx.route('**/*', mocks.handle)
     pg = await ctx.new_page()
     log = {'errors': [], 'console': []}

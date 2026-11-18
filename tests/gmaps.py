@@ -94,8 +94,10 @@ async def main():
         await pg.evaluate("lsSet('gkey', ''); showTab('rec')"); m.photon = None; m.nominatim = None
 
         # ---- module 4: rider stops
-        await pg.evaluate("showRiderPOIs()"); await pg.wait_for_timeout(500)
-        check('stops without a Google key → asks for the key', 'ключ Google с Places API' in await pg.evaluate("window.__lastToasts"))
+        n0 = len([x for x in m.bodies if 'searchNearby' in x[0]])
+        await pg.evaluate("showRiderPOIs()"); await pg.wait_for_timeout(800)
+        # v130: without a key the stops come from OpenStreetMap (here: nothing marked nearby), no Google request
+        check('stops without a Google key → OpenStreetMap, no Google request', 'OpenStreetMap' in await pg.evaluate("window.__lastToasts") and len([x for x in m.bodies if 'searchNearby' in x[0]]) == n0, await pg.evaluate("window.__lastToasts"))
         await pg.evaluate("lsSet('gkey', 'TEST-KEY'); Nav.set({ name: 'Тест', coords: [[32.09, 34.88], [32.13, 34.88]], noAsk: true }); setBase('ihm_mtb_he')")
         n0 = len([x for x in m.bodies if 'searchNearby' in x[0]])
         await pg.evaluate("openAdd()"); await pg.wait_for_timeout(300); await pg.click('#qa-poi')
@@ -112,7 +114,7 @@ async def main():
         await pg.wait_for_function("!RPOI.layer && Nav.route && Nav.route.name === 'Тест'", timeout=10000)
         near = await pg.evaluate("c => Math.min(...Nav.route.coords.map(x => hav(x, c)))", p0['ll'])
         end = await pg.evaluate("Nav.route.coords[Nav.route.coords.length - 1]")
-        check('«Заехать сюда» → route goes via the stop to the same finish', near < 30 and abs(end[0] - 32.13) < 1e-6, f'{near:.0f} m from the stop')
+        check('«Заехать сюда» → route goes via the stop to the same finish (v130: a detour, the route kept; the stop is a waypoint)', near < 30 and abs(end[0] - 32.13) < 1e-6 and await pg.evaluate("Nav.wpts.length === 1"), f'{near:.0f} m from the stop')
         check('no JS errors', not log['errors'], log['errors'])
         await b.close()
     print(f'{sum(RES)}/{len(RES)} passed')
