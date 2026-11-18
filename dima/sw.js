@@ -1,6 +1,6 @@
 // Velokomp service worker: keeps the app shell and libraries available offline.
 // Map tiles are cached by the page itself (Cache Storage "velo-tiles-v1").
-const SHELL = 'velo-me-shell-v1';
+const SHELL = 'velo-me-shell-v1';   // v129: pages never wait for a slow network more than 4 s
 const LIBS = 'velo-libs-v1';
 const SHELL_FILES = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png', './off.html'];
 const LIB_HOSTS = ['cdn.jsdelivr.net'];
@@ -37,11 +37,24 @@ self.addEventListener('fetch', e => {
   }
   if (url.pathname.endsWith('/version.json')) return; // update check: always the network, never cached
   if (url.origin === self.location.origin) {
-    // The app itself is always checked with the server (no stale copy from the browser's HTTP cache).
-    const fresh = req.mode === 'navigate' || /\/(index\.html|sw\.js|manifest\.webmanifest|off\.html)?$/.test(url.pathname) ? new Request(req.url, { cache: 'no-cache', credentials: 'same-origin' }) : req;
-    e.respondWith(fetch(fresh).then(res => {
+    // The app itself is checked with the server (no stale copy from the browser's HTTP cache) — but a page never waits for
+    // a weak connection more than 4 s: then the copy on the phone opens at once and the fresh one is saved for next time.
+    // (Network-first without a time limit gave a white screen for as long as a bad connection hung.)
+    const doc = req.mode === 'navigate' || /\/(index\.html|sw\.js|manifest\.webmanifest|off\.html)?$/.test(url.pathname);
+    const fresh = doc ? new Request(req.url, { cache: 'no-cache', credentials: 'same-origin' }) : req;
+    const net = fetch(fresh).then(res => {
       if (res.ok) { const copy = res.clone(); caches.open(SHELL).then(c => c.put(req, copy)); }
       return res;
-    }).catch(() => caches.match(req, { ignoreSearch: true }).then(r => r || caches.match('./index.html'))));
+    });
+    net.catch(() => {});
+    const cached = () => caches.match(req, { ignoreSearch: true }).then(r => r || (doc ? caches.match('./index.html').then(x => x || caches.match('./')) : null));
+    // Safari refuses a page answered with a redirected response (blank page): hand over a clean copy of it.
+    const clean = res => res && res.redirected ? res.blob().then(b => new Response(b, { status: res.status, statusText: res.statusText, headers: res.headers })) : res;
+    if (doc) {
+      const late = new Promise((_, no) => setTimeout(() => no(new Error('slow')), 4000));
+      e.respondWith(Promise.race([net, late]).catch(() => cached().then(r => r || net)).then(clean));
+    } else {
+      e.respondWith(net.catch(() => cached().then(r => r || Response.error())));
+    }
   }
 });
