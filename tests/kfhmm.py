@@ -24,7 +24,7 @@ async def main():
         for k in range(120):
             n = 5 * k; truth.append(pt(n, 0))
             la, lo = pt(n + rnd.gauss(0, 6), rnd.gauss(0, 6))
-            fixes.append({'lat': la, 'lon': lo, 'acc': 6, 'spd': 5 + rnd.gauss(0, 0.3), 'hdg': rnd.gauss(0, 3), 't': 1e12 + k * 1000})
+            sp = 5 + rnd.gauss(0, 0.3); fixes.append({'lat': la, 'lon': lo, 'acc': 6, 'spd': sp, 'rawSpd': sp, 'hdg': rnd.gauss(0, 3), 't': 1e12 + k * 1000})
         res = await pg.evaluate("fx => { KF.st = null; GPS.still = false; return fx.map(f => { const o = KF.step(f); return [o.lat, o.lon, o.v]; }); }", fixes)
         err = lambda a, t: math.hypot((a[0] - t[0]) / M, (a[1] - t[1]) / KX)
         raw = math.sqrt(sum(err([f['lat'], f['lon']], t) ** 2 for f, t in zip(fixes[10:], truth[10:])) / 110)
@@ -32,10 +32,21 @@ async def main():
         check('Kalman: on a straight ride the position error drops (RMS raw vs filtered)', kf < raw * 0.6, f'raw {raw:.1f} м → filtered {kf:.1f} м')
         check('Kalman: speed follows the real 5 m/s', all(abs(r[2] - 5) < 0.8 for r in res[10:]), [round(r[2], 2) for r in res[10:15]])
         # standing still 60 s with the same noise
-        still = [{'lat': pt(rnd.gauss(0, 6), rnd.gauss(0, 6))[0], 'lon': pt(0, rnd.gauss(0, 6))[1], 'acc': 6, 'spd': 0, 'hdg': None, 't': 2e12 + k * 1000} for k in range(60)]
+        still = [{'lat': pt(rnd.gauss(0, 6), rnd.gauss(0, 6))[0], 'lon': pt(0, rnd.gauss(0, 6))[1], 'acc': 6, 'spd': 0, 'rawSpd': 0, 'hdg': None, 't': 2e12 + k * 1000} for k in range(60)]
         rs = await pg.evaluate("fx => { KF.st = null; GPS.still = true; const o = fx.map(f => KF.step(f)); GPS.still = false; return o.map(x => [x.lat, x.lon]); }", still)
         spread_raw = max(err([f['lat'], f['lon']], pt(0, 0)) for f in still[10:]); spread_kf = max(err(r, pt(0, 0)) for r in rs[10:])
         check('Kalman: standing still the position does not wander', spread_kf < spread_raw * 0.5, f'raw up to {spread_raw:.1f} м → filtered up to {spread_kf:.1f} м')
+        # v129: walking 1.2 m/s with a weak signal (±20 m) while the app zeroes the speed («standing» / weak fix):
+        # the receiver did not say «0», so the filter must not freeze — the position keeps up with the walker
+        for still in (True, False):
+            wk = [{'lat': pt(1.2 * k + rnd.gauss(0, 12), 0)[0], 'lon': LON0, 'acc': 20, 'spd': 0, 'rawSpd': None, 'hdg': None, 't': 4e12 + k * 1000} for k in range(120)]
+            wo = await pg.evaluate("([fx, st]) => { KF.st = null; GPS.still = st; const o = fx.map(f => KF.step(f).lat); GPS.still = false; return o; }", [wk, still])
+            lag = [1.2 * k - (o - LAT0) / M for k, o in enumerate(wo)]
+            mean_lag = sum(lag[60:]) / 60
+            check(f'Kalman: walking with a weak signal, the app sees «standing»={still} — no freezing (mean lag after 1 min)', abs(mean_lag) < 10, f'{mean_lag:.1f} м (v124–v128: 30–65 м)')
+        # a repeated fix (same time) changes nothing
+        rep = await pg.evaluate(f"(() => {{ KF.st = null; GPS.still = false; const f = {{ lat: {LAT0}, lon: {LON0}, acc: 5, spd: 5, rawSpd: 5, hdg: 0, t: 5e12 }}; KF.step(f); KF.step({{ ...f, lat: {LAT0} + 5 * {M}, t: 5e12 + 1000 }}); const a = KF.step({{ ...f, lat: {LAT0} + 5 * {M}, t: 5e12 + 1000 }}), b = KF.out(); return Math.abs(a.lat - b.lat) < 1e-12; }})()")
+        check('Kalman: the same fix repeated (iPhone does that) is not a new measurement', rep)
         # a jump: 2 km away after 5 s → starts again at the new place
         j = await pg.evaluate(f"(() => {{ KF.st = null; GPS.still = false; for (let k = 0; k < 10; k++) KF.step({{ lat: {LAT0} + k * 5 * {M}, lon: {LON0}, acc: 5, spd: 5, hdg: 0, t: 3e12 + k * 1000 }}); const o = KF.step({{ lat: {LAT0 + 2000 * M}, lon: {LON0}, acc: 5, spd: 5, hdg: 0, t: 3e12 + 15000 }}); return [o.lat, o.lon]; }})()")
         check('Kalman: a jump starts the filter again (no gliding across the map)', err(j, pt(2000, 0)) < 1, round(err(j, pt(2000, 0)), 2))
