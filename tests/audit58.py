@@ -15,10 +15,10 @@ async def main():
                 t = f'[{lang} {"Pro" if pro else "basic"}]'
                 await pg.evaluate("showTab('profile')"); await pg.wait_for_timeout(200)
                 g = await pg.evaluate("[...document.querySelectorAll('#sheet-profile details.grp')].map(d => [d.dataset.g, d.open])")
-                check(t + ' settings: 7 groups (v116: «Аккаунт»), only the first open', len(g) == 7 and [x[1] for x in g] == [True] + [False]*6, g)
+                check(t + ' settings: groups (7 with «Аккаунт», 6 while accounts are off), only the first open', len(g) in (6, 7) and [x[1] for x in g] == [True] + [False]*(len(g) - 1), g)
                 await pg.evaluate("document.querySelectorAll('#sheet-profile details.grp').forEach(d => d.open = true)"); await pg.wait_for_timeout(200)
                 v = await pg.evaluate("({sw: !!document.getElementById('s-pro').offsetParent, keys: !!document.getElementById('k-tf').offsetParent, ver: document.querySelector('#sheet-profile').innerText.includes('v58'), saved: lsGet('sgrp').length})")
-                check(t + ' Pro switch always visible, keys only in Pro, groups remembered', v['sw'] and v['keys'] == pro and v['saved'] == 7, v)
+                check(t + ' Pro switch always visible, keys only in Pro, groups remembered', v['sw'] and v['keys'] == pro and v['saved'] >= 6, v)
                 await pg.click('#s-layers'); await pg.wait_for_timeout(200)
                 lg = await pg.evaluate("[...document.querySelectorAll('#ly-base .lyg')].map(e => e.textContent)")
                 check(t + ' layers: grouped only in Pro', (len(lg) >= 2) == pro, lg)

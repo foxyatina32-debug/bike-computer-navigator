@@ -88,6 +88,18 @@ TRK = lambda n, seed: (lambda r: [[32.09 + i * 1e-5 + r.random() * 1e-5, 34.88 +
 async def main():
     url = serve(8831); m = Mocks(); fb = Firebase()
     async with async_playwright() as p:
+        # v128: accounts are switched off for now — the section is gone, nothing syncs, saving is not hooked
+        b, ctx, pg, log = await open_app(p, url + '?lang=ru', m, storage=[('velo:fbcfg', CFG), ('velo:acct', json.dumps({'email': 'a@b', 'uid': 'u1', 'idToken': 'tok-u1', 'refreshToken': 'ref-u1', 'exp': 0}))])
+        if not await pg.evaluate("ACCOUNTS_ON"):
+            await ctx.route(FB_HOSTS, fb.handle); await pg.wait_for_timeout(4000)
+            await pg.evaluate("DB.put('routes', { id: 'r1', name: 'X', coords: [[32.09,34.88,1],[32.1,34.89,2]], dist: 1, created: 1, source: 't', wpts: [] })")
+            await pg.wait_for_timeout(1500)
+            check('accounts off: no «Аккаунт» section in Settings', not await pg.evaluate("!!document.querySelector('details.grp[data-g=acct]')"))
+            check('accounts off: nothing is sent anywhere, even with an old sign-in saved', not fb.docs and await pg.evaluate("!lsGet('sync', null)"))
+            check('no JS errors', not log['errors'], log['errors'][:3])
+            await b.close()
+            print(f'{sum(RES)}/{len(RES)} passed'); sys.exit(0 if all(RES) else 1)
+        await b.close()
         # ---- not configured: the section says so, no requests to Firebase
         b, ctx, pg, log = await phone(p, url, m, fb, cfg=False)
         check('no Firebase project: the section says accounts are not set up', await pg.is_visible('#ac-off') and not await pg.is_visible('#ac-in'))
