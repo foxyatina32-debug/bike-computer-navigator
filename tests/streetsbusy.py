@@ -3,6 +3,8 @@
 # voice) or an empty answer with an error remark (which was even kept for the route) left the turns without names.
 # Now: retries on the other servers and after 4 s / 10 s, empty / error answers not kept, at most 2 queries at a time
 # with street names and road alerts first, ways reused for the same streets (continue from here) without a new query.
+# v133: the wait follows the query's own [timeout:N] (+15 s); while navigating one of the 2 is kept for street names /
+# road alerts; servers that all hang are not asked round after round.
 # Run: python3 tests/streetsbusy.py
 import asyncio, sys, os, json, time
 from urllib.parse import unquote_plus
@@ -20,18 +22,26 @@ CORS = {'Access-Control-Allow-Origin': '*'}
 NAMES = "Nav.route && Nav.route.cues[0].txt === 'Поверните направо на улицу Жаботинского'"
 
 class Server:
-    def __init__(s): s.mode = 'ok'; s.until = 0; s.log = []; s.inflight = 0; s.peak = 0; s.delay = 0.05
+    def __init__(s): s.mode = 'ok'; s.until = 0; s.log = []; s.inflight = 0; s.peak = 0; s.delay = 0.05; s.low = 0; s.lowpeak = 0; s.t0 = time.time()
     async def handle(s, route):
         q = unquote_plus((route.request.post_data or '')[5:]); kind = 'st' if q.startswith('/*st*/') else 'ra' if q.startswith('/*ra*/') else 'x'
         s.log.append((round(time.time(), 2), kind, route.request.url.split('/')[2]))
         s.inflight += 1; s.peak = max(s.peak, s.inflight)
+        if kind == 'x': s.low += 1; s.lowpeak = max(s.lowpeak, s.low)
         try:
+            if s.mode == 'hang':
+                await asyncio.sleep(30)
+                try: await route.fulfill(json={'elements': []}, headers=CORS)
+                except Exception: pass
+                return
             await asyncio.sleep(s.delay)
             busy = time.time() < s.until
             if busy and s.mode == '429': return await route.fulfill(status=429, body='rate_limited', headers=CORS)
             if busy and s.mode == 'remark': return await route.fulfill(json={'elements': [], 'remark': 'runtime error: Query timed out in "query" at line 1 after 40 seconds.'}, headers=CORS)
             return await route.fulfill(json={'elements': WAYS if kind == 'st' else []}, headers=CORS)
-        finally: s.inflight -= 1
+        finally:
+            s.inflight -= 1
+            if kind == 'x': s.low -= 1
 
 async def start(p, url, srv):
     b, ctx, pg, log = await open_app(p, url + '?lang=ru', Mocks())
@@ -73,6 +83,26 @@ async def main():
           await Promise.all(qs); return done; }""")
         check('5 queries at once → never more than 2 at the server', srv.peak <= 2, srv.peak)
         check('the street-name query goes before the waiting ones', order.index('/*st*/') <= 2, order)
+        check('not navigating: 2 long queries may run together', srv.lowpeak == 2, srv.lowpeak)
+        # 5. v133: the wait follows the query's own limit
+        t = await pg.evaluate("typeof ovTimeout !== 'function' ? null : [ovTimeout('/*st*/[out:json][timeout:40];way(1);out;'), ovTimeout(overpassGraphQuery(31, 34, 31.1, 34.1, 180)), ovTimeout('[out:json];node(1);out;')]")
+        check('the wait for an answer = the query\'s [timeout:N] + 15 s (street names 55 s, an offline area 195 s)', t == [55000, 195000, 60000], t)
+        await b.close()
+        # 6. v133: navigating — long queries never take both slots, the street names start at once
+        srv = Server(); srv.delay = 1.5; b, ctx, pg, log = await start(p, url, srv)
+        await pg.evaluate(f"Nav.set({{ name: 'T', coords: {json.dumps(ROUTE)}, noAsk: true }})"); await pg.wait_for_function(NAMES, timeout=15000)
+        srv.log.clear(); srv.lowpeak = 0
+        r = await pg.evaluate("""async () => { const t0 = Date.now(), lows = ['/*a*/', '/*b*/', '/*c*/'].map(t => overpass(t + '[out:json];node(1);out;'));
+          await new Promise(r => setTimeout(r, 200)); const s0 = Date.now(); await overpass('/*st*/[out:json][timeout:40];way(1);out;'); const st = Date.now() - s0; await Promise.all(lows); return { st, all: Date.now() - t0 }; }""")
+        check('navigating: at most 1 long query at a time — a slot stays free for the street names', srv.lowpeak == 1, srv.lowpeak)
+        check('… so the street names come right away (not after the 3 long ones)', r['st'] < 2500, r)
+        await b.close()
+        # 7. v133: every server hangs → asked once each, not round after round
+        srv = Server(); srv.mode = 'hang'; b, ctx, pg, log = await start(p, url, srv)
+        t0 = time.time()
+        err = await pg.evaluate("overpass('/*h*/[out:json][timeout:1];node(1);out;').then(() => 'ok', e => e.name)")
+        dt = time.time() - t0
+        check('all servers hang: one try each (3 × 16 s), then the error — no more rounds', err == 'AbortError' and len(srv.log) == 3 and dt < 60, (err, len(srv.log), round(dt)))
         await b.close()
     print(f'{sum(RES)}/{len(RES)} passed'); sys.exit(0 if all(RES) else 1)
 if __name__ == '__main__': asyncio.run(main())
