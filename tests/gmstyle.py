@@ -1,8 +1,8 @@
 # v138: stage 1 of the Google Maps look (inside «🗺 Как Google Maps»). Variants День / Ночь / Контраст / По солнцу on Google's
 # tokens (no foreign surfaces left: nothing dark in День, nothing glaring in Ночь; 2px black borders in Контраст; readable
 # text); Roboto + JetBrains Mono fetched only for this look, steady digits; Material switches (still the same checkboxes);
-# the green navigation banner with the «Далее: …» strip and the arrival (red when off the route); Google's blue dot with
-# the heading cone (the chosen icon is kept; the old arrow back in the other looks); map types as thumbnails.
+# the green navigation banner with the «Далее: …» strip and the arrival (red when off the route); the arrow in Google's blue
+# with a direction, Google's blue dot without one (v140; the chosen icon is kept; the usual arrow in the other looks); map types as thumbnails.
 # ru / he / en. Run: python3 tests/gmstyle.py
 import asyncio, sys, os, json
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -87,9 +87,11 @@ async def main():
         await pg.evaluate("Nav.render(true, 60)"); await pg.wait_for_timeout(100)
         off = await pg.evaluate("({ bg: getComputedStyle(document.getElementById('navb')).backgroundColor, t: document.getElementById('nv-next-t').textContent })")
         check('off the route: the banner red, the strip says the arrow shows the way back', off['bg'] == 'rgb(217, 48, 37)' and 'Стрелка' in off['t'], off)
-        # ---------- the blue dot
-        dot = await pg.evaluate("(() => { const e = meMarker.getElement(); return { gdot: !!e.querySelector('.gdot .gc'), cone: (e.querySelector('.gdot .me-arr') || {}).style?.transform || '', pulse: !!e.querySelector('.gdot .gp') }; })()")
-        check('Google\'s blue dot with a pulse and the heading cone (turned to the course)', dot['gdot'] and dot['pulse'] and dot['cone'].startswith('rotate('), dot)
+        # ---------- the marker: the arrow in Google's blue while the direction is known (v140), the blue dot without it
+        dot = await pg.evaluate("(() => { const e = meMarker.getElement(), a = e.querySelector('svg.me-arr'); return { gdot: !!e.querySelector('.gdot'), rot: a ? a.style.transform : '', fill: a ? a.querySelector('path').getAttribute('fill') : '' }; })()")
+        check('with a direction: the arrow in Google\'s blue, turned to the course (not the faint cone)', not dot['gdot'] and dot['rot'].startswith('rotate(') and dot['fill'] == '#1a73e8', dot)
+        dot = await pg.evaluate("(() => { const st = markerState; markerState = () => null; lastIconHdg = 'x'; refreshMe(); const e = meMarker.getElement(), r = { gc: !!e.querySelector('.gdot .gc'), pulse: !!e.querySelector('.gdot .gp'), arr: !!e.querySelector('.me-arr') }; markerState = st; lastIconHdg = 'x'; refreshMe(); return r; })()")
+        check('no direction known: Google\'s blue dot with a pulse', dot['gc'] and dot['pulse'] and not dot['arr'], dot)
         await pg.evaluate("S.meIcon = 'bike'; lastIconHdg = 'x'; refreshMe()")
         check('an icon chosen in Settings is kept in this look', await pg.evaluate("!meMarker.getElement().querySelector('.gdot') && !!meMarker.getElement().querySelector('.me-badge')"))
         await pg.evaluate("S.meIcon = 'arrow'; S.theme = 'dark'; applyTheme()"); await pg.wait_for_timeout(100)
