@@ -1,7 +1,7 @@
 # v139: stage 2 of the Google Maps look (inside «🗺 Как Google Maps»). The search pill on top (no route followed): results
 # in a floating card, a tap shows the place with a red pin and its card (kept clear of the buttons), ✕ clears; «🎤» and «+»
 # in the pill (their own buttons step aside); the top buttons as chips under the pill. The capsule above the small panel:
-# the grade, the GPS state and accuracy, the height; SOS and the car speedometer above it. Navigation brings the old top
+# the GPS state and accuracy, the height (v141: no grade); SOS and the car speedometer above it. Navigation brings the old top
 # back; a setting turns both off; the other looks are untouched. ru / he / en. Run: python3 tests/gmsearch.py
 import asyncio, sys, os, json
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -89,9 +89,11 @@ async def main():
         check('no capsule with the big panel', await pg.evaluate("!document.body.classList.contains('gcapv') && document.getElementById('gcap').hidden"))
         await pg.evaluate("setCompact(true); placeGpxBtn()"); await pg.wait_for_timeout(400)
         cap, hud, sos = [await rect(pg, q) for q in ('#gcap', '#hud', '#t-sos')]
-        c = await pg.evaluate("({ v: document.getElementById('gcap-v').textContent, l: document.getElementById('gcap-l').textContent, acc: document.getElementById('gcap-acc').textContent, alt: document.getElementById('gcap-alt').textContent, dot: document.getElementById('gcap-dot').className, gd: getComputedStyle(document.getElementById('gps-dot')).display })")
+        c = await pg.evaluate("({ txt: document.getElementById('gcap').textContent, acc: document.getElementById('gcap-acc').textContent, alt: document.getElementById('gcap-alt').textContent, dot: document.getElementById('gcap-dot').className, gd: getComputedStyle(document.getElementById('gps-dot')).display })")
         check('the small panel: the capsule right above it', cap['vis'] and 0 <= hud['t'] - cap['b'] <= 16, (cap, hud['t']))
-        check('…grade · GPS accuracy · height', c['l'] == '% уклон' and c['v'] not in ('', None) and c['acc'] == '±6 м' and c['alt'].startswith('↑ ') and c['alt'].endswith(' м') and 'good' in c['dot'], c)
+        check('…GPS accuracy · height, no grade (v141: not wanted)', '%' not in c['txt'] and 'уклон' not in c['txt'] and c['acc'] == '±6 м' and c['alt'].startswith('↑ ') and c['alt'].endswith(' м') and 'good' in c['dot'], c)
+        ln = await pg.evaluate("(() => { const a = document.getElementById('gcap-acc').getBoundingClientRect(), b = document.getElementById('gcap-alt').getBoundingClientRect(); return Math.abs(a.top + a.height / 2 - b.top - b.height / 2); })()")
+        check('…in one row', ln < 3, ln)
         check('…the GPS dot moves from the chip into the capsule', c['gd'] == 'none', c['gd'])
         check('SOS stays above the capsule', sos['vis'] and sos['b'] <= cap['t'] + 1, (sos, cap))
         await pg.evaluate(FIX, [32.09 + 20 * 4 / 110540, 34.88, 4, t0 + 20000, 77.4]); await pg.wait_for_timeout(100)
@@ -122,14 +124,14 @@ async def main():
         check('no JS errors', not log['errors'], log['errors'][:3])
         await b.close()
         # ---------- languages
-        for lang, ph, gl in (('he', 'חיפוש מקום או כתובת', '% שיפוע'), ('en', 'Search for a place or address', '% grade')):
+        for lang, ph, gl in (('he', 'חיפוש מקום או כתובת', 'GPS, גובה'), ('en', 'Search for a place or address', '(GPS, height)')):
             b, ctx, pg, log = await open_app(p, url + f'?lang={lang}', m, storage=[['velo:settings', json.dumps({'theme': 'md', 'compact': True})]])
             await pg.wait_for_timeout(1500)
             await pg.evaluate("navigator.geolocation.clearWatch(GPS.watch)"); t0 = await pg.evaluate("Date.now()")
             for i in range(5): await pg.evaluate(FIX, [32.09 + i * 4 / 110540, 34.88, 4, t0 + i * 1000, 40])
             await pg.evaluate("setCompact(true); placeGpxBtn()"); await pg.wait_for_timeout(300)
-            st = await pg.evaluate("({ ph: document.getElementById('gs-q').placeholder, gl: document.getElementById('gcap-l').textContent, dir: getComputedStyle(document.getElementById('gsearch')).direction, x: document.getElementById('gs-x').getAttribute('aria-label') })")
-            check(f'{lang}: the pill and the capsule translated', st['ph'] == ph and st['gl'] == gl and st['x'] != 'Очистить' and (st['dir'] == 'rtl') == (lang == 'he'), st)
+            st = await pg.evaluate("({ ph: document.getElementById('gs-q').placeholder, gl: document.getElementById('s-gs-wrap').textContent, acc: document.getElementById('gcap-acc').textContent, dir: getComputedStyle(document.getElementById('gsearch')).direction, x: document.getElementById('gs-x').getAttribute('aria-label') })")
+            check(f'{lang}: the pill and the capsule translated', st['ph'] == ph and gl in st['gl'] and st['acc'].startswith('±6') and 'м' not in st['acc'] and st['x'] != 'Очистить' and (st['dir'] == 'rtl') == (lang == 'he'), st)
             check(f'{lang}: no JS errors', not log['errors'], log['errors'][:3])
             await b.close()
     print(f'{sum(RES)}/{len(RES)} passed'); sys.exit(0 if all(RES) else 1)
