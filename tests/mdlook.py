@@ -1,6 +1,6 @@
 # v136: the «Как Google Maps» look. A light Material theme beside «Тёмный» / «Яркое солнце» / «По солнцу»: white surfaces,
 # Google blue, light sheets and dialogs, no dark leftovers on the main screens, readable contrast. Bike-type chips on the
-# map (bike mode, no route followed, not while riding): one tap picks the bike, the buttons below move down. Route
+# map were tried in v136 and removed in v137 (they repeated the mode button at the top). Route
 # cards: length / climb / difficulty / source as chips, «▶ Поехали», Google Maps / Waze / GPX on view, the rest under «⋯».
 # A grab handle on the small panel. ru / he / en. Run: python3 tests/mdlook.py
 import asyncio, sys, os, json
@@ -59,25 +59,9 @@ async def main():
         bx = await pg.evaluate("getComputedStyle(document.querySelector('#ask-pre .box')).backgroundColor")
         check('a dialog («Перед выездом»): white card, nothing dark in it', bx == 'rgb(255, 255, 255)' and not d, (bx, d))
         await pg.click('#pre-go'); await pg.evaluate("Nav.stop(); S.preRide = false")
-        # ---------- chips on the map
-        await pg.evaluate("setRO({ bike: 'xc' }); placeGpxBtn()"); await pg.wait_for_timeout(200)
-        ch = await pg.evaluate("({ shown: !document.getElementById('bchips').hidden, n: document.querySelectorAll('#bchips button').length, on: (document.querySelector('#bchips .on') || {}).dataset?.bk, cmp: document.getElementById('t-compass').getBoundingClientRect().top, bot: document.getElementById('bchips').getBoundingClientRect().bottom })")
-        check('bike mode, no route: the bike chips on the map, the current bike marked, the compass below them', ch['shown'] and ch['n'] == 6 and ch['on'] == 'xc' and ch['cmp'] >= ch['bot'] - 2, ch)
-        await pg.click('#bchips [data-bk="road"]'); await pg.wait_for_timeout(200)
-        r = await pg.evaluate("({ bike: RO.bike, on: document.querySelector('#bchips .on').dataset.bk, pill: document.getElementById('t-mode').textContent, toast: window.__lastToasts })")
-        check('a tap on «Шоссе» picks the road bike (routes, the mode button, a short message)', r['bike'] == 'road' and r['on'] == 'road' and 'Шоссе' in r['pill'] and 'Шоссе' in r['toast'], r)
-        await pg.evaluate(f"Nav.set({{ name: 'Тест', coords: {json.dumps(ROUTE)}, noAsk: true }})"); await pg.wait_for_timeout(200)
-        h = await pg.evaluate("({ hid: document.getElementById('bchips').hidden, chips: document.body.classList.contains('chips') })")
-        check('following a route → the chips go away (the map is the ride\'s)', h['hid'] and not h['chips'], h)
-        await pg.evaluate("Nav.stop()"); await pg.wait_for_timeout(200)
-        check('… and come back after it', not await pg.evaluate("document.getElementById('bchips').hidden"))
-        await pg.evaluate("document.body.classList.add('ridemode')")
-        check('riding (ride mode) → hidden', await pg.evaluate("getComputedStyle(document.getElementById('bchips')).display === 'none'"))
-        await pg.evaluate("document.body.classList.remove('ridemode'); setMode('car', true)")
-        check('car mode → no bike chips', await pg.evaluate("document.getElementById('bchips').hidden"))
-        await pg.evaluate("setMode('bike', true); showTab('profile')"); await pg.click('#s-bchips'); await pg.evaluate("showTab('rec')")
-        check('switched off in Settings → hidden', await pg.evaluate("document.getElementById('bchips').hidden"))
-        await pg.evaluate("showTab('profile')"); await pg.click('#s-bchips'); await pg.evaluate("showTab('rec')")
+        # ---------- v137: no bike chips on the map — the mode button at the top does it (no duplicate)
+        await pg.evaluate("setMode('bike', true); placeGpxBtn()")
+        check('v137: no row of bike buttons on the map (the mode button at the top changes the bike)', await pg.evaluate("!document.getElementById('bchips') && !document.getElementById('s-bchips') && !!document.getElementById('t-mode')"))
         # ---------- route cards
         await pg.evaluate("showTab('routes'); routeSeg('mine')"); await pg.wait_for_timeout(400)
         card = await pg.evaluate("(() => { const c = document.querySelector('#rt-list .rtit'); return { chips: [...c.querySelectorAll('.rchips b')].map(b => b.textContent), vis: [...c.querySelectorAll('button')].filter(b => b.offsetParent).map(b => b.textContent.trim()) }; })()")
@@ -99,9 +83,9 @@ async def main():
         for lang in ('he', 'en'):
             b, ctx, pg, log = await open_app(p, url + f'?lang={lang}', m, storage=[['velo:settings', json.dumps({'theme': 'md', 'preRide': False})]])
             await pg.evaluate("setMode('bike', true); placeGpxBtn()"); await pg.wait_for_timeout(500)
-            t = await pg.evaluate("document.getElementById('bchips').innerText + ' | ' + [...document.querySelectorAll('#s-theme button')].map(b => b.textContent).join(' ') + ' | ' + document.getElementById('s-bchips').parentElement.textContent")
+            t = await pg.evaluate("[...document.querySelectorAll('#s-theme button')].map(b => b.textContent).join(' ')")
             cyr = [w for w in t.split() if any('Ѐ' <= ch <= 'ӿ' for ch in w)]
-            check(f'{lang}: chips, the theme button and the setting translated; the theme kept', not cyr and await pg.evaluate("document.body.classList.contains('md')"), (t.replace('\n', ' ')[:200], cyr[:4]))
+            check(f'{lang}: the theme buttons translated; the theme kept', not cyr and await pg.evaluate("document.body.classList.contains('md')"), (t.replace('\n', ' ')[:200], cyr[:4]))
             check(f'{lang}: no JS errors', not log['errors'], log['errors'][:3])
             await b.close()
     print(f'{sum(RES)}/{len(RES)} passed'); sys.exit(0 if all(RES) else 1)
