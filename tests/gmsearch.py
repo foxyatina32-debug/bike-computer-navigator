@@ -1,0 +1,136 @@
+# v139: stage 2 of the Google Maps look (inside «🗺 Как Google Maps»). The search pill on top (no route followed): results
+# in a floating card, a tap shows the place with a red pin and its card (kept clear of the buttons), ✕ clears; «🎤» and «+»
+# in the pill (their own buttons step aside); the top buttons as chips under the pill. The capsule above the small panel:
+# the grade, the GPS state and accuracy, the height; SOS and the car speedometer above it. Navigation brings the old top
+# back; a setting turns both off; the other looks are untouched. ru / he / en. Run: python3 tests/gmsearch.py
+import asyncio, sys, os, json
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from harness import serve, Mocks, open_app
+from playwright.async_api import async_playwright
+RES = []
+def check(name, ok, info=''):
+    RES.append(bool(ok)); print(('PASS ' if ok else 'FAIL ') + name + (f' — {info}' if info != '' else ''), flush=True)
+ROUTE = [[32.09 + i * 0.0005, 34.88, 20 + i] for i in range(60)]
+FIX = "([la, lo, spd, t, alt]) => onFix({ coords: { latitude: la, longitude: lo, accuracy: 6, altitude: alt, altitudeAccuracy: 5, speed: spd, heading: 0 }, timestamp: t })"
+def photon(u):
+    if 'zzz' in u: return {'type': 'FeatureCollection', 'features': []}
+    return {'type': 'FeatureCollection', 'features': [
+        {'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': [34.7818, 32.0853]}, 'properties': {'name': 'Тель-Авив', 'country': 'Израиль', 'state': 'Тель-Авивский округ', 'type': 'city'}},
+        {'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': [34.80, 32.10]}, 'properties': {'name': 'Тель-Авив, порт', 'city': 'Тель-Авив', 'country': 'Израиль', 'type': 'locality'}}]}
+R = "(q => { const e = document.querySelector(q); if (!e) return null; const r = e.getBoundingClientRect(), cs = getComputedStyle(e); return { t: r.top, b: r.bottom, l: r.left, r: r.right, vis: !e.hidden && cs.display !== 'none' && cs.visibility !== 'hidden' && r.width > 0 }; })"
+def apart(a, b): return a and b and (a['b'] <= b['t'] + 1 or b['b'] <= a['t'] + 1 or a['r'] <= b['l'] + 1 or b['r'] <= a['l'] + 1)
+async def rect(pg, q): return await pg.evaluate(R + f"({json.dumps(q)})")
+
+async def main():
+    url = serve(9087); m = Mocks(); m.photon = photon
+    async with async_playwright() as p:
+        b, ctx, pg, log = await open_app(p, url + '?lang=ru', m)
+        await pg.wait_for_timeout(1500)
+        # ---------- the other looks: untouched
+        st = await pg.evaluate("({ gsr: document.body.classList.contains('gsr'), pill: !document.getElementById('gsearch').hidden, mic: getComputedStyle(document.getElementById('t-mic')).display !== 'none', gpx: !document.getElementById('t-gpx').hidden })")
+        check('other looks: no search pill, 🎤 and «+» buttons in place', not st['gsr'] and not st['pill'] and st['mic'] and st['gpx'], st)
+        await pg.evaluate("showTab('profile')")
+        check('the setting shows only with «Как Google Maps»', await pg.evaluate("document.getElementById('s-gs-wrap').hidden"))
+        await pg.click('#s-theme [data-t="md"]'); await pg.wait_for_timeout(200)
+        check('…and with it (on by default)', await pg.evaluate("!document.getElementById('s-gs-wrap').hidden && document.getElementById('s-gsearch').checked"))
+        await pg.evaluate("showTab('rec')"); await pg.wait_for_timeout(300)
+        # ---------- the pill and the chips
+        pill, top, cmp, zin = [await rect(pg, q) for q in ('#gsearch', '.top', '#t-compass', '#z-in')]
+        check('«Как Google Maps»: the search pill on top', await pg.evaluate("document.body.classList.contains('gsr')") and pill['vis'] and pill['t'] < 60, pill)
+        check('the top buttons are chips under the pill', top['t'] >= pill['b'] - 1 and top['t'] - pill['b'] < 30, (pill, top))
+        check('the compass and the zoom below the chips, nothing over the pill', cmp['t'] >= top['b'] - 1 and zin['t'] >= top['b'] - 1 and apart(pill, cmp) and apart(pill, zin), (cmp, zin))
+        st = await pg.evaluate("({ mic: getComputedStyle(document.getElementById('t-mic')).display, gpx: document.getElementById('t-gpx').hidden })")
+        check('the separate 🎤 and «+» buttons step aside (they are in the pill)', st['mic'] == 'none' and st['gpx'], st)
+        await pg.click('#gs-mic'); await pg.wait_for_timeout(300)
+        check('🎤 in the pill opens the voice command', await pg.evaluate("!document.getElementById('vc').hidden"))
+        await pg.evaluate("document.getElementById('vc-x') ? document.getElementById('vc-x').click() : 0; document.getElementById('vc').hidden = true; 0")
+        await pg.click('#gs-add'); await pg.wait_for_timeout(300)
+        check('«+» in the pill opens «Маршруты» (add a route)', await pg.evaluate("!document.getElementById('sheet-routes').hidden"))
+        await pg.evaluate("showTab('rec')"); await pg.wait_for_timeout(300)
+        # ---------- search
+        await pg.fill('#gs-q', 'Те'); await pg.wait_for_timeout(600)
+        check('two letters: no search yet', await pg.evaluate("document.getElementById('gs-res').hidden && !document.getElementById('gs-x').hidden"))
+        await pg.fill('#gs-q', 'Тель-Авив'); await pg.wait_for_timeout(1200)
+        n = await pg.evaluate("document.querySelectorAll('#gs-res [data-gi]').length")
+        res = await rect(pg, '#gs-res')
+        check('typing shows the results in a card under the pill', n == 2 and res['vis'] and res['t'] >= pill['b'] - 1, (n, res))
+        txt = await pg.evaluate("document.querySelector('#gs-res [data-gi=\"0\"]').textContent")
+        check('a result: the name and the area', 'Тель-Авив' in txt, txt)
+        await pg.click('#gs-res [data-gi="0"]'); await pg.wait_for_timeout(700)
+        pop = await pg.evaluate("(() => { const p = document.querySelector('.leaflet-popup'); if (!p) return null; const r = p.getBoundingClientRect(); return { t: r.top, b: r.bottom, h4: p.querySelector('h4').textContent, btn: [...p.querySelectorAll('[data-pp]')].map(x => x.dataset.pp) }; })()")
+        check('a tap: the place card (Маршрут сюда / Добавить точку / Google Maps / Waze)', pop and pop['h4'] == 'Тель-Авив' and pop['btn'] == ['here', 'add', 'gm', 'wz'], pop)
+        check('…with a red pin, the results card closed, the map not following', await pg.evaluate("!!document.querySelector('.leaflet-marker-pane .gpin') && document.getElementById('gs-res').hidden && !GPS.follow"))
+        lw, hud = await rect(pg, '#locw'), await rect(pg, '#hud')
+        low = max(x['b'] for x in (pill, top, lw) if x and x['vis'])
+        check('the card is kept clear of the buttons on top and the panel', pop and pop['t'] >= low and pop['b'] <= hud['t'], (pop, low, hud['t']))
+        await pg.click('.leaflet-popup [data-pp="add"]'); await pg.wait_for_timeout(300)
+        wp = await pg.evaluate("Plan.wps.map(w => w.ll.map(v => +(+v).toFixed(4)))")
+        check('«Добавить точку» adds it to the plan', wp[-1:] == [[32.0853, 34.7818]] and await pg.evaluate("!document.getElementById('sheet-routes').hidden"), wp)
+        check('closing the card removes the pin', not await pg.evaluate("!!document.querySelector('.leaflet-marker-pane .gpin')"))
+        await pg.evaluate("Plan.wps = []; showTab('rec')"); await pg.wait_for_timeout(300)
+        await pg.click('#gs-x'); await pg.wait_for_timeout(200)
+        check('✕ clears the search', await pg.evaluate("document.getElementById('gs-q').value === '' && document.getElementById('gs-x').hidden && document.getElementById('gs-res').hidden"))
+        await pg.fill('#gs-q', 'zzzqq'); await pg.press('#gs-q', 'Enter'); await pg.wait_for_timeout(1200)
+        g = await pg.evaluate("(document.querySelector('#gs-res .gempty') || {}).textContent || ''")
+        n = await pg.evaluate("document.querySelectorAll('#gs-res [data-gi]').length")
+        check('Enter: the full search (here the address search answers)', n >= 1 or 'Ничего' in g, (n, g))
+        await pg.click('#gs-x')
+        # ---------- long press: the same card with a red pin
+        await pg.evaluate("map.fire('contextmenu', { latlng: L.latLng(32.1, 34.9), containerPoint: L.point(195, 500), originalEvent: new MouseEvent('contextmenu') })"); await pg.wait_for_timeout(400)
+        check('a long press: the card with a red pin', await pg.evaluate("!!document.querySelector('.leaflet-popup [data-pp=\"here\"]') && !!document.querySelector('.leaflet-marker-pane .gpin')"))
+        await pg.click('.leaflet-popup [data-pp="here"]'); await pg.wait_for_timeout(400)
+        wp = await pg.evaluate("Plan.wps.map(w => w.ll.map(v => +(+v).toFixed(3)))")
+        check('«Маршрут сюда» builds a route there from my place', wp == [[32.1, 34.9]] and await pg.evaluate("document.getElementById('pl-fromgps').checked"), wp)
+        await pg.evaluate("Plan.wps = []; showTab('rec')"); await pg.wait_for_timeout(300)
+        # ---------- the capsule above the small panel
+        await pg.evaluate("navigator.geolocation.clearWatch(GPS.watch)"); t0 = await pg.evaluate("Date.now()")
+        for i in range(20): await pg.evaluate(FIX, [32.09 + i * 4 / 110540, 34.88, 4, t0 + i * 1000, 40 + i * 0.4])
+        await pg.evaluate("setCompact(false); placeGpxBtn()"); await pg.wait_for_timeout(300)
+        check('no capsule with the big panel', await pg.evaluate("!document.body.classList.contains('gcapv') && document.getElementById('gcap').hidden"))
+        await pg.evaluate("setCompact(true); placeGpxBtn()"); await pg.wait_for_timeout(400)
+        cap, hud, sos = [await rect(pg, q) for q in ('#gcap', '#hud', '#t-sos')]
+        c = await pg.evaluate("({ v: document.getElementById('gcap-v').textContent, l: document.getElementById('gcap-l').textContent, acc: document.getElementById('gcap-acc').textContent, alt: document.getElementById('gcap-alt').textContent, dot: document.getElementById('gcap-dot').className, gd: getComputedStyle(document.getElementById('gps-dot')).display })")
+        check('the small panel: the capsule right above it', cap['vis'] and 0 <= hud['t'] - cap['b'] <= 16, (cap, hud['t']))
+        check('…grade · GPS accuracy · height', c['l'] == '% уклон' and c['v'] not in ('', None) and c['acc'] == '±6 м' and c['alt'].startswith('↑ ') and c['alt'].endswith(' м') and 'good' in c['dot'], c)
+        check('…the GPS dot moves from the chip into the capsule', c['gd'] == 'none', c['gd'])
+        check('SOS stays above the capsule', sos['vis'] and sos['b'] <= cap['t'] + 1, (sos, cap))
+        await pg.evaluate(FIX, [32.09 + 20 * 4 / 110540, 34.88, 4, t0 + 20000, 77.4]); await pg.wait_for_timeout(100)
+        check('the capsule follows the fixes', await pg.evaluate("document.getElementById('gcap-alt').textContent") == '↑ 77 м')
+        await pg.evaluate("setMode('car', true)")
+        for i in range(21, 26): await pg.evaluate(FIX, [32.09 + i * 4 / 110540, 34.88, 14, t0 + i * 1000, 40])
+        await pg.evaluate("placeGpxBtn()"); await pg.wait_for_timeout(300)
+        sp, cap, sos = [await rect(pg, q) for q in ('#spdb', '#gcap', '#t-sos')]
+        check('car mode: the round speedometer clear of the capsule and SOS', sp and sp['vis'] and apart(sp, cap) and apart(sp, sos), (sp, cap, sos))
+        await pg.evaluate("setMode('bike', true)")
+        # ---------- navigation: the old top back
+        await pg.evaluate(f"Nav.set({{ name: 'Яркон', coords: {json.dumps(ROUTE)}, noAsk: true }})"); await pg.wait_for_timeout(400)
+        st = await pg.evaluate("({ gsr: document.body.classList.contains('gsr'), pill: !document.getElementById('gsearch').hidden, mic: getComputedStyle(document.getElementById('t-mic')).display !== 'none', cap: !document.getElementById('gcap').hidden })")
+        check('navigating: no search pill, 🎤 back, the capsule stays', not st['gsr'] and not st['pill'] and st['mic'] and st['cap'], st)
+        nb, cap = await rect(pg, '#navb'), await rect(pg, '#gcap')
+        check('…the green banner on top', nb['vis'] and nb['t'] < 80, nb)
+        await pg.evaluate("Nav.clear ? Nav.clear() : Nav.stop()"); await pg.wait_for_timeout(400)
+        check('the route ended: the pill is back', await pg.evaluate("document.body.classList.contains('gsr') && !document.getElementById('gsearch').hidden"))
+        # ---------- the setting
+        await pg.evaluate("showTab('profile')"); await pg.click('#s-gsearch'); await pg.wait_for_timeout(200)
+        await pg.evaluate("showTab('rec')"); await pg.wait_for_timeout(300)
+        st = await pg.evaluate("({ gsr: document.body.classList.contains('gsr'), cap: document.body.classList.contains('gcapv'), mic: getComputedStyle(document.getElementById('t-mic')).display !== 'none', saved: lsGet('settings', {}).gsearch })")
+        check('the setting off: no pill, no capsule, 🎤 back (remembered)', not st['gsr'] and not st['cap'] and st['mic'] and st['saved'] is False, st)
+        await pg.evaluate("showTab('profile')"); await pg.click('#s-gsearch'); await pg.evaluate("showTab('rec')"); await pg.wait_for_timeout(300)
+        await pg.evaluate("showTab('profile')"); await pg.click('#s-theme [data-t="dark"]'); await pg.evaluate("showTab('rec')"); await pg.wait_for_timeout(300)
+        st = await pg.evaluate("({ gsr: document.body.classList.contains('gsr'), cap: document.body.classList.contains('gcapv'), pin: (map.fire('contextmenu', { latlng: L.latLng(32.1, 34.9) }), !!document.querySelector('.leaflet-marker-pane .gpin')), card: !!document.querySelector('.leaflet-popup [data-pp=\"here\"]') })")
+        check('another look: no pill, no capsule; a long press gives the card without the pin', not st['gsr'] and not st['cap'] and not st['pin'] and st['card'], st)
+        check('no JS errors', not log['errors'], log['errors'][:3])
+        await b.close()
+        # ---------- languages
+        for lang, ph, gl in (('he', 'חיפוש מקום או כתובת', '% שיפוע'), ('en', 'Search for a place or address', '% grade')):
+            b, ctx, pg, log = await open_app(p, url + f'?lang={lang}', m, storage=[['velo:settings', json.dumps({'theme': 'md', 'compact': True})]])
+            await pg.wait_for_timeout(1500)
+            await pg.evaluate("navigator.geolocation.clearWatch(GPS.watch)"); t0 = await pg.evaluate("Date.now()")
+            for i in range(5): await pg.evaluate(FIX, [32.09 + i * 4 / 110540, 34.88, 4, t0 + i * 1000, 40])
+            await pg.evaluate("setCompact(true); placeGpxBtn()"); await pg.wait_for_timeout(300)
+            st = await pg.evaluate("({ ph: document.getElementById('gs-q').placeholder, gl: document.getElementById('gcap-l').textContent, dir: getComputedStyle(document.getElementById('gsearch')).direction, x: document.getElementById('gs-x').getAttribute('aria-label') })")
+            check(f'{lang}: the pill and the capsule translated', st['ph'] == ph and st['gl'] == gl and st['x'] != 'Очистить' and (st['dir'] == 'rtl') == (lang == 'he'), st)
+            check(f'{lang}: no JS errors', not log['errors'], log['errors'][:3])
+            await b.close()
+    print(f'{sum(RES)}/{len(RES)} passed'); sys.exit(0 if all(RES) else 1)
+asyncio.run(main())
