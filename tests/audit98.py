@@ -28,18 +28,18 @@ async def main():
         # ---- a 60-s GPS gap while riding on is counted once ----
         st = await pg.evaluate("""(() => { const x = __ride(10); const a = Ride.movingMs; __sec(60);
           const mid = {ms: Ride.movingMs, st: document.getElementById('hud-st').textContent};
-          __T += 1000; __fx(x + 305); Ride.tick(); return {a, mid, ms: Ride.movingMs, st: document.getElementById('hud-st').textContent, brk: Ride.brk.length}; })()""")
+          __T += 1000; __fx(x + 305); Ride.tick(); return {a, mid, ms: Ride.movingMs, st: document.getElementById('hud-st').textContent, brk: Ride.brk.length, est: Ride.est.length}; })()""")
         check('60 s without fixes: counted only the first ≤ 5 s while missing, «Жду GPS» shown', st['a'] <= st['mid']['ms'] <= st['a'] + 5000 and 'Жду GPS' in st['mid']['st'], st)
-        check('…then ridden at a plausible pace: the gap counted once (≈71 s, not ≈130 s), line kept as one piece', 69000 <= st['ms'] <= 73000 and st['brk'] == 0 and st['st'] == 'Запись', st)
-        # ---- manual pause → a separate piece on the map and in GPX ----
+        check('…then ridden at a plausible pace: the gap counted once (≈71 s, not ≈130 s), the stretch marked (v150: dashed estimate, the solid line breaks there)', 69000 <= st['ms'] <= 73000 and st['brk'] == 1 and st['est'] == 1 and st['st'] == 'Запись', st)
+        # ---- manual pause → a separate piece on the map and in GPX (v150: the counted gap above is a piece too) ----
         st = await pg.evaluate("""(() => { Ride.pause(); __T += 120000; Ride.start(); const x = 2000; __ride(8, x);
           const ll = Ride.line.getLatLngs(); const g = toGpx('t', Ride.track, true, 'bike', Ride.brk);
           return {brk: Ride.brk.length, rings: Array.isArray(ll[0]) ? ll.length : 1, trkseg: (g.match(/<trkseg>/g) || []).length, pts: (g.match(/<trkpt/g) || []).length, n: Ride.track.length}; })()""")
-        check('after a manual pause: a new piece — 2 lines on the map, 2 <trkseg> in GPX, no point lost', st['brk'] == 1 and st['rings'] == 2 and st['trkseg'] == 2 and st['pts'] == st['n'], st)
+        check('after a manual pause: a new piece — 3 lines on the map, 3 <trkseg> in GPX, no point lost', st['brk'] == 2 and st['rings'] == 3 and st['trkseg'] == 3 and st['pts'] == st['n'], st)
         # ---- emergency copy keeps the pieces ----
         await pg.evaluate("Ride.persist()"); await pg.wait_for_timeout(300)
         cur = await pg.evaluate("DB.get('kv', 'currentRide').then(c => ({brk: c.v.brk.length, n: c.v.track.length}))")
-        check('emergency copy keeps the pieces', cur['brk'] == 1 and cur['n'] > 10, cur)
+        check('emergency copy keeps the pieces', cur['brk'] == 2 and cur['n'] > 10, cur)
         # ---- saving fails → the ride is kept ----
         pg.once('dialog', lambda d: asyncio.ensure_future(d.dismiss()))
         st = await pg.evaluate("""(async () => { const put = DB.put; DB.put = (s, v) => s === 'rides' ? Promise.reject(new Error('quota')) : put.call(DB, s, v);
@@ -49,12 +49,12 @@ async def main():
         check('save fails: ride not deleted — paused, track and emergency copy kept, GPX offered', st['ok'] is False and st['status'] == 'paused' and st['kept'] == st['n'] and st['copy'], st)
         st = await pg.evaluate("""(async () => { const ok = await Ride.stop(true); const rides = await DB.all('rides'); const r = rides[rides.length - 1];
           return {ok, status: Ride.status, saved: !!r, brk: r && r.brk && r.brk.length, copy: !!(await DB.get('kv', 'currentRide'))}; })()""")
-        check('■ again: saved with its pieces, then cleared', st['ok'] and st['status'] == 'idle' and st['saved'] and st['brk'] == 1 and not st['copy'], st)
+        check('■ again: saved with its pieces, then cleared', st['ok'] and st['status'] == 'idle' and st['saved'] and st['brk'] == 2 and not st['copy'], st)
         # ---- saved ride: pieces on the map preview and in the detail mini-map series ----
         st = await pg.evaluate("""(async () => { const r = (await DB.all('rides')).pop(); preview(r.track, '#fff', r.brk);
           const ll = previewLayer.getLatLngs(), ser = rideSeries(r.track, r.brk), sg = speedSegments(ser) || [];
           return {rings: Array.isArray(ll[0]) ? ll.length : 1, flat: curRouteCoords().length === r.track.length, serBrk: ser.filter(s => s.brk).length}; })()""")
-        check('saved ride: map preview in pieces, 3D/route tools still get all points, speed colours break at the pause', st['rings'] == 2 and st['flat'] and st['serBrk'] == 1, st)
+        check('saved ride: map preview in pieces, 3D/route tools still get all points, speed colours break at the pause', st['rings'] == 3 and st['flat'] and st['serBrk'] == 2, st)
         # ---- backup with a read error ----
         st = await pg.evaluate("""(async () => { lsSet('lastBackup', 0); window.__lastToasts = ''; const tx = DB.tx; DB.tx = function (s, m, fn) { return s === 'rides' ? Promise.reject(new Error('read')) : tx.call(DB, s, m, fn); };
           const ok = await saveBackup(); DB.tx = tx; return {ok, last: lsGet('lastBackup', 0), t: window.__lastToasts}; })()""")

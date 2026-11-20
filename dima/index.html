@@ -143,6 +143,7 @@ const tr = (() => {
   Object.assign(D, {"Мост": ["Bridge", "גשר"], "Тоннель": ["Tunnel", "מנהרה"], "Ж/д переезд": ["Level crossing", "מפגש מסילת רכבת"], "Лестница — велосипед в руки": ["Steps — carry the bike", "מדרגות — להרים את האופניים"], "Шлагбаум или ворота": ["Barrier or gate", "מחסום או שער"], "Столбики на дороге": ["Bollards on the way", "עמודונים בדרך"], "Брод — переезд через воду": ["Ford — water crossing", "מעבר מים"], "Светофор": ["Traffic lights", "רמזור"], "Знак «Стоп»": ["Stop sign", "תמרור עצור"], "Уступите дорогу": ["Give way", "תן זכות קדימה"], "Лежачий полицейский": ["Speed bump", "פס האטה"], "Крутой спуск": ["Steep descent", "ירידה תלולה"], "Серпантин": ["Switchbacks", "סרפנטינות"], "сейчас": ["now", "עכשיו"], "через": ["in", "בעוד"], "«Впереди…»: мост, ж/д переезд, лестница, шлагбаум, брод, светофор — карточка и голос": ["«Ahead…»: bridge, level crossing, steps, barrier, ford, lights — a card and voice", "«לפנינו…»: גשר, מפגש רכבת, מדרגות, מחסום, מעבר מים, רמזור — כרטיס וקול"], "мост": ["bridge", "גשר"], "тоннель": ["tunnel", "מנהרה"], "железнодорожный переезд": ["level crossing", "מפגש מסילת רכבת"], "лестница": ["steps", "מדרגות"], "шлагбаум": ["barrier", "מחסום"], "столбики": ["bollards", "עמודונים"], "брод": ["water crossing", "מעבר מים"], "Впереди": ["Ahead", "לפנינו"]});
   Object.assign(D, {"Перестроить маршрут?": ["Rebuild the route?", "לבנות את המסלול מחדש?"], "Перестроить маршрут": ["Rebuild the route", "לבנות את המסלול מחדש"], "🔄 Перестроить": ["🔄 Rebuild", "🔄 לבנות מחדש"], "От вас до финиша — дорогами для выбранного транспорта": ["From you to the finish — on ways for the chosen transport", "ממך לסיום — בדרכים לכלי התחבורה שנבחר"], "Оставить этот маршрут": ["Keep this route", "להשאיר את המסלול הזה"], "Навигация продолжится как есть": ["Navigation goes on as it is", "הניווט ימשיך כמו שהוא"], "Сейчас маршрут построен": ["The route is now built", "המסלול בנוי כעת"], "построен не для этого транспорта": ["is not built for this transport", "לא נבנה לכלי התחבורה הזה"], "Новый пройдёт от вас до финиша через ключевые точки оставшейся части. Сохранённый маршрут не изменится.": ["The new one goes from you to the finish through the key points of the part ahead. The saved route stays as it is.", "החדש יעבור ממך לסיום דרך נקודות המפתח של החלק שנותר. המסלול השמור לא ישתנה."], "Пересчитываю маршрут": ["Recalculating the route", "מחשב את המסלול מחדש"], "Перестраиваю маршрут": ["Rebuilding the route", "בונה את המסלול מחדש"], "Маршрут перестроен": ["Route rebuilt", "המסלול נבנה מחדש"], "на машине": ["by car", "ברכב"]});
   Object.assign(D, {"Старт: адрес или координаты": ["Start: address or coordinates", "התחלה: כתובת או קואורדינטות"], "Финиш: адрес или координаты": ["Finish: address or coordinates", "סיום: כתובת או קואורדינטות"], "Голосовая команда": ["Voice command", "פקודה קולית"], "Говорить": ["Speak", "לדבר"]});
+  Object.assign(D, {"Не было GPS": ["No GPS for", "לא היה GPS"], "добавлено по маршруту": ["added along the route", "נוסף לאורך המסלול"], "добавлено по прямой (оценка)": ["added in a straight line (estimate)", "נוסף בקו אווירי (הערכה)"], "Без GPS (оценка)": ["Without GPS (estimate)", "בלי GPS (הערכה)"], "Резервная копия не восстановлена — на телефоне ничего не изменилось": ["The backup was not restored — nothing on the phone has changed", "הגיבוי לא שוחזר — שום דבר בטלפון לא השתנה"], "в копии нет поездок, маршрутов и настроек": ["the backup has no rides, routes or settings", "אין בגיבוי רכיבות, מסלולים או הגדרות"], "не хватает места в телефоне": ["not enough space on the phone", "אין מספיק מקום בטלפון"]});
   const k = LANG === 'he' ? 1 : 0, CY = 'А-Яа-яЁё', CYR = /[А-Яа-яЁё]/;
   const map = new Map(), low = new Map();
   for (const ru in D) { map.set(ru, D[ru][k]); const l = ru.toLowerCase(); if (!low.has(l)) low.set(l, D[ru][k]); }
@@ -2013,6 +2014,15 @@ const DB = {
   // For the backup: a read error must not look like «no rides».
   allStrict(store) { return this.tx(store, 'readonly', s => s.getAll()).then(r => r || []); }
 };
+// v150: while another account is signed in, the rides and routes that belong to the account synced before it (v147 keeps
+// them on the phone and never uploads them) are not shown, searched or put into a backup — they come back when their own
+// account signs in again (or when signed out: then the phone shows everything on it). The account's sync reads the store directly.
+function foreignItem(st, id) {
+  const u = lsGet('acct', null); if (!u || !u.uid) return false;
+  const o = (lsGet('syncOwn', {}) || {})[st + '~' + id]; return !!o && o !== u.uid;
+}
+{ const all = DB.all.bind(DB), strict = DB.allStrict.bind(DB), mine = st => list => (st === 'rides' || st === 'routes') && Array.isArray(list) ? list.filter(r => !(r && foreignItem(st, r.id))) : list;
+  DB.all = st => all(st).then(mine(st)); DB.allStrict = st => strict(st).then(mine(st)); }
 
 /* ================= settings ================= */
 const S = Object.assign({ compass: true, headingUp: true, orient: 'compass', autopause: true, autorec: true, autozoom: true, voice: true, reroute: true, tofinish: false, newways: true, wake: true, darkmap: true, extnav: 'auto', urlProxy: false, compact: false, compactNav: true, places: true }, lsGet('settings', {}));
@@ -2628,7 +2638,7 @@ function setCompact(on, remember) {
   hudCompact = !!on; $('#hud').classList.toggle('compact', hudCompact);
   if (remember) { S.compact = hudCompact; saveS(); }
   syncSheetMax();
-  if (GPS.follow && GPS.fix) setTimeout(() => centerOn([GPS.fix.lat, GPS.fix.lon]), 30);
+  if (GPS.follow && GPS.fix) setTimeout(() => { const f = GPS.fix; if (f) centerOn([f.lat, f.lon]); }, 30);   // v150: the fix may be gone by then
 }
 $('#hud-min').onclick = () => { hudIdleOpen = false; setCompact(true, true); };
 $('#hud-max').onclick = () => { hudIdleOpen = true; setCompact(false, true); };
@@ -3479,22 +3489,45 @@ function trackSegs(tr, brk) {
   return out;
 }
 const segLL = (tr, brk) => trackSegs(tr, brk).map(sg => sg.map(p => [p[0], p[1]]));
+// v150: the stretches counted without GPS (est) as lines from the last point before the gap to the first one after it.
+function estLL(tr, est) {
+  if (!est || !est.length || !tr || tr.length < 2) return [];
+  const at = new Map(); for (const p of tr) if (!at.has(p[3])) at.set(p[3], p);
+  return est.map(e => [at.get(e.t0), at.get(e.t1)]).filter(([a, b]) => a && b).map(([a, b]) => [[a[0], a[1]], [b[0], b[1]]]);
+}
+// v150: a GPS gap while following a route — its length along the route, when both ends lie on it (≤ 40 m), the route
+// goes forward between them and the result is believable (not shorter than the straight line, at most 3× it, plausible speed).
+function gapAlong(a, b, d, gapMs) {
+  try {
+    const r = Nav.route; if (!r || !r.cum || !r.coords || r.coords.length < 2) return null;
+    const pa = Nav.nearest([a[0], a[1]]), pb = Nav.nearest([b[0], b[1]]); if (!pa || !pb || pa.dist > 40 || pb.dist > 40) return null;
+    const c = r.coords, al = x => r.cum[x.seg] + hav(c[x.seg], x.pt), m = al(pb) - al(pa);
+    if (!(m >= d * 0.95 && m <= d * 3 && m / (gapMs / 1000) <= vMax())) return null;
+    return m;
+  } catch { return null; }
+}
 const Ride = {
   status: 'idle', startTs: 0, movingMs: 0, dist: 0, max: 0, asc: 0, desc: 0, altRef: null, track: [], autoPaused: false, slowSince: 0, lastTick: 0, line: null,
   start() {
-    if (this.status === 'idle') Object.assign(this, { startTs: Date.now(), movingMs: 0, dist: 0, max: 0, asc: 0, desc: 0, altRef: null, altS: null, track: [], brk: [], autoPaused: false });
+    if (this.status === 'idle') Object.assign(this, { startTs: Date.now(), movingMs: 0, dist: 0, max: 0, asc: 0, desc: 0, altRef: null, altS: null, track: [], brk: [], est: [], autoPaused: false });
     if (!this.brk) this.brk = [];
+    if (!Array.isArray(this.est)) this.est = [];
     this.live = undefined; this.mAtFix = this.movingMs;
     this.lastFixT = this.track.length ? this.track[this.track.length - 1][3] || 0 : 0;   // a restored ride: its gap is settled by the next fix
     // Resuming after a manual pause: what was ridden while paused must not be added as a straight line.
     if (this.status === 'paused' && !this.restored) this.gap = true;
     this.status = 'rec'; this.restored = false; this.moveSince = 0; this.lastTick = Date.now(); startGPS(); unlockSpeech();
     if (!this.line) this.line = L.polyline([], { color: css('--track'), weight: 5, opacity: .9 }).addTo(map);
-    this.line.setLatLngs(segLL(this.track, this.brk));
+    this.line.setLatLngs(segLL(this.track, this.brk)); this.drawEst();
     renderRecUI(); updateWake();
   },
   pause() { this.status = 'paused'; this.restored = false; renderRecUI(); this.persist(); },
   // A point onto the end of the line on the map; newSeg starts a separate piece (nothing drawn across the gap).
+  // v150: stretches without GPS that were counted (est: [{ t0, t1, m, by }]) — a dashed grey line, not the solid track.
+  drawEst() {
+    if (!this.estLine) this.estLine = L.polyline([], { color: '#9aa4b2', weight: 4, opacity: .9, dashArray: '6 8', interactive: false }).addTo(map);
+    this.estLine.setLatLngs(estLL(this.track, this.est));
+  },
   addPt(p, newSeg) {
     this.track.push(p);
     if (newSeg && this.track.length > 1) { this.brk.push(p[3]); this.line.setLatLngs(segLL(this.track, this.brk)); return; }
@@ -3506,6 +3539,7 @@ const Ride = {
     const ride = { id: uid(), name: autoRideName(this.startTs, S.act || 'bike'),
       start: this.startTs, end: Date.now(), type: S.act || 'bike', dist: this.dist, movingMs: this.movingMs, max: this.max, asc: this.asc, desc: this.desc, track: this.track };
     if (this.brk && this.brk.length) ride.brk = this.brk.slice();
+    if (this.est && this.est.length) ride.est = this.est.map(e => ({ ...e }));
     if (Nav.rid) ride.routeId = Nav.rid;
     if (!save) toast('Поездка удалена без сохранения');
     else if (this.track.length > 1) {
@@ -3518,7 +3552,7 @@ const Ride = {
       }
     }
     else toast('Поездка без трека — не сохранена');
-    this.status = 'idle'; this.track = []; this.brk = []; Object.assign(this, { movingMs: 0, dist: 0, max: 0, asc: 0, desc: 0, autoPaused: false, lastFixT: 0 }); if (this.line) this.line.setLatLngs([]);
+    this.status = 'idle'; this.track = []; this.brk = []; this.est = []; if (this.estLine) this.estLine.setLatLngs([]); Object.assign(this, { movingMs: 0, dist: 0, max: 0, asc: 0, desc: 0, autoPaused: false, lastFixT: 0 }); if (this.line) this.line.setLatLngs([]);
     await DB.del('kv', 'currentRide').catch(() => {}); renderRecUI(); updateWake(); renderDash();
     try { AutoRec.quiet(); } catch {}
     return true;
@@ -3572,9 +3606,19 @@ const Ride = {
     const gapMs = (p[3] || 0) - (last[3] || 0);
     if (gapMs > 20000 && d > 30) {
       // Handled once (the point becomes the new last one), whatever the standstill filter thinks right after the gap.
+      // v150: the counted stretch is marked (dashed on the map, «без GPS» in the ride) and, when both ends lie on the route
+      // being followed, measured along the route (a winding trail is longer than the straight line).
       const v = d / (gapMs / 1000), ok = v >= 1 && v <= vMax();
-      if (ok) { this.movingMs += Math.min(missed, gapMs); this.dist += d; this.autoPaused = false; this.slowSince = 0; }
-      this.addPt(p, !ok); return;
+      if (ok) {
+        const al = gapAlong(last, p, d, gapMs), m = al || d;
+        this.movingMs += Math.min(missed, gapMs); this.dist += m; this.autoPaused = false; this.slowSince = 0;
+        if (!Array.isArray(this.est)) this.est = [];
+        this.est.push({ t0: last[3], t1: p[3], m: Math.round(m), by: al ? 'route' : 'line' });
+        this.addPt(p, true); this.drawEst();
+        toast(`${tr('Не было GPS')} ${Math.max(1, Math.round(gapMs / 60e3))} ${tr('мин')} — ≈ ${fmtKm(m)} ${tr('км')} ${tr(al ? 'добавлено по маршруту' : 'добавлено по прямой (оценка)')}`, 4500);
+        return;
+      }
+      this.addPt(p, true); return;
     }
     // A short dropout (≤ 20 s) while riding on: its time was riding time too.
     if (missed && fixGap > 5000 && gapMs <= 20000 && spd > 1 && !this.autoPaused) this.movingMs += Math.min(missed, fixGap);
@@ -3582,7 +3626,7 @@ const Ride = {
   },
   persist() {
     if (this.status === 'idle') return Promise.resolve();
-    return DB.put('kv', { id: 'currentRide', v: { status: this.status, gap: !!this.gap, savedAt: Date.now(), startTs: this.startTs, movingMs: this.movingMs, dist: this.dist, max: this.max, asc: this.asc, desc: this.desc, brk: this.brk || [], track: this.track } }).catch(() => {});
+    return DB.put('kv', { id: 'currentRide', v: { status: this.status, gap: !!this.gap, savedAt: Date.now(), startTs: this.startTs, movingMs: this.movingMs, dist: this.dist, max: this.max, asc: this.asc, desc: this.desc, brk: this.brk || [], est: this.est || [], track: this.track } }).catch(() => {});
   }
 };
 const PLAY = '<svg viewBox="0 0 24 24"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.2-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z" fill="currentColor"/></svg>';
@@ -6482,7 +6526,7 @@ async function openRouteFiles(files) {
   }
   if (!added.length) return;
   $('#gpx-list').innerHTML = added.map((r, i) => `<div class="item"><span class="t">${esc(r.name)}</span><span class="s">${fmtKm(r.dist)} км${r.asc ? ' · ↑' + Math.round(r.asc) + ' м' : ''}${r.wpts.length ? ' · точек: ' + r.wpts.length : ''}</span><span class="a"><button class="btn sm pri" data-go="${i}">Ехать</button><button class="btn sm" data-rev="${i}">Обратно</button><button class="btn sm" data-own="${i}">Свой старт</button><button class="btn sm" data-see="${i}">Карта</button></span></div>`).join('');
-  const go = (r, rev) => { showTab('rec'); Nav.set({ name: r.name + (rev ? ' (обратно)' : ''), coords: rev ? r.coords.slice().reverse() : r.coords, wpts: r.wpts, rid: r.id }); setFollow(true); if (GPS.fix) setTimeout(() => centerOn([GPS.fix.lat, GPS.fix.lon], 16), 600); };
+  const go = (r, rev) => { showTab('rec'); Nav.set({ name: r.name + (rev ? ' (обратно)' : ''), coords: rev ? r.coords.slice().reverse() : r.coords, wpts: r.wpts, rid: r.id }); setFollow(true); if (GPS.fix) setTimeout(() => GPS.fix && centerOn([GPS.fix.lat, GPS.fix.lon], 16), 600); };
   $$('#gpx-list [data-go]').forEach(b => b.onclick = () => go(added[+b.dataset.go], false));
   $$('#gpx-list [data-rev]').forEach(b => b.onclick = () => go(added[+b.dataset.rev], true));
   $$('#gpx-list [data-own]').forEach(b => b.onclick = () => ownStart(added[+b.dataset.own]));
@@ -7278,6 +7322,7 @@ function miniMap(el, tr, opts = {}) {
   const ll = pts.map(p => [p[0], p[1]]), lls = segLL(pts, opts.brk);
   if (opts.colors) opts.colors.forEach(([seg, col]) => L.polyline(seg, { color: col, weight: 6, opacity: 1, interactive: false, lineCap: 'round' }).addTo(m));
   else { L.polyline(lls, { color: '#000', weight: 7, opacity: .25, interactive: false }).addTo(m); L.polyline(lls, { color: css('--track') || '#e2e08a', weight: 4.5, opacity: 1, interactive: false }).addTo(m); }
+  if (opts.est) { const e = estLL(pts, opts.est); if (e.length) L.polyline(e, { color: '#9aa4b2', weight: 4, opacity: .95, dashArray: '6 8', interactive: false }).addTo(m); }   // v150: counted without GPS
   L.marker(ll[0], { icon: pinIcon('st'), interactive: false }).addTo(m);
   L.marker(ll[ll.length - 1], { icon: pinIcon('fin'), interactive: false }).addTo(m);
   m.fitBounds(L.latLngBounds(ll), { padding: opts.pad || [26, 26], animate: false });
@@ -7286,7 +7331,7 @@ function miniMap(el, tr, opts = {}) {
 let histObs = null;
 function lazyMaps(root, list) {
   if (histObs) histObs.disconnect();
-  const make = el => { if (el.dataset.done) return; el.dataset.done = 1; const r = list.find(x => x.id === el.dataset.mm); if (r) try { miniMap(el, r.track || [], { brk: r.brk }); } catch {} };
+  const make = el => { if (el.dataset.done) return; el.dataset.done = 1; const r = list.find(x => x.id === el.dataset.mm); if (r) try { miniMap(el, r.track || [], { brk: r.brk, est: r.est }); } catch {} };
   if (!('IntersectionObserver' in window)) { [...root.querySelectorAll('[data-mm]')].forEach(make); return; }
   histObs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { make(e.target); histObs.unobserve(e.target); } }), { rootMargin: '300px' });
   [...root.querySelectorAll('[data-mm]')].forEach(el => histObs.observe(el));
@@ -7421,6 +7466,7 @@ async function openRide(id) {
       ${row('🔥', tr('Калории'), kc ? `${kc.est ? '≈ ' : ''}${kc.v} ${tr('ккал')}${kc.est ? ' · ' + tr('оценка') : ' · ' + tr('из файла')}` : `<button class="btn sm" id="rd-wt">${tr('Указать вес')}</button>`)}
       ${hr ? row('❤️', tr('Пульс'), `${hr.avg} ${tr('уд/мин')} · ${tr('макс')} ${hr.max}`) : ''}
       ${row('⚡', tr('Макс. скорость'), kmh(r.max || 0) + ' км/ч')}
+      ${r.est && r.est.length ? row('📡', tr('Без GPS (оценка)'), '≈ ' + fmtKm(r.est.reduce((t, e) => t + (+e.m || 0), 0)) + ' км · ' + [...new Set(r.est.map(e => tr(e.by === 'route' ? 'по маршруту' : 'по прямой')))].join(', ')) : ''}
       ${row('↘️', tr('Спуск'), Math.round(r.desc || 0) + ' м')}
       ${r.end ? row('⏱️', tr('Всего с остановками'), fmtClock(r.end - r.start)) : ''}
       ${row('🕓', tr('Старт — финиш'), time(r.start) + (r.end ? ' — ' + time(r.end) : ''))}
@@ -7435,7 +7481,7 @@ async function openRide(id) {
   showTab('ride'); $('#sheet-ride').scrollTop = 0;
   if ((fromList || fromRoute) && !(history.state && history.state.sheet === 'ride')) { try { history.pushState({ sheet: 'ride' }, ''); } catch {} }
   requestAnimationFrame(() => {
-    try { RD.map = miniMap($('#rd-mapel'), tr0, { live: true, colors: ser && speedSegments(ser), pad: [30, 30], brk: r.brk }); } catch {}
+    try { RD.map = miniMap($('#rd-mapel'), tr0, { live: true, colors: ser && speedSegments(ser), pad: [30, 30], brk: r.brk, est: r.est }); } catch {}
     if (!RD.map) $('.rdmbar').hidden = true;
     if (ser) {
       const cv = $('#rd-chart'); let geo = drawRideChart(cv, ser);
@@ -7787,33 +7833,64 @@ function renderBackupInfo() {
   el.textContent = t ? 'Последняя копия: ' + new Date(t).toLocaleDateString(LOC, { day: 'numeric', month: 'long', year: 'numeric' }) : 'Копий ещё не было.';
 }
 $('#bk-exp').onclick = () => saveBackup();
+// v150: restoring is all or nothing. The whole file is checked first; rides, routes and own sections are then written in
+// ONE storage transaction (it either completes whole or leaves nothing), and the settings only after it, with the old
+// settings put back if writing them fails — a failed restore no longer leaves the phone half-overwritten.
+async function restoreBackup(d) {
+  if (!d || d.app !== 'velokomp') throw new Error(tr('это не резервная копия Велокомпа'));
+  // Only plain ids (as the app makes them) — a hand-edited file with odd ids or objects is skipped, not inserted.
+  const okId = r => r && typeof r === 'object' && (typeof r.id === 'string' ? /^[\w.:-]{1,80}$/.test(r.id) : Number.isFinite(r.id));
+  const rides = (Array.isArray(d.rides) ? d.rides : []).filter(okId), routes = (Array.isArray(d.routes) ? d.routes : []).filter(okId);
+  // Own sections (pieces of way the map does not have): added to the ones already on this phone.
+  await NewWays.init();
+  const have = new Set(NewWays.ways.map(w => w.id)), addWays = [];
+  if (Array.isArray(d.myWays)) for (const w of d.myWays) {
+    if (!okId(w) || have.has(w.id) || !Array.isArray(w.coords) || w.coords.length < 2) continue;
+    const c = w.coords.map(q => [+(q && q[0]), +(q && q[1])]); if (!c.every(q => Number.isFinite(q[0]) && Number.isFinite(q[1]) && Math.abs(q[0]) <= 90 && Math.abs(q[1]) <= 180)) continue;
+    addWays.push({ id: w.id, coords: c, len: Math.round(+w.len || cumDist(c).pop()), at: +w.at || Date.now() }); have.add(w.id);
+  }
+  const ls = d.ls && typeof d.ls === 'object' ? Object.entries(d.ls).filter(([k, v]) => typeof v === 'string' && typeof k === 'string' && !BK_SKIP.includes(k)) : [];
+  if (!rides.length && !routes.length && !addWays.length && !ls.length) throw new Error(tr('в копии нет поездок, маршрутов и настроек'));
+  if (!DB.db) throw new Error(tr('хранилище недоступно'));
+  const ways = addWays.length ? NewWays.ways.concat(addWays) : null;
+  await new Promise((res, rej) => {
+    let t; try { t = DB.db.transaction(['rides', 'routes', 'kv'], 'readwrite'); } catch (e) { rej(e); return; }
+    t.oncomplete = res; t.onerror = () => rej(t.error); t.onabort = () => rej(t.error || new Error('отменено'));
+    try {
+      const sr = t.objectStore('rides'), st = t.objectStore('routes');
+      for (const r of rides) sr.put(r);
+      for (const r of routes) st.put(r);
+      if (ways) t.objectStore('kv').put({ id: 'myWays', ways });
+    } catch (e) { try { t.abort(); } catch {} rej(e); }
+  });
+  // Committed: the account learns about every item, own sections show up.
+  try { for (const r of rides) Sync.mark('rides', r.id); for (const r of routes) Sync.mark('routes', r.id); if (ways) Sync.mark('kv', 'myWays'); } catch {}
+  if (ways) { NewWays.ways = ways; NewWays.segs = null; try { Graphs.online = null; Graphs.mem.clear(); } catch {} try { NewWays.draw(); } catch {} }
+  // Settings: all of them or none — the previous values come back if the phone refuses one (full storage).
+  let ns = 0;
+  if (ls.length) {
+    const before = new Map(ls.map(([k]) => [k, localStorage.getItem('velo:' + k)]));
+    try { for (const [k, v] of ls) { localStorage.setItem('velo:' + k, v); ns++; } }
+    catch {
+      for (const [k, v] of before) { try { v == null ? localStorage.removeItem('velo:' + k) : localStorage.setItem('velo:' + k, v); } catch {} }
+      ns = -1;
+    }
+  }
+  return { nr: rides.length, nt: routes.length, nw: addWays.length, ns };
+}
 $('#bk-file').onchange = async e => {
   const f = e.target.files[0]; e.target.value = ''; if (!f) return;
-  try {
-    let d = null; try { d = JSON.parse(await f.text()); } catch {}
-    if (!d || d.app !== 'velokomp') throw new Error('это не резервная копия Велокомпа');
-    let nr = 0, nt = 0;
-    // Only plain ids (as the app makes them) — a hand-edited file with odd ids or objects is skipped, not inserted.
-    const okId = r => r && (typeof r.id === 'string' ? /^[\w.:-]{1,80}$/.test(r.id) : Number.isFinite(r.id));
-    for (const r of d.rides || []) if (okId(r)) { await DB.put('rides', r); nr++; }
-    for (const r of d.routes || []) if (okId(r)) { await DB.put('routes', r); nt++; }
-    // Own sections (pieces of way the map does not have): added to the ones already on this phone.
-    let nw = 0;
-    if (Array.isArray(d.myWays)) {
-      await NewWays.init(); const have = new Set(NewWays.ways.map(w => w.id));
-      for (const w of d.myWays) {
-        if (!okId(w) || have.has(w.id) || !Array.isArray(w.coords) || w.coords.length < 2) continue;
-        const c = w.coords.map(q => [+q[0], +q[1]]); if (!c.every(q => Math.abs(q[0]) <= 90 && Math.abs(q[1]) <= 180)) continue;
-        NewWays.ways.push({ id: w.id, coords: c, len: Math.round(+w.len || cumDist(c).pop()), at: +w.at || Date.now() }); have.add(w.id); nw++;
-      }
-      if (nw && !(await NewWays.store())) nw = 0;
-    }
-    let ns = 0;
-    if (d.ls && typeof d.ls === 'object') for (const [k, v] of Object.entries(d.ls)) { if (typeof v === 'string' && !BK_SKIP.includes(k)) { try { localStorage.setItem('velo:' + k, v); ns++; } catch {} } }
-    toast(`Восстановлено: ${nr} ${plural(nr, 'поездка', 'поездки', 'поездок')}, ${nt} ${plural(nt, 'маршрут', 'маршрута', 'маршрутов')}${nw ? `, ${nw} ${plural(nw, 'участок', 'участка', 'участков')}` : ''}${ns ? ' и настройки — перезапускаю' : ''}`, 4000);
-    renderRoutes();
-    if (ns) setTimeout(() => location.reload(), 1800);
-  } catch (err) { toast('Не удалось восстановить: ' + err.message, 5000); }
+  let d = null; try { d = JSON.parse(await f.text()); } catch {}
+  let res;
+  try { res = await restoreBackup(d); }
+  catch (err) {
+    const why = err && (err.name === 'QuotaExceededError' || /quota/i.test(err.message || '')) ? tr('не хватает места в телефоне') : (err && err.message) || '';
+    toast(tr('Резервная копия не восстановлена — на телефоне ничего не изменилось') + (why ? ': ' + why : ''), 6000); return;
+  }
+  const { nr, nt, nw, ns } = res;
+  toast(`Восстановлено: ${nr} ${plural(nr, 'поездка', 'поездки', 'поездок')}, ${nt} ${plural(nt, 'маршрут', 'маршрута', 'маршрутов')}${nw ? `, ${nw} ${plural(nw, 'участок', 'участка', 'участков')}` : ''}${ns > 0 ? ' и настройки — перезапускаю' : ns < 0 ? ' · настройки не записаны (нет места) — остались прежние' : ''}`, ns < 0 ? 7000 : 4000);
+  renderRoutes(); try { if (!$('#sheet-history').hidden) renderRides(); } catch {}
+  if (ns > 0) setTimeout(() => location.reload(), 1800);
 };
 $$('#s-act button').forEach(b => b.onclick = () => { S.act = b.dataset.a; saveS(); $$('#s-act button').forEach(x => x.classList.toggle('on', x === b)); if (modeOfAct(S.act) !== curMode()) setRO({ mode: modeOfAct(S.act) }); });
 $$('#s-act button').forEach(x => x.classList.toggle('on', x.dataset.a === (S.act || 'bike')));
@@ -9080,6 +9157,7 @@ window.addEventListener('online', () => setTimeout(() => runMapUpdate(false), 30
       Object.assign(Ride, cur.v, { status: 'paused', restored: cur.v.status !== 'paused', moveSince: 0 });
       if (!Array.isArray(Ride.brk)) Ride.brk = [];
       Ride.line = L.polyline(segLL(Ride.track, Ride.brk), { color: css('--track'), weight: 5, opacity: .9 }).addTo(map);
+      if (!Array.isArray(Ride.est)) Ride.est = []; Ride.drawEst();
       if (wasRec) { rideWasRec = true; Ride.start(); renderDash(); toast(`▶ Запись поездки продолжается (${fmtKm(Ride.dist)} км)`, 5000); }
       else { renderRecUI(); renderDash(); toast('Восстановлена незавершённая поездка: ▶ — продолжить, ■ — завершить. Начнёте ехать — запись продолжится сама', 6000); }
     }
@@ -9512,7 +9590,7 @@ $('#map').addEventListener('pointerdown', () => { RideUI.touch = Date.now(); syn
 // iPhone can keep the app suspended for days: on every return to the screen and every 30 min the app asks the site for
 // its current build (version.json, a few bytes) and reloads itself when a newer one is out. Never in the middle of a
 // ride or navigation — then it waits until both are finished. Bump APP_BUILD together with version.json.
-const APP_BUILD = '149';
+const APP_BUILD = '150';
 const Upd = { pending: false, t: 0, mv: 0 };
 setInterval(() => { try { if (GPS.fix && GPS.fix.spd > 1.5 && Date.now() - GPS.fix.t < 10000) Upd.mv = Date.now(); } catch {} }, 5000);
 async function checkUpdate(force) {
