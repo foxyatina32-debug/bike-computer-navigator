@@ -7731,8 +7731,8 @@ $$('#s-act button').forEach(x => x.classList.toggle('on', x.dataset.a === (S.act
 // The app's Firebase project (its web config is public by design: the API key only names the project; the data is protected
 // by the Firestore rules — each account reads and writes only users/{its uid}). How to create it — README, «Аккаунт».
 // Accounts are switched off for now (owner's request, v128): no section in Settings, no sync, no hooks on saving.
-const ACCOUNTS_ON = false;
-const FB = Object.assign({ apiKey: '', projectId: '' }, ACCOUNTS_ON ? (lsGet('fbcfg', null) || {}) : {});
+const ACCOUNTS_ON = true;
+const FB = Object.assign({ apiKey: 'AIzaSyCmq7Mcys6CuMdDe9fQV37A1sReAXqlyDQ', projectId: 'velocomp-9ed33' }, ACCOUNTS_ON ? (lsGet('fbcfg', null) || {}) : {});
 const Acct = {
   get u() { return lsGet('acct', null); },   // { email, uid, idToken, refreshToken, exp } — the password itself is never stored
   on() { return !!(FB.apiKey && FB.projectId); },
@@ -9400,7 +9400,7 @@ $('#map').addEventListener('pointerdown', () => { RideUI.touch = Date.now(); syn
 // iPhone can keep the app suspended for days: on every return to the screen and every 30 min the app asks the site for
 // its current build (version.json, a few bytes) and reloads itself when a newer one is out. Never in the middle of a
 // ride or navigation — then it waits until both are finished. Bump APP_BUILD together with version.json.
-const APP_BUILD = '143';
+const APP_BUILD = '144';
 const Upd = { pending: false, t: 0, mv: 0 };
 setInterval(() => { try { if (GPS.fix && GPS.fix.spd > 1.5 && Date.now() - GPS.fix.t < 10000) Upd.mv = Date.now(); } catch {} }, 5000);
 async function checkUpdate(force) {
