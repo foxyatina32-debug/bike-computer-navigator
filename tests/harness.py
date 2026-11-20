@@ -57,9 +57,11 @@ class H(http.server.SimpleHTTPRequestHandler):
 
 def serve(port):
     ensure_libs()
-    srv = http.server.ThreadingHTTPServer(('127.0.0.1', port), H)
+    # the port each test asks for; when another test running at the same time holds it, any free one (tests can run in parallel)
+    try: srv = http.server.ThreadingHTTPServer(('127.0.0.1', port), H)
+    except OSError: srv = http.server.ThreadingHTTPServer(('127.0.0.1', 0), H)
     threading.Thread(target=srv.serve_forever, daemon=True).start()
-    return f'http://127.0.0.1:{port}/app/'
+    return f'http://127.0.0.1:{srv.server_address[1]}/app/'
 
 # ---- mocked external services (the real ones are not reachable from this sandbox) ----
 def enc_poly(pts):

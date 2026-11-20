@@ -78,9 +78,9 @@ async def main():
         check('the small panel has a grab handle', await pg.evaluate("(() => { const g = document.querySelector('#mini .mgrab'); return !!g && g.getBoundingClientRect().width > 20; })()"))
         await pg.evaluate("showTab('profile')"); await pg.click('#s-theme [data-t="dark"]')
         st = await pg.evaluate("({ cls: ['md', 'mdn', 'mdk', 'sun'].filter(c => document.body.classList.contains(c)).join(' '), acc: getComputedStyle(document.body).getPropertyValue('--accent').trim(), meta: document.querySelector('meta[name=theme-color]').content })")
-        # v144: «Тёмный как Google Maps» — this layout in the dark look's colours (the slate screen, the yellow accent)
+        # v145: «Тёмный как Google Maps» — this layout in the dark look's colours (the slate screen, the yellow accent)
         check('«Тёмный как Google Maps»: the same layout, dark slate and yellow', st['cls'] == 'md mdn mdk' and st['acc'] == '#fde047' and st['meta'] == '#0b1120', st)
-        # «🌓 По солнцу» (v144): the same layout all day — «Как Google Maps · День» by day, «Тёмный как Google Maps» at night
+        # «🌓 По солнцу» (v145): the same layout all day — «Как Google Maps · День» by day, «Тёмный как Google Maps» at night
         CL = "['md', 'mdn', 'mdk', 'sun'].filter(c => document.body.classList.contains(c)).join(' ')"
         await pg.evaluate("window.sunTimes = () => ({ rise: new Date(Date.now() - 7200000), set: new Date(Date.now() + 7200000) }); S.theme = 'auto'; applyTheme()")
         day = await pg.evaluate("({ cls: " + CL + ", acc: getComputedStyle(document.body).getPropertyValue('--accent').trim() })")

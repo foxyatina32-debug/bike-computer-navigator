@@ -30,7 +30,7 @@ CLS = "['md', 'sun', 'mdn', 'mdc'].filter(c => document.body.classList.contains(
 async def main():
     url = serve(9083); m = Mocks()
     async with async_playwright() as p:
-        b, ctx, pg, log = await open_app(p, url + '?lang=ru', m, storage=[['velo:settings', json.dumps({'theme': 'sun'})]])   # an older look (since v144 «Тёмный» is this layout too)
+        b, ctx, pg, log = await open_app(p, url + '?lang=ru', m, storage=[['velo:settings', json.dumps({'theme': 'sun'})]])   # an older look (since v145 «Тёмный» is this layout too)
         check('the other looks do not fetch Google\'s fonts', not await pg.evaluate("!!document.getElementById('md-fonts')"))
         await pg.evaluate("showTab('profile')")
         check('the variants show only with «Как Google Maps»', await pg.evaluate("document.getElementById('s-mdv').hidden"))

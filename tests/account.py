@@ -1,7 +1,8 @@
 # Account (email + password, Firebase): two phones with one account.
 # Phone A registers and uploads rides, routes, own sections and settings; phone B signs in and gets everything (settings → restart);
 # a big ride goes in gzipped parts; deletion and a new route travel both ways; wrong password, password reset, sign-out;
-# without the Firebase project the section says so; Hebrew and English without untranslated text.
+# the app's own project is built in (the form works without setup, nothing sent before signing in); Hebrew and English
+# without untranslated text.
 # Firebase (Identity Toolkit, Secure Token, Firestore REST) is replaced by an in-memory fake with per-user access rules.
 # Run: python3 tests/account.py
 import asyncio, sys, os, json, re, random, base64
@@ -100,9 +101,15 @@ async def main():
             await b.close()
             print(f'{sum(RES)}/{len(RES)} passed'); sys.exit(0 if all(RES) else 1)
         await b.close()
-        # ---- not configured: the section says so, no requests to Firebase
+        # ---- the app's own Firebase project (built in since the owner turned accounts on): the sign-in form with no setup,
+        # and nothing is sent to Firebase before someone signs in
+        calls = []; n0 = len(m.calls)
         b, ctx, pg, log = await phone(p, url, m, fb, cfg=False)
-        check('no Firebase project: the section says accounts are not set up', await pg.is_visible('#ac-off') and not await pg.is_visible('#ac-in'))
+        calls += [c for c in m.calls[n0:] if FB_HOSTS.match(c)]   # anything at start-up, before the fake was attached
+        await ctx.route(FB_HOSTS, lambda r: (calls.append(r.request.url), r.abort('failed'))[1])
+        await pg.wait_for_timeout(1500)
+        st = await pg.evaluate("({ form: !document.getElementById('ac-in').hidden && getComputedStyle(document.getElementById('ac-in')).display !== 'none', off: !document.getElementById('ac-off').hidden, on: Acct.on(), u: Acct.u })")
+        check('built-in project: the sign-in form without any setup; nothing sent to Firebase before signing in', st['form'] and not st['off'] and st['on'] and st['u'] is None and not calls, (st, calls[:2]))
         await b.close()
 
         # ---- phone A: data made before signing in, then registration

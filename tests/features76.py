@@ -33,7 +33,7 @@ async def main():
         for m in range(300, 520, 12): await at(lat + m / 110540, lon, 800)
         txt = await pg.inner_text('#nv-txt'); said = await pg.evaluate("window.__said.join(' | ')")
         nxt = await pg.evaluate("(() => { const e = document.getElementById('nv-next'); return e && getComputedStyle(e).display !== 'none' ? e.innerText : ''; })()")
-        # the old banner: «… затем поверните налево» under the turn; the Google-style banner (v138, «Тёмный» since v144): the strip «Далее: поверните налево»
+        # the old banner: «… затем поверните налево» under the turn; the Google-style banner (v138, «Тёмный» since v145): the strip «Далее: поверните налево»
         check('«затем»: the next turn is shown under the current one', ('затем' in txt and 'налево' in txt.split('затем')[1]) or ('Далее' in nxt and 'налево' in nxt), (txt, nxt))
         check('«затем»: and spoken after the first turn', 'затем поверните налево' in said or 'затем налево' in said, said[-160:])
         # 2. Steep descent: flat 500 m, then 15% down for 200 m, then flat.
