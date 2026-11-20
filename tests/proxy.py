@@ -1,4 +1,6 @@
-# Step 3: own Cloudflare Worker as the first proxy (public proxies as fallback). Run: python3 tests/proxy.py
+# Step 3: own Cloudflare Worker as the first proxy (public proxies as fallback). v147: a failing own proxy never hands a
+# short Google link to a public service unless «Через прокси» is on; Cloudflare's «Hello World!» template is said plainly.
+# Run: python3 tests/proxy.py
 import asyncio, sys, os, json, urllib.parse
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from harness import serve, Mocks, open_app
@@ -14,6 +16,8 @@ def wk(req):
         t = q['url'][0]
         if t == 'https://files.bikemap.net/route-1.gpx': return 200, GPX, {'Content-Type': 'application/gpx+xml', 'X-Final-URL': t}
         if t == 'https://maps.app.goo.gl/XyZ': return 200, '<html></html>', {'Content-Type': 'text/html', 'X-Final-URL': 'https://www.google.com/maps/dir/32.09,34.88/32.1,34.9/'}
+        if t.startswith('https://maps.app.goo.gl/Down'): return 502, {'error': 'upstream_failed'}, {}   # the worker cannot reach Google
+    if u.path == '/hello/health': return 200, 'Hello World!', {'Content-Type': 'text/plain'}   # Cloudflare's template, never replaced
     return 404, {'error': 'not_found'}, {}
 
 async def main():
@@ -36,6 +40,19 @@ async def main():
         await pg.evaluate("showTab('profile')"); await pg.fill('#wk-url', 'https://wk.test.workers.dev/nothing'); await pg.click('#wk-save'); await pg.wait_for_timeout(800)
         st2 = await pg.evaluate("document.getElementById('wk-st').textContent")
         check('wrong address → clear error, old one kept', st2.startswith('✗') and await pg.evaluate("lsGet('worker')") == 'https://wk.test.workers.dev', st2)
+        # v147: Cloudflare's «Hello World!» template at the address → said plainly
+        await pg.fill('#wk-url', 'https://wk.test.workers.dev/hello'); await pg.click('#wk-save'); await pg.wait_for_timeout(800)
+        st3 = await pg.evaluate("document.getElementById('wk-st').textContent")
+        check('a worker still on Cloudflare\'s «Hello World!» template → «замените его код на cloudflare-worker.js»', st3.startswith('✗') and 'Hello World' in st3 and 'cloudflare-worker.js' in st3, st3)
+        # v147: own proxy set but it fails on a short link → no public service unless «Через прокси» is on
+        await pg.evaluate("S.urlProxy = false; showTab('routes'); routeSeg('mine')"); n0 = len(m.calls)
+        msg = await pg.evaluate("expandGoogleShort('https://maps.app.goo.gl/Down1').then(() => 'ok', e => e.message)")
+        pub = [c for c in m.calls[n0:] if 'allorigins' in c or 'corsproxy' in c]
+        check('own proxy fails on a short link, «Через прокси» off → no public service; the message points to the proxy check', not pub and 'свой прокси' in msg, (pub[:1], msg[:120]))
+        await pg.evaluate("S.urlProxy = true"); n0 = len(m.calls)
+        await pg.evaluate("expandGoogleShort('https://maps.app.goo.gl/Down2').catch(() => 0)")
+        check('…with «Через прокси» on → the public services are tried', any('allorigins' in c or 'corsproxy' in c for c in m.calls[n0:]))
+        await pg.evaluate("S.urlProxy = false")
         check('no JS errors', not log['errors'], log['errors'][:3])
         await b.close()
         # no worker, proxies off → the old clear message
