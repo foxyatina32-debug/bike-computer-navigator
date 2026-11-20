@@ -71,13 +71,14 @@ async def main():
         # ---- the round speedometer on a wide car screen and on a phone: never over the place card, the legend tab, SOS, the compass
         GEO = "(() => { const r = q => { const e = document.querySelector(q); if (!e || e.hidden || e.classList.contains('ovh')) return null; const b = e.getBoundingClientRect(); return b.width ? { l: b.left, t: b.top, r: b.right, b: b.bottom } : null; }; return { spdb: r('#spdb'), locw: r('#locw'), sos: r('#t-sos'), legend: r('#legend-tab'), compass: r('#t-compass'), hud: r('#hud') }; })()"
         def apart(a, c): return a['r'] <= c['l'] + 1 or c['r'] <= a['l'] + 1 or a['b'] <= c['t'] + 1 or c['b'] <= a['t'] + 1
-        for theme, vp in (('md', (960, 600)), ('dark', (1024, 600)), ('md', (800, 480)), ('dark', (390, 844))):
+        for theme, vp in (('md', (960, 600)), ('dark', (1024, 600)), ('md', (800, 480)), ('md', (844, 390)), ('md', (915, 412)), ('dark', (390, 844))):
             b, ctx, pg, log = await open_app(p, url + '?lang=he', Mocks(), viewport=vp, storage=[['velo:settings', json.dumps({'theme': theme, 'gsearch': True})]])
             await pg.evaluate("navigator.geolocation.clearWatch(GPS.watch); setMode('car', true)")
             await pg.evaluate(f"Nav.set({{name: 'T', coords: {json.dumps(ROUTE)}, noAsk: true}})"); await pg.wait_for_timeout(300)
             t0 = await pg.evaluate("Date.now()")
             for i in range(8): await pg.evaluate("([la, lo, t]) => onFix({ coords: { latitude: la, longitude: lo, accuracy: 6, altitude: 40, altitudeAccuracy: 5, speed: 14, heading: 0 }, timestamp: t })", [32.101 + i * 14 / 110540, 34.88, t0 + i * 1000])
-            await pg.evaluate("Places.cur = 'פתח תקווה'; Places.next = { name: 'גבעת שמואל', dist: 3200, route: true }; Places.render(); placeGpxBtn()"); await pg.wait_for_timeout(400)
+            # the card with all three lines (ahead, here, behind), as on the owner's car screen
+            await pg.evaluate("Places.cur = 'פתח תקווה'; Places.next = { name: 'גת רימון', dist: 4800, route: true }; Places.prev = 'גבעת שמואל'; Places.render(); placeGpxBtn()"); await pg.wait_for_timeout(400)
             g = await pg.evaluate(GEO)
             others = [k for k in ('locw', 'sos', 'legend', 'compass') if g[k]]
             hit = [k for k in others if not apart(g['spdb'], g[k])] if g['spdb'] else ['hidden']
