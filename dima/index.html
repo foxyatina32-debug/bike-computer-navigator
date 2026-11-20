@@ -7754,8 +7754,8 @@ $$('#s-act button').forEach(x => x.classList.toggle('on', x.dataset.a === (S.act
 // The app's Firebase project (its web config is public by design: the API key only names the project; the data is protected
 // by the Firestore rules — each account reads and writes only users/{its uid}). How to create it — README, «Аккаунт».
 // Accounts are switched off for now (owner's request, v128): no section in Settings, no sync, no hooks on saving.
-const ACCOUNTS_ON = false;
-const FB = Object.assign({ apiKey: '', projectId: '' }, ACCOUNTS_ON ? (lsGet('fbcfg', null) || {}) : {});
+const ACCOUNTS_ON = true;
+const FB = Object.assign({ apiKey: 'AIzaSyCmq7Mcys6CuMdDe9fQV37A1sReAXqlyDQ', projectId: 'velocomp-9ed33' }, ACCOUNTS_ON ? (lsGet('fbcfg', null) || {}) : {});
 const Acct = {
   get u() { return lsGet('acct', null); },   // { email, uid, idToken, refreshToken, exp } — the password itself is never stored
   on() { return !!(FB.apiKey && FB.projectId); },
