@@ -99,6 +99,8 @@ class Mocks:
         if s.wk and 'wk.test.workers.dev' in host:
             st, body, hdr = s.wk(route.request)
             return await route.fulfill(status=st, body=body if isinstance(body, (bytes, str)) else json.dumps(body), headers={'Access-Control-Allow-Origin': '*', 'Access-Control-Expose-Headers': 'X-Final-URL', **hdr})
+        if 'cdn.jsdelivr.net/npm/@fontsource/' in u:   # Roboto / JetBrains Mono of the Google-style looks: no network here, an empty stylesheet
+            return await route.fulfill(body='/* font stub */', content_type='text/css', headers={'Access-Control-Allow-Origin': '*'})
         if 'routes.googleapis.com' in u:
             body = json.loads(route.request.post_data or '{}'); s.bodies.append((u, dict(route.request.headers), body))
             if s.gerr: return await route.fulfill(status=s.gerr[0], json=s.gerr[1], headers={'Access-Control-Allow-Origin': '*'})
