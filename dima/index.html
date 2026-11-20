@@ -2525,7 +2525,7 @@ function dayNow() {
   const now = Date.now(), st = sunTimes(+f.lat || 31.8, +f.lon || 35, new Date(now)); if (!st) return false;
   return now > st.rise.getTime() + 20 * 60000 && now < st.set.getTime() - 20 * 60000;
 }
-// «Как Google Maps»: День / Контраст are light, Ночь dark, По солнцу by the sun
+// «Как Google Maps»: День / Контраст are light, Ночь dark, По солнцу by the sun (the look «🌓 По солнцу» likewise: day / night)
 function mdNight() { const v = S.mdVariant || 'day'; return v === 'night' || (v === 'auto' && !dayNow()); }
 function sunWanted() {
   const t = S.theme || 'dark';
@@ -2542,8 +2542,10 @@ function mdFonts() {
 }
 function applyTheme() {
   const on = sunWanted(), was = document.body.classList.contains('sun');
-  const mdk = (S.theme || 'dark') === 'dark';   // v144: «Тёмный» — this layout in its own dark colours
-  const md = S.theme === 'md' || mdk, mv = mdk ? 'night' : S.mdVariant || 'day', wasMd = document.body.classList.contains('md');
+  // v144: «Тёмный» — this layout in its own dark colours; «По солнцу» — the same layout all day: «Тёмный как Google Maps»
+  // at night, «Как Google Maps · День» by day (only the colours change at sunrise and sunset, never the buttons)
+  const t = S.theme || 'dark', mdk = t === 'dark' || (t === 'auto' && !on);
+  const md = t === 'md' || t === 'auto' || mdk, mv = mdk ? 'night' : t === 'md' ? S.mdVariant || 'day' : 'day', wasMd = document.body.classList.contains('md');
   document.body.classList.toggle('sun', on); document.body.classList.toggle('md', md); document.body.classList.toggle('mdk', mdk);
   document.body.classList.toggle('mdn', md && !on); document.body.classList.toggle('mdc', md && mv === 'contrast');
   if (md) mdFonts();

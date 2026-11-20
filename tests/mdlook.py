@@ -80,6 +80,14 @@ async def main():
         st = await pg.evaluate("({ cls: ['md', 'mdn', 'mdk', 'sun'].filter(c => document.body.classList.contains(c)).join(' '), acc: getComputedStyle(document.body).getPropertyValue('--accent').trim(), meta: document.querySelector('meta[name=theme-color]').content })")
         # v144: «Тёмный как Google Maps» — this layout in the dark look's colours (the slate screen, the yellow accent)
         check('«Тёмный как Google Maps»: the same layout, dark slate and yellow', st['cls'] == 'md mdn mdk' and st['acc'] == '#fde047' and st['meta'] == '#0b1120', st)
+        # «🌓 По солнцу» (v144): the same layout all day — «Как Google Maps · День» by day, «Тёмный как Google Maps» at night
+        CL = "['md', 'mdn', 'mdk', 'sun'].filter(c => document.body.classList.contains(c)).join(' ')"
+        await pg.evaluate("window.sunTimes = () => ({ rise: new Date(Date.now() - 7200000), set: new Date(Date.now() + 7200000) }); S.theme = 'auto'; applyTheme()")
+        day = await pg.evaluate("({ cls: " + CL + ", acc: getComputedStyle(document.body).getPropertyValue('--accent').trim() })")
+        await pg.evaluate("window.sunTimes = () => ({ rise: new Date(Date.now() + 3600000), set: new Date(Date.now() + 7200000) }); applyTheme()")
+        night = await pg.evaluate("({ cls: " + CL + ", acc: getComputedStyle(document.body).getPropertyValue('--accent').trim() })")
+        check('«По солнцу»: by day Google\'s light layout, at night «Тёмный как Google Maps» — the buttons stay, only the colours change', day['cls'] == 'md sun' and day['acc'] == '#1a73e8' and night['cls'] == 'md mdn mdk' and night['acc'] == '#fde047', (day, night))
+        await pg.evaluate("S.theme = 'dark'; applyTheme()")
         check('no JS errors', not log['errors'], log['errors'][:3])
         await b.close()
         for lang in ('he', 'en'):
