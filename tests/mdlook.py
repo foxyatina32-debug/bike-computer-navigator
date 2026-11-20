@@ -77,7 +77,9 @@ async def main():
         await pg.evaluate("showTab('rec'); setCompact(true, true)")
         check('the small panel has a grab handle', await pg.evaluate("(() => { const g = document.querySelector('#mini .mgrab'); return !!g && g.getBoundingClientRect().width > 20; })()"))
         await pg.evaluate("showTab('profile')"); await pg.click('#s-theme [data-t="dark"]')
-        check('«Тёмный» brings the dark look back', await pg.evaluate("!document.body.classList.contains('md') && !document.body.classList.contains('sun')"))
+        st = await pg.evaluate("({ cls: ['md', 'mdn', 'mdk', 'sun'].filter(c => document.body.classList.contains(c)).join(' '), acc: getComputedStyle(document.body).getPropertyValue('--accent').trim(), meta: document.querySelector('meta[name=theme-color]').content })")
+        # v144: «Тёмный как Google Maps» — this layout in the dark look's colours (the slate screen, the yellow accent)
+        check('«Тёмный как Google Maps»: the same layout, dark slate and yellow', st['cls'] == 'md mdn mdk' and st['acc'] == '#fde047' and st['meta'] == '#0b1120', st)
         check('no JS errors', not log['errors'], log['errors'][:3])
         await b.close()
         for lang in ('he', 'en'):
