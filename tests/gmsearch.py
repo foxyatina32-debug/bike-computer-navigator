@@ -1,8 +1,9 @@
-# v139: stage 2 of the Google Maps look (inside «🗺 Как Google Maps»). The search pill on top (no route followed): results
+# v139: stage 2 of the Google Maps look; v143: the search bar in every look. The search pill on top (no route followed): results
 # in a floating card, a tap shows the place with a red pin and its card (kept clear of the buttons), ✕ clears; «🎤» and «+»
 # in the pill (their own buttons step aside); the top buttons as chips under the pill. No capsule above the panel (v142:
 # not wanted) — the GPS dot stays in the mode chip, SOS right above the panel. Navigation brings the old top back; a setting
-# turns the pill off; the other looks are untouched. ru / he / en. Run: python3 tests/gmsearch.py
+# turns the pill off. Тёмный and Яркое солнце have the same bar in their own colours (a found place gets the red pin too).
+# ru / he / en. Run: python3 tests/gmsearch.py
 import asyncio, sys, os, json
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from harness import serve, Mocks, open_app
@@ -26,17 +27,28 @@ async def main():
     async with async_playwright() as p:
         b, ctx, pg, log = await open_app(p, url + '?lang=ru', m)
         await pg.wait_for_timeout(1500)
-        # ---------- the other looks: untouched
-        st = await pg.evaluate("({ gsr: document.body.classList.contains('gsr'), pill: !document.getElementById('gsearch').hidden, mic: getComputedStyle(document.getElementById('t-mic')).display !== 'none', gpx: !document.getElementById('t-gpx').hidden })")
-        check('other looks: no search pill, 🎤 and «+» buttons in place', not st['gsr'] and not st['pill'] and st['mic'] and st['gpx'], st)
+        ST = "({ gsr: document.body.classList.contains('gsr'), pill: !document.getElementById('gsearch').hidden, mic: getComputedStyle(document.getElementById('t-mic')).display !== 'none', gpx: !document.getElementById('t-gpx').hidden })"
+        st = await pg.evaluate(ST)
+        check('the setting off: no bar, 🎤 and «+ Маршрут» in place', not st['gsr'] and not st['pill'] and st['mic'] and st['gpx'], st)
+        # ---------- v143: every look — a phone with nothing saved has the bar on; Тёмный first
+        await pg.evaluate("delete S.gsearch; saveS(); applyTheme(); placeGpxBtn()"); await pg.wait_for_timeout(300)
+        st = await pg.evaluate(ST); pill, top = await rect(pg, '#gsearch'), await rect(pg, '.top')
+        check('Тёмный: the search bar on top by default, «+» and 🎤 in it', st['gsr'] and st['pill'] and not st['mic'] and not st['gpx'] and pill['t'] < 60 and top['t'] >= pill['b'] - 1, (st, pill, top))
+        LUM = "const px = c => (c.match(/[\\d.]+/g) || []).map(Number), lum = ([r, g, b]) => { const f = v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }; return .2126 * f(r) + .7152 * f(g) + .0722 * f(b); };"
+        COL = "(() => { " + LUM + " const g = document.getElementById('gsearch'), cs = getComputedStyle(g), bg = px(cs.backgroundColor), ph = px(getComputedStyle(document.getElementById('gs-q'), '::placeholder').color), q = getComputedStyle(document.getElementById('gs-q')); const k = (a, b) => { const A = lum(a), B = lum(b); return Math.round((Math.max(A, B) + .05) / (Math.min(A, B) + .05) * 10) / 10; }; return { bgL: Math.round(lum(bg) * 100) / 100, text: k(px(cs.color), bg), field: q.backgroundColor, border: q.borderTopWidth, add: getComputedStyle(document.getElementById('gs-add')).backgroundColor }; })()"
+        c = await pg.evaluate(COL)
+        check('…in its own colours: dark glass, light text, the yellow «+», the field without a box of its own', c['bgL'] < .1 and c['text'] >= 7 and (lambda v: v[0] > 200 and v[1] > 200 and v[2] < 160)([int(x) for x in c['add'][4:-1].split(',')]) and c['field'] in ('rgba(0, 0, 0, 0)', 'transparent') and c['border'] == '0px', c)
         await pg.evaluate("showTab('profile')")
-        check('the setting shows only with «Как Google Maps»', await pg.evaluate("document.getElementById('s-gs-wrap').hidden"))
+        check('the setting is in every look (under «Экран»), on', await pg.evaluate("!document.getElementById('s-gs-wrap').hidden && document.getElementById('s-gsearch').checked"))
+        await pg.click('#s-theme [data-t="sun"]'); await pg.evaluate("showTab('rec')"); await pg.wait_for_timeout(300)
+        c = await pg.evaluate(COL); st = await pg.evaluate(ST)
+        check('Яркое солнце: the bar too — white, dark text', st['gsr'] and st['pill'] and c['bgL'] > .8 and c['text'] >= 7, (st, c))
+        await pg.evaluate("showTab('profile')")
         await pg.click('#s-theme [data-t="md"]'); await pg.wait_for_timeout(200)
-        check('…and with it (on by default)', await pg.evaluate("!document.getElementById('s-gs-wrap').hidden && document.getElementById('s-gsearch').checked"))
         await pg.evaluate("showTab('rec')"); await pg.wait_for_timeout(300)
         # ---------- the pill and the chips
         pill, top, cmp, zin = [await rect(pg, q) for q in ('#gsearch', '.top', '#t-compass', '#z-in')]
-        check('«Как Google Maps»: the search pill on top', await pg.evaluate("document.body.classList.contains('gsr')") and pill['vis'] and pill['t'] < 60, pill)
+        check('«Как Google Maps»: the search pill on top (Google\'s white)', await pg.evaluate("document.body.classList.contains('gsr')") and pill['vis'] and pill['t'] < 60, pill)
         check('the top buttons are chips under the pill', top['t'] >= pill['b'] - 1 and top['t'] - pill['b'] < 30, (pill, top))
         check('the compass and the zoom below the chips, nothing over the pill', cmp['t'] >= top['b'] - 1 and zin['t'] >= top['b'] - 1 and apart(pill, cmp) and apart(pill, zin), (cmp, zin))
         st = await pg.evaluate("({ mic: getComputedStyle(document.getElementById('t-mic')).display, gpx: document.getElementById('t-gpx').hidden })")
@@ -112,7 +124,11 @@ async def main():
         await pg.evaluate("showTab('profile')"); await pg.click('#s-gsearch'); await pg.evaluate("showTab('rec')"); await pg.wait_for_timeout(300)
         await pg.evaluate("showTab('profile')"); await pg.click('#s-theme [data-t="dark"]'); await pg.evaluate("showTab('rec')"); await pg.wait_for_timeout(300)
         st = await pg.evaluate("({ gsr: document.body.classList.contains('gsr'), pin: (map.fire('contextmenu', { latlng: L.latLng(32.1, 34.9) }), !!document.querySelector('.leaflet-marker-pane .gpin')), card: !!document.querySelector('.leaflet-popup [data-pp=\"here\"]') })")
-        check('another look: no pill; a long press gives the card without the pin', not st['gsr'] and not st['pin'] and st['card'], st)
+        check('Тёмный: the bar stays; a long press gives the card without the pin (as before)', st['gsr'] and not st['pin'] and st['card'], st)
+        await pg.evaluate("map.closePopup()"); await pg.fill('#gs-q', 'Тель-Авив'); await pg.wait_for_timeout(1200)
+        await pg.click('#gs-res [data-gi="0"]'); await pg.wait_for_timeout(700)
+        st = await pg.evaluate("({ pin: !!document.querySelector('.leaflet-marker-pane .gpin'), h4: (document.querySelector('.leaflet-popup h4') || {}).textContent })")
+        check('Тёмный: a found place — the card with the red pin', st['pin'] and st['h4'] == 'Тель-Авив', st)
         check('no JS errors', not log['errors'], log['errors'][:3])
         await b.close()
         # ---------- languages

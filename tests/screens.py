@@ -1,5 +1,5 @@
 # Every screen on iPhone SE and iPhone 15 Pro, in Russian, Hebrew and English:
-# no JS errors, nothing wider than the screen, no untranslated Russian left in he/en.
+# no JS errors, nothing wider than the screen, no untranslated Russian left in he/en. With the search bar on top (v143).
 # Run: python3 tests/screens.py
 import asyncio, sys, os, json
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -69,7 +69,7 @@ async def main():
         for vp, vtag in [((375, 667), 'SE'), ((393, 852), '15Pro')]:
             for lang in ('ru', 'he', 'en'):
                 tag = f'{vtag}-{lang}'
-                b, ctx, pg, log = await open_app(p, url + f'?lang={lang}', m, viewport=vp)
+                b, ctx, pg, log = await open_app(p, url + f'?lang={lang}', m, viewport=vp, storage=[['velo:settings', json.dumps({'gsearch': True})]])   # the search bar on top, as on the phone (v143)
                 await pg.evaluate(SEED); await pg.wait_for_timeout(300)
                 for name, js in SCREENS: await visit(pg, name, js, lang, tag)
                 check(f'[{tag}] no JS errors', not log['errors'], log['errors'][:3])
