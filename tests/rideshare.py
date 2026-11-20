@@ -37,9 +37,11 @@ async def main():
             await rd.go(PATH, v=6); await rd.stand(3)
             if not await pg.is_visible('#c-stop'): await pg.click('#hud-max'); await pg.clock.run_for(400)
             await pg.click('#c-stop'); await pg.clock.run_for(200); await pg.click('#st-save'); await pg.clock.run_for(1500)
-            for _ in range(150):   # the route name waits for the town (a network answer in real time): «Сохраняю…» meanwhile
+            for _ in range(300):   # the route name waits for the town (a network answer in real time): «Сохраняю…» meanwhile.
+                # Real time for the answer, the app's clock only a little (≤ 12 s in all): the bar hides by itself after 15 s,
+                # and a busy test machine answering slowly must not run that clock out
                 if not await pg.evaluate("!!document.getElementById('savebar').dataset.pending"): break
-                await pg.wait_for_timeout(100); await pg.clock.run_for(200)
+                await pg.wait_for_timeout(100); await pg.clock.run_for(40)
             check(f'[{lang}] after saving — «📤 Отправить друзьям» in the bar', await pg.is_visible('#sb-share'), await pg.evaluate("document.getElementById('sb-share').textContent"))
             n0 = sum('tile-cyclosm' in c for c in m.calls)
             await pg.click('#sb-share'); await pg.clock.run_for(300)
@@ -64,7 +66,11 @@ async def main():
             # own photo behind the track, then back to the map
             p0 = await pg.evaluate("document.getElementById('rs2-photo').textContent")
             await pg.set_input_files('#cd-file', files=[{'name': 'p.jpg', 'mimeType': 'image/jpeg', 'buffer': photo()}]); await pg.clock.run_for(300)
-            ok = await wait_blob(pg)
+            stale = await pg.evaluate("!!RS2.blob && !RS2.img")   # the photo still decoding: the old card must not count as ready
+            for _ in range(60):   # the photo decoded (under load this takes a while)
+                if await pg.evaluate("!!RS2.img"): break
+                await pg.clock.run_for(250)
+            ok = await wait_blob(pg) and not stale
             p1 = await pg.evaluate("document.getElementById('rs2-photo').textContent")
             check(f'[{lang}] «📷 Своё фото фоном» — the picture is rebuilt on the photo; the button offers the map back', ok and await pg.evaluate("!!RS2.img") and p1 != p0, (p0, p1))
             await pg.click('#rs2-photo'); await pg.clock.run_for(300); ok = await wait_blob(pg)

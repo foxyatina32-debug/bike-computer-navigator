@@ -7603,7 +7603,9 @@ $('#rs2-txt').addEventListener('input', () => { RS2.edited = true; });
 $('#rs2-x').onclick = () => { $('#ask-rshare').hidden = true; };
 $('#rs2-photo').onclick = () => { if (RS2.img) { RS2.img = null; rs2Render(); } else $('#cd-file').click(); };
 $('#cd-file').onchange = async e => { const f = e.target.files[0]; e.target.value = ''; if (!f || !RS2.r) return;
-  try { RS2.img = await createImageBitmap(f); rs2Render(); } catch { toast('Не удалось открыть фото', 3500); } };
+  // v147: from the moment a photo is chosen the old card is not the one to send (it was, while the photo was decoding)
+  RS2.rq++; RS2.blob = null; $('#rs2-wait').hidden = false;
+  try { RS2.img = await createImageBitmap(f); rs2Render(); } catch { toast('Не удалось открыть фото', 3500); rs2Render(); } };
 $('#rs2-copy').onclick = async () => { try { await navigator.clipboard.writeText($('#rs2-txt').value); toast('Описание скопировано'); } catch { $('#rs2-txt').select(); toast('Выделите и скопируйте текст'); } };
 $('#rs2-send').onclick = async () => {
   const text = $('#rs2-txt').value;

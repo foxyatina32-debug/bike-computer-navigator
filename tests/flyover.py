@@ -11,7 +11,7 @@ RES = []; SHOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.cach
 def check(n, ok, info=''): RES.append(bool(ok)); print(('PASS ' if ok else 'FAIL ') + n + (f' — {info}' if info != '' else ''))
 STUB = """window.maplibregl = { Map: class { constructor(o) { this.o = o; this.src = {}; this.lay = []; this.cam = {}; this.h = {}; this.paint = {}; this.layout = {}; window.__ml = this; (window.__mls = window.__mls || []).push(this); window.__cams = []; setTimeout(() => this.h.load && this.h.load(), 30); }
   on(e, f) { this.h[e] = f; } addSource(id, s) { this.src[id] = s; } getSource(id) { const s = this.src[id]; return s && { setData: d => { s.data = d; s.sets = (s.sets || 0) + 1; } }; } addLayer(l) { this.lay.push(l); }
-  jumpTo(c) { Object.assign(this.cam, c); window.__jumps = (window.__jumps || 0) + 1; window.__cams.push(JSON.parse(JSON.stringify(this.cam))); }
+  jumpTo(c) { Object.assign(this.cam, c); window.__jumps = (window.__jumps || 0) + 1; window.__cams.push(Object.assign(JSON.parse(JSON.stringify(this.cam)), { t: document.timeline.currentTime })); }
   easeTo(c) { Object.assign(this.cam, c); window.__eases = (window.__eases || []).concat([JSON.parse(JSON.stringify(c))]); }
   flyTo(c) { Object.assign(this.cam, c); window.__flys = (window.__flys || []).concat([JSON.parse(JSON.stringify(c))]); }
   stop() { window.__stops = (window.__stops || 0) + 1; } setPadding(p) { this.cam.padding = p; } areTilesLoaded() { return !window.__busy; }
@@ -55,9 +55,15 @@ async def main():
             cams = await pg.evaluate("__cams.slice(-150)")
             dbs = [abs(((c2['bearing'] - c1['bearing'] + 540) % 360) - 180) for c1, c2 in zip(cams, cams[1:])]
             dz = [abs(c2['zoom'] - c1['zoom']) for c1, c2 in zip(cams, cams[1:])]
-            # camera centre path: distance between frames must vary smoothly (no jitter from the GPS noise)
-            steps = [math.hypot((c2['center'][0] - c1['center'][0]) * 94000, (c2['center'][1] - c1['center'][1]) * 111000) for c1, c2 in zip(cams, cams[1:])]
-            jerk = max(abs(s2 - s1) for s1, s2 in zip(steps, steps[1:])) if len(steps) > 2 else 99
+            # camera centre path: its speed must vary smoothly (no jitter from the GPS noise). The fly-over moves by real time
+            # (dt of the animation frame), so the speed is measured by the frame times, in metres per 60-fps frame: a frame the busy machine dropped
+            # doubles the step but not the speed (frames the app caps at 0.1 s are left out)
+            steps = []
+            for c1, c2 in zip(cams, cams[1:]):
+                dt = c2['t'] - c1['t']
+                if 2 <= dt <= 90: steps.append(math.hypot((c2['center'][0] - c1['center'][0]) * 94000, (c2['center'][1] - c1['center'][1]) * 111000) / dt * (1000 / 60))
+                else: steps.append(None)
+            jerk = max([abs(s2 - s1) for s1, s2 in zip(steps, steps[1:]) if s1 is not None and s2 is not None] or [99])
             check(f'[{lang}] camera is smooth on a noisy track: turns ≤ 2.5°/frame, steady zoom, no jitter in movement',
                   len(cams) > 100 and max(dbs) <= 2.5 and max(dz) < .05 and jerk < 3, {'maxdb': round(max(dbs), 2), 'maxdz': round(max(dz), 3), 'jerk': round(jerk, 2), 'pitch': cams[-1]['pitch']})
             fx = await pg.evaluate("({d: V3.fx.d, total: V3.fx.P.total, grad: __ml.paint['v3-rt.line-gradient'], dot: __ml.src['v3-dot'].data.features.length, dist: document.getElementById('fx-d').textContent, time: document.getElementById('fx-t').textContent, tw: !document.getElementById('fx-tw').hidden, g: document.getElementById('fx-g').textContent, e: document.getElementById('fx-e').textContent, z: V3.fx.zoom, gs: V3.fx.gs})")
