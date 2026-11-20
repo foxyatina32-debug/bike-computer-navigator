@@ -30,7 +30,7 @@ CLS = "['md', 'sun', 'mdn', 'mdc'].filter(c => document.body.classList.contains(
 async def main():
     url = serve(9083); m = Mocks()
     async with async_playwright() as p:
-        b, ctx, pg, log = await open_app(p, url + '?lang=ru', m)
+        b, ctx, pg, log = await open_app(p, url + '?lang=ru', m, storage=[['velo:settings', json.dumps({'theme': 'sun'})]])   # an older look (since v145 «Тёмный» is this layout too)
         check('the other looks do not fetch Google\'s fonts', not await pg.evaluate("!!document.getElementById('md-fonts')"))
         await pg.evaluate("showTab('profile')")
         check('the variants show only with «Как Google Maps»', await pg.evaluate("document.getElementById('s-mdv').hidden"))
@@ -94,7 +94,7 @@ async def main():
         check('no direction known: Google\'s blue dot with a pulse', dot['gc'] and dot['pulse'] and not dot['arr'], dot)
         await pg.evaluate("S.meIcon = 'bike'; lastIconHdg = 'x'; refreshMe()")
         check('an icon chosen in Settings is kept in this look', await pg.evaluate("!meMarker.getElement().querySelector('.gdot') && !!meMarker.getElement().querySelector('.me-badge')"))
-        await pg.evaluate("S.meIcon = 'arrow'; S.theme = 'dark'; applyTheme()"); await pg.wait_for_timeout(100)
+        await pg.evaluate("S.meIcon = 'arrow'; S.theme = 'sun'; applyTheme()"); await pg.wait_for_timeout(100)
         check('the other looks keep the usual arrow', await pg.evaluate("!meMarker.getElement().querySelector('.gdot') && !!meMarker.getElement().querySelector('svg.me-arr')"))
         await pg.evaluate("Nav.stop()")
         # ---------- map types

@@ -124,7 +124,7 @@ async def main():
         await pg.evaluate("showTab('profile')"); await pg.click('#s-gsearch'); await pg.evaluate("showTab('rec')"); await pg.wait_for_timeout(300)
         await pg.evaluate("showTab('profile')"); await pg.click('#s-theme [data-t="dark"]'); await pg.evaluate("showTab('rec')"); await pg.wait_for_timeout(300)
         st = await pg.evaluate("({ gsr: document.body.classList.contains('gsr'), pin: (map.fire('contextmenu', { latlng: L.latLng(32.1, 34.9) }), !!document.querySelector('.leaflet-marker-pane .gpin')), card: !!document.querySelector('.leaflet-popup [data-pp=\"here\"]') })")
-        check('Тёмный: the bar stays; a long press gives the card without the pin (as before)', st['gsr'] and not st['pin'] and st['card'], st)
+        check('Тёмный как Google Maps (v145): the bar stays; a long press gives the card with the red pin, like Google', st['gsr'] and st['pin'] and st['card'], st)
         await pg.evaluate("map.closePopup()"); await pg.fill('#gs-q', 'Тель-Авив'); await pg.wait_for_timeout(1200)
         await pg.click('#gs-res [data-gi="0"]'); await pg.wait_for_timeout(700)
         st = await pg.evaluate("({ pin: !!document.querySelector('.leaflet-marker-pane .gpin'), h4: (document.querySelector('.leaflet-popup h4') || {}).textContent })")

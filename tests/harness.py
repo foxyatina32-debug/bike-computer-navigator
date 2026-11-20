@@ -57,9 +57,11 @@ class H(http.server.SimpleHTTPRequestHandler):
 
 def serve(port):
     ensure_libs()
-    srv = http.server.ThreadingHTTPServer(('127.0.0.1', port), H)
+    # the port each test asks for; when another test running at the same time holds it, any free one (tests can run in parallel)
+    try: srv = http.server.ThreadingHTTPServer(('127.0.0.1', port), H)
+    except OSError: srv = http.server.ThreadingHTTPServer(('127.0.0.1', 0), H)
     threading.Thread(target=srv.serve_forever, daemon=True).start()
-    return f'http://127.0.0.1:{port}/app/'
+    return f'http://127.0.0.1:{srv.server_address[1]}/app/'
 
 # ---- mocked external services (the real ones are not reachable from this sandbox) ----
 def enc_poly(pts):
@@ -99,6 +101,8 @@ class Mocks:
         if s.wk and 'wk.test.workers.dev' in host:
             st, body, hdr = s.wk(route.request)
             return await route.fulfill(status=st, body=body if isinstance(body, (bytes, str)) else json.dumps(body), headers={'Access-Control-Allow-Origin': '*', 'Access-Control-Expose-Headers': 'X-Final-URL', **hdr})
+        if 'cdn.jsdelivr.net/npm/@fontsource/' in u:   # Roboto / JetBrains Mono of the Google-style looks: no network here, an empty stylesheet
+            return await route.fulfill(body='/* font stub */', content_type='text/css', headers={'Access-Control-Allow-Origin': '*'})
         if 'routes.googleapis.com' in u:
             body = json.loads(route.request.post_data or '{}'); s.bodies.append((u, dict(route.request.headers), body))
             if s.gerr: return await route.fulfill(status=s.gerr[0], json=s.gerr[1], headers={'Access-Control-Allow-Origin': '*'})
