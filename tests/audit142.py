@@ -1,5 +1,5 @@
-# v142 audit: every screen in every look (Тёмный, Яркое солнце, Как Google Maps — День / Ночь / Контраст, and День on the
-# small iPhone SE) and in Russian,
+# v142 audit: every screen in every look (Тёмный, Яркое солнце, Как Google Maps — День / Ночь / Контраст; День and Тёмный on
+# the small iPhone SE), with the search bar on top as on the phone, in Russian,
 # Hebrew and English: no JS errors; nothing wider than the screen; no Russian left in he/en (text, placeholders, hints);
 # no broken words (undefined, NaN, null, [object…], ${…}, the replacement glyph); no text cut off without «…»; text readable
 # (contrast ≥ 3 against what is behind it);
@@ -88,7 +88,8 @@ SCREENS = [
     ('off-dialog', "document.getElementById('in-ok').click(); document.getElementById('app-off').click()"),
 ]
 LOOKS = [('dark', {}), ('sun', {'theme': 'sun'}), ('md-day', {'theme': 'md', 'mdVariant': 'day'}), ('md-night', {'theme': 'md', 'mdVariant': 'night'}), ('md-contrast', {'theme': 'md', 'mdVariant': 'contrast'}),
-         ('md-day-SE', {'theme': 'md', 'mdVariant': 'day'})]   # the small iPhone (SE, 375 × 667) in «Как Google Maps»
+         ('md-day-SE', {'theme': 'md', 'mdVariant': 'day'}), ('dark-SE', {})]
+for _, st in LOOKS: st["gsearch"] = True   # as on the phone: the search bar on top (v143, every look); -SE = the small iPhone (375 × 667)
 
 async def main():
     url = serve(8797); m = Mocks()
