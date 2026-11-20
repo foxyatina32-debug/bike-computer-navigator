@@ -427,6 +427,9 @@ body.md.mdk #navb.off{border-color:transparent}
 body.md.mdk #navb.off #nv-icon{background:rgba(255,255,255,.18);color:#fff}
 /* the floating question «Сохранить участок?» never dims the map (the scrim of this layout covered it) */
 body.md .ask.nb{background:none}
+/* a low screen (a phone on its side): the banner compact as before — «затем …» and the distance left inside it, no strip
+   (the strip made the banner so tall that the place card had to hide) */
+@media (max-height:500px){body.md #navb .nv-next{display:none!important}body.md #navb .nv-then,body.md #navb .r{display:block}body.md #navb{padding-bottom:10px}body.md #navb .r *{color:#fff}}
 body.md :is(.sheet,.ask,.vc,#vc,.geohelp,.leaflet-popup){--glass:var(--gm-s);--glass-hi:var(--gm-s);--glass-btn:var(--gm-s2);--line:var(--gm-b);--ink:var(--gm-t);--muted:var(--gm-tm);--dim:var(--gm-tm);color-scheme:inherit;color:var(--ink)}
 body.md #map,body.md .leaflet-container{background:var(--gm-s3)}
 body.md :is(.glass,.rb,.pill,.gpxfab,.compass,.locfab,.locw,#hello,.toast,.tabs,.navb,.sheet.tapmode,#pick-bar,#nr-pv,.legend,.lg-tab,.savebar,.sosfab,.spdb){box-shadow:var(--gm-sh)}
