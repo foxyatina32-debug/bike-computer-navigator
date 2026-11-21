@@ -1,5 +1,5 @@
-# v151 (audit R18): riding, the main buttons are big enough for a gloved hand on a bumpy trail — pause / stop 48 px,
-# the microphone, compass, zoom and «where am I» 48 px, opening the panel 44 px, the legend tab 28 × 44 — in every look,
+# v151 (audit R18): riding, the main buttons are big enough for a gloved hand on a bumpy trail — the microphone, compass,
+# zoom and «where am I» 48 px; in the folded panel pause / stop 44 px and its opener 40 px (the numbers need their room), the legend tab 28 × 44 — in every look,
 # with nothing overlapping; standing (no ride, no route) they stay compact. On a small screen (320 × 568) a message does
 # not cover the title of the «finish the ride» dialog: it waits and shows when the dialog closes.
 # Run: python3 tests/bigbuttons.py
@@ -11,7 +11,7 @@ RES = []
 def check(name, ok, info=''):
     RES.append(bool(ok)); print(('PASS ' if ok else 'FAIL ') + name + (f' — {info}' if info != '' else ''), flush=True)
 ROUTE = [[32.09 + i * 0.0005, 34.88, 20] for i in range(40)]
-WANT = {'m-play': 48, 'm-stop': 48, 'hud-max': 44, 't-mic': 48, 't-compass': 48, 'z-in': 48, 'z-out': 48, 'c-loc': 48}
+WANT = {'m-play': 44, 'm-stop': 44, 'hud-max': 40, 't-mic': 48, 't-compass': 48, 'z-in': 48, 'z-out': 48, 'c-loc': 48}
 SIZES = """(ids => { const o = {}; for (const id of ids) { const el = document.getElementById(id); if (!el || el.hidden || !el.getClientRects().length) continue; const r = el.getBoundingClientRect(); o[id] = [Math.round(r.width), Math.round(r.height)]; } return o; })"""
 OVER = """(() => { const ids = ['m-play','m-stop','hud-max','t-mic','t-compass','z-in','z-out','z-me','c-loc','legend-tab','t-layers','t-mode','t-3d','sos','navb','gsearch'], R = [];
   for (const id of ids) { const el = document.getElementById(id); if (!el || el.hidden || !el.getClientRects().length || getComputedStyle(el).opacity === '0') continue; R.push([id, el.getBoundingClientRect()]); }
@@ -30,7 +30,7 @@ async def main():
             sz = await pg.evaluate(SIZES + f"({json.dumps(list(WANT) + ['legend-tab'])})")
             small = {k: v for k, v in sz.items() if k in WANT and (v[0] < WANT[k] or v[1] < WANT[k])}
             lt = sz.get('legend-tab', [0, 0])
-            check(f'[{theme}] riding: the main buttons 48 px (the panel\'s opener 44), the legend tab 28 × 44', not small and len([k for k in WANT if k in sz]) >= 7 and lt[0] >= 28 and lt[1] >= 44, (small, sz))
+            check(f'[{theme}] riding: the map buttons 48 px, ▶ / ■ in the panel 44 (its opener 40), the legend tab 28 × 44', not small and len([k for k in WANT if k in sz]) >= 7 and lt[0] >= 28 and lt[1] >= 44, (small, sz))
             check(f'[{theme}] riding: nothing overlaps', not await pg.evaluate(OVER), await pg.evaluate(OVER))
             check(f'[{theme}] standing (no ride, no route) the buttons stay compact', all(v[0] <= 44 for v in idle.values()), idle)
             await pg.evaluate("Nav.stop(); Ride.stop(false)")

@@ -1240,9 +1240,13 @@ body:not(.wide) .ctrls .cb svg{width:20px;height:20px}
 #navb.stale #nv-dist { opacity: .75; } .nv-nogps { font-size: 30px; line-height: 1; filter: grayscale(1); }
 /* v151 (audit R18): riding (recording or navigating) the main buttons are big enough for a gloved hand on a bumpy trail;
    standing (nothing recorded, no route) they stay compact */
-body.onride #m-play, body.onride #m-stop { width: 48px !important; height: 48px !important; min-width: 48px !important; flex: 0 0 48px !important; }
-body.onride #m-play svg, body.onride #m-stop svg { width: 24px; height: 24px; }
-body.onride #hud-max { width: 44px !important; height: 44px !important; }
+/* the folded panel: its grid gets wider columns for ▶ / ■ and the opener (44 px — the iPhone minimum for a touch; the
+   numbers still need their room); under 360 px wide its own compact layout stays */
+@media (min-width: 360px) {
+  body.onride .mini.has-stop { grid-template-columns: 44px 44px repeat(4, auto) 40px; gap: 4px 5px; }
+  body.onride #m-play, body.onride #m-stop { width: 44px !important; height: 44px !important; }
+  body.onride #hud-max { width: 40px !important; height: 40px !important; }
+}
 body.onride #t-mic, body.onride #t-compass, body.onride #z-in, body.onride #z-out, body.onride #z-me, body.onride #c-loc { width: 48px !important; height: 48px !important; }
 @media (orientation: portrait) { body.onride #legend-tab { min-width: 28px !important; min-height: 44px !important; } }
 </style>
