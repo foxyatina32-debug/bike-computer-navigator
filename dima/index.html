@@ -1237,6 +1237,13 @@ body:not(.wide) .ctrls .cb svg{width:20px;height:20px}
 .nv-snd:not(.on){background:rgba(255,106,92,.22);border-color:rgba(255,106,92,.55);color:var(--warn)}
 /* v151 (R06): no fresh GPS in the navigation banner */
 #navb.stale #nv-dist { opacity: .75; } .nv-nogps { font-size: 30px; line-height: 1; filter: grayscale(1); }
+/* v151 (audit R18): riding (recording or navigating) the main buttons are big enough for a gloved hand on a bumpy trail;
+   standing (nothing recorded, no route) they stay compact */
+body.onride #m-play, body.onride #m-stop { width: 48px !important; height: 48px !important; min-width: 48px !important; flex: 0 0 48px !important; }
+body.onride #m-play svg, body.onride #m-stop svg { width: 24px; height: 24px; }
+body.onride #hud-max { width: 44px !important; height: 44px !important; }
+body.onride #t-mic, body.onride #t-compass, body.onride #z-in, body.onride #z-out, body.onride #z-me, body.onride #c-loc { width: 48px !important; height: 48px !important; }
+body.onride #legend-tab { min-width: 28px !important; min-height: 44px !important; }
 </style>
 </head>
 <body>
@@ -1959,14 +1966,25 @@ function toastPos(t) {
   if (!$('#v3d').hidden) y = innerHeight - 150;
   else if (!wide && !hud.hidden && $$('.sheet').every(x => x.hidden)) y = Math.min(y, hud.getBoundingClientRect().top - 60);
   // A dialog (window from below) is open: the message goes to the top, so it does not cover the dialog's title and buttons.
-  if ($$('.ask').some(a => !a.hidden && !a.classList.contains('nb'))) { t.style.bottom = 'auto'; t.style.top = 'calc(var(--top) + 12px)'; return; }
+  const dlg = $$('.ask').find(a => !a.hidden && !a.classList.contains('nb'));
+  if (dlg) {
+    t.style.bottom = 'auto'; t.style.top = 'calc(var(--top) + 12px)';
+    // v151 (audit R18): no room above the dialog (a small screen) — the message waits and shows when the dialog closes,
+    // instead of covering its title
+    const card = dlg.firstElementChild || dlg, top = card.getBoundingClientRect().top, tr0 = t.getBoundingClientRect();
+    const wait = top > 0 && tr0.bottom + 6 > top;
+    t.style.visibility = wait ? 'hidden' : ''; t.dataset.wait = wait ? '1' : '';
+    return;
+  }
+  if (t.dataset.wait) { t.dataset.wait = ''; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 3000); }
+  t.style.visibility = '';
   t.style.top = 'auto'; t.style.bottom = Math.max(16, innerHeight - y + 10) + 'px';
 }
 // Re-place a visible message when a screen or a dialog opens or closes (it was placed for the screen it appeared on).
 function toastWatch() { try { const mo = new MutationObserver(() => { const t = $('#toast'); if (t && !t.hidden) try { toastPos(t); } catch {} });
   document.querySelectorAll('.ask, .sheet, #hud, #navb').forEach(el => mo.observe(el, { attributes: true, attributeFilter: ['hidden'] })); } catch {} }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', toastWatch); else toastWatch();
-function toast(msg, ms = 2600) { const t = $('#toast'); t.textContent = msg; t.hidden = false; try { toastPos(t); } catch {} clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, ms); }
+function toast(msg, ms = 2600) { const t = $('#toast'); t.textContent = msg; t.hidden = false; try { toastPos(t); } catch {} clearTimeout(toast.t); toast.t = setTimeout(() => { if (!t.dataset.wait) t.hidden = true; }, ms); }
 function lsGet(k, d) { try { const v = localStorage.getItem('velo:'+k); return v == null ? d : JSON.parse(v); } catch { return d; } }
 function lsSet(k, v) { try { localStorage.setItem('velo:'+k, JSON.stringify(v)); return true; } catch { return false; } }
 function cumDist(coords) { const c = [0]; for (let i = 1; i < coords.length; i++) c.push(c[i-1] + hav(coords[i-1], coords[i])); return c; }
@@ -3750,6 +3768,7 @@ function renderRecUI() {
   $$('#ask-stop button').forEach(b => b.disabled = !!Ride.stopping);
   if (renderRecUI.st !== Ride.status) { const was = renderRecUI.st; renderRecUI.st = Ride.status; if (was !== undefined) setCompact(hudWant()); }
   $('#m-stop').hidden = Ride.status === 'idle'; $('#mini').classList.toggle('has-stop', Ride.status !== 'idle');
+  document.body.classList.toggle('onride', Ride.status !== 'idle' || !!(typeof Nav !== 'undefined' && Nav.route));
   renderMetrics();
 }
 $('#c-play').onclick = () => Ride.status === 'rec' ? Ride.pause() : Ride.start();
@@ -9882,6 +9901,7 @@ function syncRideMode() {
   RideUI.mv = moving ? (RideUI.mv || now) : 0;
   const on = S.rideMode !== false && RideUI.mv && now - RideUI.mv > 4000 && now - RideUI.touch > 8000 && !$$('.sheet').some(x => !x.hidden) && $('#v3d').hidden;
   document.body.classList.toggle('ridemode', !!on);
+  document.body.classList.toggle('onride', Ride.status !== 'idle' || !!Nav.route);   // v151 (R18): bigger main buttons while riding
 }
 setInterval(syncRideMode, 1000);
 $('#map').addEventListener('pointerdown', () => { RideUI.touch = Date.now(); syncRideMode(); }, { capture: true });
