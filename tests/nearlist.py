@@ -62,6 +62,15 @@ async def main():
         await pg.click('#nr-r [data-r="30000"]'); await pg.wait_for_timeout(1500)
         L = await pg.evaluate(LIST)
         check('2.3 radius 30 km: the 25 km trail appears, Eilat does not', 'Far trail' in [x['t'] for x in L] and 'Эйлат' not in [x['t'] for x in L], [x['t'] for x in L])
+        # v151 (audit R17): MTB apart from ordinary bike routes; the note says honestly where the routes come from
+        kinds = {}
+        for k in ('mtb', 'bike', 'mine'):
+            await pg.click(f'#nr-k [data-k="{k}"]'); await pg.wait_for_timeout(300); kinds[k] = await pg.evaluate(LIST)
+        await pg.click('#nr-k [data-k="all"]'); await pg.wait_for_timeout(300)
+        check('2.4 v151: the filter MTB / Вело / Мои shows only that kind', kinds['mtb'] and all('MTB · OSM' in x['s'] for x in kinds['mtb']) and kinds['bike'] and all('Вело · OSM' in x['s'] for x in kinds['bike'])
+              and kinds['mine'] and all('Мой' in x['s'] for x in kinds['mine']) and len(await pg.evaluate(LIST)) == len(L), {k: [x['t'] for x in v] for k, v in kinds.items()})
+        note = await pg.evaluate("[...document.querySelectorAll('#r-trails p.note')].map(x => x.textContent).join(' ')")
+        check('2.5 v151: the note does not promise all Israel Hiking routes', 'не входят' in note and 'зависит от данных OSM' in note and 'база Israel Hiking Map)' not in note, note[:200])
         # Preview: a tap on the route opens the map with it and a card — nothing starts yet.
         await pg.click('#nr-list .item[data-nv="0"] .t'); await pg.wait_for_timeout(1200)
         pv = await pg.evaluate("({card: !document.getElementById('nr-pv').hidden, map: document.getElementById('sheet-routes').hidden, nav: !!Nav.route, t: document.getElementById('nr-pv-t').textContent, km: document.getElementById('nr-pv-km').textContent, time: document.getElementById('nr-pv-time').textContent, n: document.getElementById('nr-pv-n').textContent, layer: !!NPV.layer && map.hasLayer(NPV.layer)})")
