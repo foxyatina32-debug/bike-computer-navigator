@@ -4,22 +4,18 @@
 //   GET  /health                       → {"ok":true,...}  (the app's «Проверить» button)
 //   GET  /?url=<link>                  → downloads a route page / GPX / KML from an allowed site and returns it with CORS;
 //                                        short links (maps.app.goo.gl …) are followed, the final address is in X-Final-URL
-//   POST /strava/token  {code}|{refresh_token} → Strava OAuth token exchange (the client secret stays here, never in the app)
-//   GET  /strava/api/<path>            → Strava API v3 (only reading the athlete, routes and route GPX), with the user's token
 //
 // It is NOT an open proxy: only requests from the app's own address (ALLOWED_ORIGINS) and only to route sites (HOSTS).
 //
 // Deploy: dash.cloudflare.com → Workers & Pages → Create → Worker → paste this file → Deploy.
 // Settings → Variables and Secrets:
 //   ALLOWED_ORIGINS       https://foxyatina32-debug.github.io        (comma-separated; optional, this is the default)
-//   STRAVA_CLIENT_ID      your Strava app's Client ID                 (only for Strava)
-//   STRAVA_CLIENT_SECRET  your Strava app's Client Secret — type «Secret»  (only for Strava)
 //   ACCESS_KEY            optional, type «Secret»: a long random word. Then only addresses with it work — paste
 //                         https://<name>.<account>.workers.dev/k/<ACCESS_KEY> into the app. The Origin header alone does
 //                         not stop a bot or curl (anyone can send it); the key does.
 // Then paste the worker address (https://<name>.<account>.workers.dev) in Velocomp → Настройки → Для продвинутых → «Свой прокси».
 
-const VERSION = '2';
+const VERSION = '3';   // 3: the unused Strava stub removed
 const DEFAULT_ORIGINS = 'https://foxyatina32-debug.github.io';
 const MAX_BYTES = 15 * 1024 * 1024;
 // Sites the app imports routes from (the host itself or any subdomain of it).
@@ -51,7 +47,7 @@ async function readCapped(r, max) {
 }
 
 function cors(origin, extra = {}) {
-  return { 'Access-Control-Allow-Origin': origin, 'Vary': 'Origin', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  return { 'Access-Control-Allow-Origin': origin, 'Vary': 'Origin', 'Access-Control-Allow-Methods': 'GET, OPTIONS',
     'Access-Control-Allow-Headers': 'Authorization, Content-Type', 'Access-Control-Expose-Headers': 'X-Final-URL', 'Access-Control-Max-Age': '86400', ...extra };
 }
 const json = (obj, status, origin) => new Response(JSON.stringify(obj), { status, headers: cors(origin, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }) });
@@ -69,35 +65,11 @@ export default {
     const origin = req.headers.get('Origin') || '';
     const okOrigin = allowed.includes(origin) || (env.ALLOW_LOCALHOST === '1' && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin));
     if (req.method === 'OPTIONS') return new Response(null, { status: okOrigin ? 204 : 403, headers: okOrigin ? cors(origin) : {} });
-    if (url.pathname === '/health') return json({ ok: true, app: 'velocomp-worker', version: VERSION, strava: !!(env.STRAVA_CLIENT_ID && env.STRAVA_CLIENT_SECRET) }, 200, okOrigin ? origin : '*');
+    if (url.pathname === '/health') return json({ ok: true, app: 'velocomp-worker', version: VERSION }, 200, okOrigin ? origin : '*');
     if (!okOrigin) return new Response('Forbidden: this worker only serves the Velocomp app', { status: 403 });
     if (!rateOk(req.headers.get('CF-Connecting-IP') || 'any')) return json({ error: 'too_many_requests' }, 429, origin);
 
     try {
-      // ---- Strava OAuth: the secret never leaves the worker ----
-      if (url.pathname === '/strava/token' && req.method === 'POST') {
-        if (!env.STRAVA_CLIENT_ID || !env.STRAVA_CLIENT_SECRET) return json({ error: 'strava_not_configured' }, 501, origin);
-        const b = await req.json().catch(() => ({}));
-        const form = new URLSearchParams({ client_id: env.STRAVA_CLIENT_ID, client_secret: env.STRAVA_CLIENT_SECRET });
-        if (b.code) { form.set('code', String(b.code)); form.set('grant_type', 'authorization_code'); }
-        else if (b.refresh_token) { form.set('refresh_token', String(b.refresh_token)); form.set('grant_type', 'refresh_token'); }
-        else return json({ error: 'code_or_refresh_token_required' }, 400, origin);
-        const r = await fetch('https://www.strava.com/oauth/token', { method: 'POST', body: form });
-        const j = await r.json().catch(() => ({}));
-        // Only what the app needs (no secrets back).
-        return json(r.ok ? { access_token: j.access_token, refresh_token: j.refresh_token, expires_at: j.expires_at, athlete: j.athlete ? { id: j.athlete.id, firstname: j.athlete.firstname, lastname: j.athlete.lastname } : null } : { error: j.message || 'strava_error', status: r.status }, r.ok ? 200 : 502, origin);
-      }
-      if (url.pathname === '/strava/client') return json({ client_id: env.STRAVA_CLIENT_ID || null }, 200, origin);
-      if (url.pathname.startsWith('/strava/api/') && req.method === 'GET') {
-        const path = url.pathname.slice('/strava/api/'.length);
-        // read-only: the athlete, their routes, a route, a route's GPX
-        if (!/^(athlete|athletes\/\d+\/routes|routes\/\d+|routes\/\d+\/export_gpx)$/.test(path)) return json({ error: 'path_not_allowed' }, 403, origin);
-        const auth = req.headers.get('Authorization') || '';
-        if (!/^Bearer [\w.-]+$/.test(auth)) return json({ error: 'token_required' }, 401, origin);
-        const r = await fetch('https://www.strava.com/api/v3/' + path + url.search, { headers: { Authorization: auth } });
-        return new Response(r.body, { status: r.status, headers: cors(origin, { 'Content-Type': r.headers.get('Content-Type') || 'application/octet-stream', 'Cache-Control': 'no-store' }) });
-      }
-
       // ---- fetch a route page / file from an allowed site ----
       if (url.pathname === '/' && req.method === 'GET') {
         const target = url.searchParams.get('url');
