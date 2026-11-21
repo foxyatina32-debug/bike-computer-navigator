@@ -59,6 +59,8 @@ class Firebase:
                 return await out(200, page)
             if req.method == 'PATCH':
                 col[doc] = json.loads(req.post_data)['fields']; return await out(200, {'name': doc, 'fields': col[doc]})
+            if req.method == 'DELETE':
+                col.pop(doc, None); return await out(200, {})
             if doc not in col: return await out(404, {'error': {'status': 'NOT_FOUND', 'message': 'no doc'}})
             return await out(200, {'name': doc, 'fields': col[doc]})
         return await route.continue_()

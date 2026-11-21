@@ -46,4 +46,28 @@ r = await req('/strava/token', { method: 'POST', body: '{"code":"x"}', env: {} }
 check('Strava not configured → clear error', r.status === 501);
 r = await W.fetch(new Request('https://wk.example.workers.dev/', { method: 'OPTIONS', headers: { Origin: ORIGIN } }), env);
 check('CORS preflight', r.status === 204 && r.headers.get('Access-Control-Allow-Headers').includes('Authorization'));
+// v2 (audit R14): exact Google domains, a capped download, the owner's key, a rate limit
+const fetch0 = globalThis.fetch;
+globalThis.fetch = async (u, o = {}) => {
+  u = String(u);
+  if (u === 'https://google.attacker.example/route.gpx') return new Response('<gpx/>');
+  if (u === 'https://www.google.co.il/maps/dir/1,2/3,4') return new Response('<html>il</html>');
+  if (u === 'https://www.wikiloc.com/huge.gpx') { let n = 0; return new Response(new ReadableStream({ pull(c) { if (n++ > 40) c.close(); else c.enqueue(new Uint8Array(1024 * 1024)); } })); }
+  return fetch0(u, o);
+};
+r = await req('/?url=' + encodeURIComponent('https://google.attacker.example/route.gpx'));
+check('R14: google.attacker.example is not Google — refused', r.status === 403);
+r = await req('/?url=' + encodeURIComponent('https://www.google.co.il/maps/dir/1,2/3,4'));
+check('R14: google.co.il still allowed', r.status === 200 && (await r.text()) === '<html>il</html>');
+r = await req('/?url=' + encodeURIComponent('https://www.wikiloc.com/huge.gpx'));
+check('R14: a download without a size header is stopped at 15 MB while streaming', r.status === 413);
+const envK = { ...env, ACCESS_KEY: 'k3y-long-random' };
+r = await req('/?url=' + encodeURIComponent('https://www.wikiloc.com/t.gpx'), { env: envK });
+check('R14: with ACCESS_KEY set, an address without the key is refused (Origin alone is not enough)', r.status === 403);
+r = await req('/k/k3y-long-random/?url=' + encodeURIComponent('https://www.wikiloc.com/t.gpx'), { env: envK });
+check('R14: …with the key in the address it works', r.status === 200 && (await r.text()) === '<gpx></gpx>');
+r = await req('/k/k3y-long-random/health', { env: envK }); j = await r.json();
+check('R14: the health check with the key', r.status === 200 && j.version === '2');
+let last = 0; for (let i = 0; i < 70; i++) { r = await W.fetch(new Request('https://wk.example.workers.dev/?url=' + encodeURIComponent('https://www.wikiloc.com/t.gpx'), { headers: { Origin: ORIGIN, 'CF-Connecting-IP': '203.0.113.9' } }), env); last = r.status; }
+check('R14: more than 60 requests a minute from one address → 429', last === 429);
 console.log(`${pass}/${pass + fail} passed`); process.exit(fail ? 1 : 0);

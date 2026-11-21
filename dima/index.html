@@ -85,6 +85,15 @@ const tr = (() => {
   Object.assign(D, {"Назад": ["Back", "חזרה"], "https://velocomp.ваше-имя.workers.dev": ["https://velocomp.your-name.workers.dev", "https://velocomp.your-name.workers.dev"], "Google · пешком (бета)": ["Google · on foot (beta)", "Google · ברגל (בטא)"], "Пешеходный маршрут: BRouter (тропы, тротуары, лестницы, высоты), запасной — OSRM.": ["Walking route: BRouter (paths, sidewalks, steps, heights), OSRM as the backup.", "מסלול הליכה: BRouter (שבילים, מדרכות, מדרגות, גבהים), OSRM כגיבוי."], "BRouter, пешеходный профиль hiking-mountain: тропы и тротуары, даёт высоты.": ["BRouter, the hiking-mountain walking profile: paths and sidewalks, with heights.", "BRouter, פרופיל הליכה hiking-mountain: שבילים ומדרכות, עם גבהים."], "OSRM, пешеходный: улицы и тротуары, с названиями улиц.": ["OSRM, walking: streets and sidewalks, with street names.", "OSRM, הליכה: רחובות ומדרכות, עם שמות רחובות."], "Google Maps пешком (бета у Google): с названиями улиц.": ["Google Maps on foot (beta at Google): with street names.", "Google Maps ברגל (בטא אצל Google): עם שמות רחובות."], "Маршрут для машины: OSRM (с названиями улиц и временем в пути), запасной — BRouter. Пробки не учитываются.": ["Car route: OSRM (with street names and travel time), BRouter as the backup. Traffic is not taken into account.", "מסלול לרכב: OSRM (עם שמות רחובות וזמן נסיעה), BRouter כגיבוי. עומסי תנועה לא נלקחים בחשבון."], "BRouter, автомобильный профиль car-vario. Пробки не учитываются.": ["BRouter, the car-vario car profile. Traffic is not taken into account.", "BRouter, פרופיל הרכב car-vario. עומסי תנועה לא נלקחים בחשבון."], "OSRM, автомобиль: с названиями улиц и временем в пути, без пробок.": ["OSRM, car: with street names and travel time, without traffic.", "OSRM, רכב: עם שמות רחובות וזמן נסיעה, בלי עומסי תנועה."], "Google Maps для машины: время без учёта пробок.": ["Google Maps for the car: the time without traffic.", "Google Maps לרכב: הזמן בלי עומסי תנועה."], "Вы сошли с маршрута. Стрелка показывает, куда вернуться": ["You are off the route. The arrow shows the way back", "ירדתם מהמסלול. החץ מראה לאן לחזור"], "Развернитесь — вы едете против маршрута": ["Turn around — you are riding against the route", "הסתובבו — אתם רוכבים נגד כיוון המסלול"], "⟳ Обратно другой дорогой": ["⟳ Back another way", "⟳ חזרה בדרך אחרת"], "Маршрут: туда и обратно другой дорогой": ["Route: there and back another way", "מסלול: הלוך ושוב בדרך אחרת"], "не нашёл дорог вокруг — попробуйте другое направление или длину": ["found no roads around — try another direction or length", "לא נמצאו דרכים מסביב — נסו כיוון או אורך אחר"], "в ссылке Google нет точки": ["the Google link has no point", "בקישור של Google אין נקודה"], "Разворачиваю короткую ссылку Google…": ["Opening the short Google link…", "פותח את הקישור המקוצר של Google…"], "в ссылке OsmAnd нет старта и финиша": ["the OsmAnd link has no start and finish", "בקישור של OsmAnd אין התחלה וסיום"], "в ссылке одна точка — нужен GPS, чтобы построить маршрут от вас. Подождите, пока появится GPS, и повторите": ["the link has one point — GPS is needed to plan the route from you. Wait for GPS and try again", "בקישור יש נקודה אחת — צריך GPS כדי לתכנן מסלול ממך. חכו ל-GPS ונסו שוב"], "sql.js не загрузился": ["sql.js did not load", "sql.js לא נטען"]});
   Object.assign(D, {"по этому адресу не прокси Велокомпа — если это новый воркер Cloudflare с шаблоном «Hello World!», замените его код на cloudflare-worker.js (README → «Свой прокси») и нажмите Deploy": ["this address is not the Velocomp proxy — if it is a new Cloudflare worker with the «Hello World!» template, replace its code with cloudflare-worker.js (README → «Own proxy») and press Deploy", "בכתובת הזו אין פרוקסי של Velocomp — אם זה worker חדש של Cloudflare עם התבנית «Hello World!», החליפו את הקוד ב-cloudflare-worker.js (README ← «פרוקסי משלכם») ולחצו Deploy"], "Короткие ссылки Google (maps.app.goo.gl) открываются через свой прокси; без своего прокси — через публичный сервис. Если свой прокси не ответил, публичный сервис используется только с этой галочкой.": ["Short Google links (maps.app.goo.gl) are opened through your own proxy; without one — through a public service. If your own proxy does not answer, a public service is used only with this box ticked.", "קישורים מקוצרים של Google ‏(maps.app.goo.gl) נפתחים דרך הפרוקסי שלכם; בלעדיו — דרך שירות ציבורי. אם הפרוקסי שלכם לא עונה, שירות ציבורי משמש רק כשהתיבה הזו מסומנת."], "Ключи карт, свой прокси и дом прежнего аккаунта убраны с телефона — они остались в его аккаунте": ["The previous account's map keys, own proxy and home were removed from the phone — they stay in that account", "מפתחות המפות, הפרוקסי והבית של החשבון הקודם הוסרו מהטלפון — הם נשארו בחשבון שלו"]});
   Object.assign(D, {"Карта повёрнута пальцами — нажмите компас, чтобы вернуть": ["The map was turned by hand — tap the compass to undo", "המפה סובבה ביד — הקישו על המצפן כדי לחזור"], "Повёрнута": ["Turned", "מסובבת"], "Карта повёрнута пальцами. Нажмите — вернуть": ["The map is turned by hand. Tap to undo", "המפה סובבה ביד. הקישו כדי לחזור"]});
+  Object.assign(D, {"путь есть только против одностороннего движения — выберите BRouter или другие точки": ["the only way goes against one-way traffic — choose BRouter or other points", "הדרך היחידה היא נגד כיוון התנועה בכביש חד־סטרי — בחרו BRouter או נקודות אחרות"]});
+  Object.assign(D, {"Аварийная копия поездки снова сохраняется": ["The ride's emergency copy is being saved again", "העותק לשעת חירום של הרכיבה נשמר שוב"], "⚠️ Не удаётся сохранить аварийную копию поездки в телефоне — проверьте свободную память. Запись продолжается": ["⚠️ The ride's emergency copy cannot be saved on the phone — check the free storage. Recording goes on", "⚠️ לא ניתן לשמור בטלפון עותק לשעת חירום של הרכיבה — בדקו את האחסון הפנוי. ההקלטה נמשכת"]});
+  Object.assign(D, {"Нет свежего GPS — подсказка вернётся с сигналом": ["No fresh GPS — the instruction comes back with the signal", "אין GPS עדכני — ההנחיה תחזור עם הקליטה"], "Нет свежего GPS — перестрою, когда вернётся сигнал": ["No fresh GPS — I will reroute when the signal is back", "אין GPS עדכני — אחשב מחדש כשהקליטה תחזור"], "сек": ["s", "שנ׳"]});
+  Object.assign(D, {"Соединяю разрывы путём по дорогам…": ["Joining the gaps by a way along the roads…", "מחבר את הפערים בדרך לאורך הכבישים…"], "Не удалось соединить разрывы": ["Could not join the gaps", "לא ניתן לחבר את הפערים"], "Не удалось соединить разрывы — веду по самой длинной части поездки": ["Could not join the gaps — navigating the longest piece of the ride", "לא ניתן לחבר את הפערים — מנווט לפי החלק הארוך ביותר של הרכיבה"], "В Истории. В записи разрывы — маршрут не создан сам: «В мои маршруты» в поездке": ["In History. The recording has gaps — no route made by itself: «To my routes» in the ride", "בהיסטוריה. בהקלטה יש פערים — מסלול לא נוצר אוטומטית: «למסלולים שלי» ברכיבה"], "нет пути": ["no way", "אין דרך"]});
+  Object.assign(D, {"копия сделана более новой версией приложения — обновите его": ["the backup was made by a newer version of the app — update it", "הגיבוי נוצר בגרסה חדשה יותר של האפליקציה — עדכנו אותה"], "все поездки и маршруты в копии повреждены": ["all rides and routes in the backup are damaged", "כל הרכיבות והמסלולים בגיבוי פגומים"]});
+  Object.assign(D, {"Показать ещё": ["Show more", "הצג עוד"]});
+  Object.assign(D, {"Сервер не ответил — попробую позже": ["The server did not answer — I will try later", "השרת לא ענה — אנסה שוב מאוחר יותר"]});
+  Object.assign(D, {"MTB- и веломаршруты, отмеченные в OpenStreetMap (на этих данных рисует карту и Israel Hiking Map), и ваши сохранённые маршруты — до 15 ближайших. Сколько найдётся, зависит от данных OSM. Маршруты, опубликованные пользователями на сайте Israel Hiking, сюда не входят — их можно открыть по ссылке.": ["MTB and bike routes marked in OpenStreetMap (the data Israel Hiking Map draws its map from too) and your saved routes — up to the 15 nearest. How many are found depends on the OSM data. Routes users published on the Israel Hiking site are not included — open them by their link.", "מסלולי MTB ואופניים שמסומנים ב-OpenStreetMap (מהנתונים האלה מצויירת גם המפה של Israel Hiking Map) והמסלולים השמורים שלכם — עד 15 הקרובים. כמה יימצאו תלוי בנתוני OSM. מסלולים שמשתמשים פרסמו באתר Israel Hiking לא כלולים — פתחו אותם לפי הקישור."], "Слой трасс Israel Hiking Map — кнопка карты слева вверху.": ["The Israel Hiking Map trails layer — the map button at the top left.", "שכבת השבילים של Israel Hiking Map — כפתור המפה למעלה משמאל."], "Вело": ["Bike", "אופניים"]});
+  Object.assign(D, {"исправления по инженерному аудиту: медленный подъём, пересчёт маршрута, смена аккаунта, односторонние улицы, свежий GPS, разрывы записи, крупные кнопки в поездке": ["fixes from the engineering audit: slow climbs, rerouting, switching accounts, one-way streets, fresh GPS, gaps in the recording, big buttons while riding", "תיקונים לפי הביקורת ההנדסית: עליות איטיות, חישוב מסלול מחדש, החלפת חשבון, רחובות חד־סטריים, GPS עדכני, פערים בהקלטה, כפתורים גדולים ברכיבה"], "Версия приложения": ["App version", "גרסת האפליקציה"]});
   Object.assign(D, {"В одну сторону":["One way","בכיוון אחד"],"Туда и обратно":["There and back","הלוך ושוב"],"Назад другой дорогой":["Back another way","חזרה בדרך אחרת"],"Ищу дорогу назад…":["Looking for a way back…","מחפש דרך חזרה…"],"Другой дороги назад рядом нет — обратно почти тем же путём":["No other way back nearby — back almost the same way","אין דרך חזרה אחרת בקרבת מקום — חזרה כמעט באותה דרך"],"Этот маршрут уже возвращается к старту":["This route already returns to the start","המסלול הזה כבר חוזר להתחלה"],"Не получилось построить обратный путь":["Could not build the way back","לא הצלחתי לבנות דרך חזרה"],"Кольцо от меня":["Loop from here","מסלול מעגלי מכאן"],"Любое":["Any","כל כיוון"],"Кольцо нужной длины от того места, где вы сейчас, по выбранному велосипеду и покрытию. Нажмите ещё раз — другой вариант.":["A loop of the chosen length from where you are, for the chosen bike and surface. Tap again for another variant.","מסלול מעגלי באורך שבחרתם מהמקום שבו אתם נמצאים, לפי האופניים והמשטח שנבחרו. לחצו שוב לגרסה אחרת."],"Строю кольцо…":["Building a loop…","בונה מסלול מעגלי…"],"Кольцо не построено":["Loop not built","המסלול המעגלי לא נבנה"],"Финиш = старт":["Finish = start","סיום = התחלה"],"Длина кольца, км":["Loop length, km","אורך המסלול, ק״מ"],"затем":["then","ואז"],"Впереди крутой спуск":["Steep descent ahead","ירידה תלולה לפנים"],"Впереди серпантин":["Hairpins ahead","סרפנטינות לפנים"],"Крутой спуск":["Steep descent","ירידה תלולה"],"Серпантин":["Hairpins","סרפנטינות"],"Через":["In","בעוד"],"метров":["meters","מטר"],"процентов":["percent","אחוז"],"крутых поворотов":["sharp turns","פניות חדות"],"крутых поворота":["sharp turns","פניות חדות"],"крутой поворот":["sharp turn","פנייה חדה"],"крутой спуск":["steep descent","ירידה תלולה"],"серпантин":["hairpins","סרפנטינות"],"Экстренно":["Emergency","חירום"],"Завершить навигацию?":["End navigation?","לסיים את הניווט?"],"Завершить навигацию":["End navigation","סיום ניווט"],"Маршрут уберётся с карты; запись поездки продолжится":["The route is removed from the map; ride recording continues","המסלול יוסר מהמפה; הקלטת הרכיבה תימשך"],"Продолжить ехать по маршруту":["Keep following the route","להמשיך במסלול"],"Навигация завершена":["Navigation ended","הניווט הסתיים"],"Мои координаты":["My coordinates","הקואורדינטות שלי"],"Точность":["Accuracy","דיוק"],"Рядом":["Near","ליד"],"Отправить в WhatsApp":["Send via WhatsApp","שלחו ב-WhatsApp"],"Поделиться":["Share","שיתוף"],"Скопировать":["Copy","העתקה"],"Скорая помощь":["Ambulance","מד״א"],"Полиция":["Police","משטרה"],"Пожарные":["Fire brigade","כבאות"],"Координаты скопированы":["Coordinates copied","הקואורדינטות הועתקו"],"Нужна помощь. Я здесь":["I need help. I am here","אני צריך עזרה. אני כאן"],"Жду GPS…":["Waiting for GPS…","ממתין ל-GPS…"],"Позвоните 101 — скорая, 100 — полиция. Скажите координаты из этого экрана.":["Call 101 — ambulance, 100 — police. Read out the coordinates from this screen.","התקשרו 101 — מד״א, 100 — משטרה. הקריאו את הקואורדינטות מהמסך הזה."],"Тропы MTB":["MTB trails","שבילי MTB"],"лёгкая":["easy","קל"],"велодорожка":["cycleway","שביל אופניים"],"средняя":["medium","בינוני"],"сложная":["hard","קשה"],"очень сложная":["very hard","קשה מאוד"],"велосипед разрешён":["bikes allowed","מותר לאופניים"],"без отметки":["unmarked","ללא סימון"],"мест.":["local","מקומי"],"рег.":["regional","אזורי"],"нац.":["national","ארצי"],"веломаршрут":["bike route","מסלול אופניים"],"синглтрек":["singletrack","סינגל"],"Сменить старт":["Change start","שנה התחלה"],"Свой старт":["Own start","התחלה משלי"],"Анализ":["Analysis","ניתוח"],"Анализ маршрута: покрытие, точки, погода":["Route analysis: surface, points, weather","ניתוח מסלול: משטח, נקודות, מזג אוויר"],"Покрытие и точки ✕":["Surface & points ✕","משטח ונקודות ✕"],"Сложность и время":["Difficulty and time","קושי וזמן"],"Начальная":["Beginner","מתחיל"],"Хорошая":["Good","טוב"],"Ваша физическая подготовка · велосипед":["Your fitness · bike","הכושר שלך · אופניים"],"Лёгкий":["Easy","קל"],"Средний":["Medium","בינוני"],"Сложный":["Hard","קשה"],"в движении":["moving","בתנועה"],"Выносливость":["Endurance","סיבולת"],"техника":["technique","טכניקה"],"лёгкий":["easy","קל"],"средний":["medium","בינוני"],"сложный":["hard","קשה"],"троп":["trails","שבילים"],"м набора на км":["m climb per km","מ׳ טיפוס לק״מ"],"Покрытие по пути":["Surface along the way","משטח לאורך הדרך"],"Асфальт":["Asphalt","אספלט"],"Грунтовка":["Dirt road","דרך עפר"],"Тропа":["Trail","שביל"],"Нет данных":["No data","אין נתונים"],"Полоса — маршрут от старта (слева) до финиша.":["The strip is the route from start (left) to finish.","הפס הוא המסלול מההתחלה (שמאל) עד הסיום."],"Асфальт, грунтовки и тропы по участкам, вода, родники, смотровые и другие точки рядом с маршрутом (из OpenStreetMap). Нужен интернет.":["Asphalt, dirt roads and trails by section, water, springs, viewpoints and other points near the route (from OpenStreetMap). Needs internet.","אספלט, דרכי עפר ושבילים לפי קטעים, מים, מעיינות, תצפיות ונקודות נוספות ליד המסלול (מ-OpenStreetMap). נדרש אינטרנט."],"Точки по пути":["Points along the way","נקודות לאורך הדרך"],"Вода":["Water","מים"],"Родник":["Spring","מעיין"],"Смотровая площадка":["Viewpoint","תצפית"],"Историческое место":["Historic site","אתר היסטורי"],"Место отдыха":["Rest spot","מקום מנוחה"],"Кафе":["Cafe","בית קפה"],"Велоремонт":["Bike repair","תיקון אופניים"],"км от старта":["km from start","ק״מ מההתחלה"],"м в стороне":["m off the route","מ׳ מהמסלול"],"Рядом с маршрутом в OpenStreetMap ничего не отмечено.":["Nothing is mapped near the route in OpenStreetMap.","לא מסומן דבר ליד המסלול ב-OpenStreetMap."],"Показать на карте":["Show on map","הצג במפה"],"Убрать с карты":["Remove from map","הסר מהמפה"],"Обновить":["Refresh","רענן"],"Узнать покрытие и точки":["Get surface and points","קבל משטח ונקודות"],"Загружаю…":["Loading…","טוען…"],"Не удалось загрузить данные":["Could not load data","לא ניתן לטעון נתונים"],"Погода на поездку":["Weather for the ride","מזג אוויר לרכיבה"],"Сегодня":["Today","היום"],"Завтра":["Tomorrow","מחר"],"Прогноз":["Forecast","תחזית"],"До финиша":["To finish","עד הסיום"],"Прибытие":["Arrival","הגעה"],"через":["in","בעוד"],"Загружаю прогноз…":["Loading forecast…","טוען תחזית…"],"Не удалось загрузить прогноз":["Could not load the forecast","לא ניתן לטעון תחזית"],"прогноз есть только на ближайшие 2–3 дня":["the forecast covers only the next 2–3 days","התחזית זמינה רק ל-2–3 הימים הקרובים"],"встречный":["headwind","רוח נגדית"],"попутный":["tailwind","רוח גבית"],"боковой":["crosswind","רוח צד"],"Жара до":["Heat up to","חום עד"],"по ощущению — возьмите больше воды":["feels-like — take extra water","מורגש — קחו יותר מים"],"точек с водой по пути":["water points on the way","נקודות מים בדרך"],"Вероятность дождя до":["Chance of rain up to","סיכוי לגשם עד"],"тропы могут быть скользкими":["trails may be slippery","השבילים עלולים להיות חלקים"],"Сильный ветер до":["Strong wind up to","רוח חזקה עד"],"Очень высокий УФ-индекс":["Very high UV index","מדד UV גבוה מאוד"],"крем и закрытые плечи":["sunscreen and covered shoulders","קרם הגנה וכתפיים מכוסות"],"время":["time","שעה"],"дождь":["rain","גשם"],"ветер, км/ч":["wind, km/h","רוח, קמ״ש"],"Прогноз Open-Meteo для середины маршрута. В скобках — по ощущению. Ветер: встречный/попутный — относительно направления маршрута в этот час.":["Open-Meteo forecast for the middle of the route. In brackets — feels-like. Wind: head/tail — relative to the route direction at that hour.","תחזית Open-Meteo לאמצע המסלול. בסוגריים — מורגש. רוח: נגדית/גבית — ביחס לכיוון המסלול באותה שעה."],"Карта":["Map","מפה"],"Проехать заново":["Ride again","רכב שוב"],"Навигация по этому маршруту":["Navigate this route","ניווט במסלול הזה"],"Тот же маршрут в обратную сторону":["The same route in reverse","אותו מסלול בכיוון ההפוך"],"Выбрать на линии, где начать и закончить":["Pick on the line where to start and finish","בחר על הקו היכן להתחיל ולסיים"],"Данные маршрута":["Route data","נתוני המסלול"],"Расстояние, высоты и все ваши проезды":["Distance, elevation and all your rides on it","מרחק, גבהים וכל הרכיבות שלך"],"Удалить маршрут":["Delete route","מחק מסלול"],"Из сохранённых и недавних":["From saved and recent","מהשמורים והאחרונים"],"Точно удалить?":["Delete for sure?","למחוק בוודאות?"],"Нажмите ещё раз — маршрут удалится":["Tap again to delete the route","הקש שוב כדי למחוק את המסלול"],"Маршрут удалён":["Route deleted","המסלול נמחק"],"проехан":["ridden","נרכב"],"ещё не проезжали":["not ridden yet","עוד לא נרכב"],"добавлен":["added","נוסף"],"проезд":["ride","רכיבה"],"проезда":["rides","רכיבות"],"проездов":["rides","רכיבות"],"лучшее время":["best time","זמן הכי טוב"],"лучшая средняя, км/ч":["best average, km/h","ממוצע הכי טוב, קמ״ש"],"Мои проезды":["My rides","הרכיבות שלי"],"в движении":["moving","בתנועה"],"ср.":["avg","ממוצע"],"макс":["max","מקס׳"],"Вы ещё не проезжали этот маршрут с записью поездки. Нажмите ▶ на главном экране, когда поедете, — проезд появится здесь.":["You haven’t ridden this route with a recorded ride yet. Tap ▶ on the main screen when you ride — it will appear here.","עוד לא רכבת במסלול הזה עם הקלטה. הקש ▶ במסך הראשי כשאתה רוכב — הרכיבה תופיע כאן."],"Маршрут не найден":["Route not found","המסלול לא נמצא"],"Удерживайте маршрут — меню: проехать, удалить, данные":["Press and hold a route for the menu: ride, delete, data","לחיצה ארוכה על מסלול — תפריט: רכיבה, מחיקה, נתונים"],"Вы не на маршруте":["You are not on the route","אינך על המסלול"],"Проложить путь до маршрута":["Build a way to the route","בנה דרך אל המסלול"],"К ближайшей точке, дальше по маршруту":["To the nearest point, then along the route","לנקודה הקרובה, ואז לאורך המסלול"],"Проложить путь до старта":["Build a way to the start","בנה דרך אל ההתחלה"],"Доехать до начала, затем весь маршрут":["Ride to the start, then the whole route","רכב להתחלה, ואז את כל המסלול"],"Нет, доберусь сам":["No, I’ll get there myself","לא, אגיע בעצמי"],"Без прокладки пути — стрелка покажет направление на маршрут":["No way is built — the arrow points to the route","ללא בניית דרך — החץ יצביע אל המסלול"],"До маршрута":["To the route","עד המסלול"],"по прямой":["in a straight line","בקו ישר"],"до старта":["to the start","עד ההתחלה"],"К ближайшей точке":["To the nearest point","לנקודה הקרובה"],"км от старта), дальше по маршруту":["km from the start), then along the route","ק״מ מההתחלה), ואז לאורך המסלול"],"К началу маршрута, затем весь маршрут":["To the start of the route, then the whole route","לתחילת המסלול, ואז את כל המסלול"],"Путь не прокладываю — стрелка показывает на маршрут":["No way built — the arrow points to the route","לא נבנתה דרך — החץ מצביע אל המסלול"],"До маршрута (по прямой)":["To the route (straight line)","עד המסלול (בקו ישר)"],"Проложить":["Build way","בנה דרך"],"Строю путь до маршрута…":["Building a way to the route…","בונה דרך אל המסלול…"],"Вы на маршруте":["You are on the route","אתה על המסלול"],"Путь до маршрута построен":["Way to the route built","הדרך אל המסלול נבנתה"],"затем по маршруту":["then along the route","ואז לאורך המסלול"],"Не удалось построить путь до маршрута":["Could not build a way to the route","לא ניתן לבנות דרך אל המסלול"],"Начать здесь и здесь закончить":["Start and finish here","התחל וסיים כאן"],"Старт и финиш в этой точке, весь маршрут по кругу":["Start and finish at this point, the whole route as a loop","התחלה וסיום בנקודה זו, כל המסלול כמעגל"],"Нажмите на линию маршрута — там будут старт и финиш":["Tap the route line — start and finish will be there","הקש על קו המסלול — שם תהיה ההתחלה והסיום"],"Моё место":["My location","המיקום שלי"],"Отмена":["Cancel","ביטול"],"Нажмите ближе к линии маршрута":["Tap closer to the route line","הקש קרוב יותר לקו המסלול"],"Это и так старт маршрута":["This is already the route start","זו כבר תחילת המסלול"],"Маршрут не кольцевой — строю путь от конца к началу…":["The route is not a loop — building a path from the end to the beginning…","המסלול אינו מעגלי — בונה דרך מהסוף להתחלה…"],"от конца к началу проложено":["end to beginning routed","מהסוף להתחלה נבנו"],"от конца к началу — обратно по этому же треку":["end to beginning — back along the same track","מהסוף להתחלה — חזרה באותו מסלול"],"Старт и финиш перенесены":["Start and finish moved","ההתחלה והסיום הועברו"],"Старт и финиш здесь":["Start and finish here","התחלה וסיום כאן"],"новый старт":["new start","התחלה חדשה"],"от маршрута — нажмите на точку на линии":["from the route — tap a point on the line","מהמסלול — הקש על נקודה בקו"],"Вы в":["You are","אתה במרחק"],"Thunderforest Outdoors — рельеф и тропы": ["Thunderforest Outdoors — relief and trails", "Thunderforest Outdoors — תבליט ושבילים"], "OpenCycleMap — велосипедная": ["OpenCycleMap — cycling", "OpenCycleMap — אופניים"], "Thunderforest Landscape — ландшафт": ["Thunderforest Landscape", "Thunderforest Landscape — נוף"], "Mapy.com — туристическая": ["Mapy.com — outdoor", "Mapy.com — טיולים"], "Mapy.com — обычная": ["Mapy.com — basic", "Mapy.com — רגילה"], "thunderforest.com · нужен ваш ключ (Настройки)": ["thunderforest.com · needs your key (Settings)", "thunderforest.com · נדרש מפתח שלך (הגדרות)"], "mapy.com · нужен ваш ключ (Настройки)": ["mapy.com · needs your key (Settings)", "mapy.com · נדרש מפתח שלך (הגדרות)"], "Рельеф-тени (Esri)": ["Hillshade (Esri)", "הצללת תבליט (Esri)"], "без ключа · подробно до среднего масштаба": ["no key · detailed to medium zoom", "ללא מפתח · מפורט עד זום בינוני"], "Ключи карт": ["Map keys", "מפתחות מפות"], "Бесплатные ключи для карт Thunderforest (Outdoors, OpenCycleMap, Landscape — 150 000 тайлов в месяц) и Mapy.com (250 000 в месяц). Ключи хранятся только на этом телефоне.": ["Free keys for Thunderforest maps (Outdoors, OpenCycleMap, Landscape — 150,000 tiles a month) and Mapy.com (250,000 a month). Keys stay on this phone only.", "מפתחות חינמיים למפות Thunderforest (Outdoors, OpenCycleMap, Landscape — 150,000 אריחים בחודש) ו-Mapy.com (250,000 בחודש). המפתחות נשמרים רק בטלפון הזה."], "Ключ Thunderforest": ["Thunderforest key", "מפתח Thunderforest"], "Ключ Mapy.com": ["Mapy.com key", "מפתח Mapy.com"], "Получить: thunderforest.com → Pricing → Hobby Project (бесплатно) → API key.": ["Get it: thunderforest.com → Pricing → Hobby Project (free) → API key.", "לקבלת מפתח: thunderforest.com → Pricing → Hobby Project (חינם) → API key."], "Получить: developer.mapy.com → My Account (вход через аккаунт Seznam) → API Project → ключ создаётся сразу.": ["Get it: developer.mapy.com → My Account (Seznam login) → API Project → the key is created right away.", "לקבלת מפתח: developer.mapy.com → My Account (כניסה עם חשבון Seznam) → API Project → המפתח נוצר מיד."], "Ключ сохранён — проверю, когда будет интернет.": ["Key saved — I'll check it when online.", "המפתח נשמר — אבדוק כשיהיה אינטרנט."], "Проверяю ключ…": ["Checking the key…", "בודק את המפתח…"], "✓ Ключ работает. Карта включена — другие карты этого сервиса в меню карт.": ["✓ The key works. Map turned on — the service's other maps are in the map menu.", "✓ המפתח עובד. המפה הופעלה — שאר המפות של השירות בתפריט המפות."], "✗ Сервис не принял ключ (или нет связи). Проверьте, что ключ скопирован целиком.": ["✗ The service did not accept the key (or no connection). Check that the whole key was copied.", "✗ השירות לא קיבל את המפתח (או שאין חיבור). ודא שהמפתח הועתק במלואו."], "Ключ удалён.": ["Key removed.", "המפתח נמחק."], "Для карты": ["The map", "למפה"], "нужен ваш ключ: Настройки → Ключи карт": ["needs your key: Settings → Map keys", "נדרש מפתח שלך: הגדרות → מפתחות מפות"],"Старт: адрес, место или координаты": ["Start: address, place or coordinates", "התחלה: כתובת, מקום או קואורדינטות"], "Финиш: адрес, место или координаты": ["Finish: address, place or coordinates", "סיום: כתובת, מקום או קואורדינטות"], "Моё местоположение": ["My location", "המיקום שלי"], "координаты": ["coordinates", "קואורדינטות"], "Ищу…": ["Searching…", "מחפש…"], "Ничего не найдено": ["Nothing found", "לא נמצא דבר"], "Поиск недоступен": ["Search unavailable", "החיפוש לא זמין"],"Google рельеф": ["Google terrain", "Google תבליט"], "Google спутник": ["Google satellite", "Google לוויין"], "Google Maps Platform · тот же ключ API": ["Google Maps Platform · same API key", "Google Maps Platform · אותו מפתח API"], "Esri — топографическая": ["Esri — topographic", "Esri — טופוגרפית"], "MTB-маршруты (Waymarked Trails)": ["MTB routes (Waymarked Trails)", "מסלולי MTB (Waymarked Trails)"], "Веломаршруты (Waymarked Trails)": ["Cycling routes (Waymarked Trails)", "מסלולי אופניים (Waymarked Trails)"], "Пешие маршруты (Waymarked Trails)": ["Hiking routes (Waymarked Trails)", "מסלולי הליכה (Waymarked Trails)"], "Обновление карт": ["Map updates", "עדכון מפות"], "Проверять обновления при подключении к интернету": ["Check for updates when online", "בדוק עדכונים כשיש אינטרנט"], "Скачанные офлайн-карты старше 2 недель и области дорог старше 30 дней тихо обновляются, когда есть интернет (не во время записи поездки). Обычные карты и маршруты BRouter и так всегда свежие.": ["Offline maps older than 2 weeks and road areas older than 30 days are refreshed quietly when online (not while recording a ride). Online maps and BRouter routes are always fresh anyway.", "מפות לא מקוונות בנות יותר משבועיים ואזורי דרכים בני יותר מ-30 יום מתעדכנים בשקט כשיש אינטרנט (לא בזמן הקלטת רכיבה). מפות מקוונות ומסלולי BRouter תמיד עדכניים."], "Проверить сейчас": ["Check now", "בדוק עכשיו"], "Нет интернета — проверю, когда появится связь.": ["No internet — I'll check when online.", "אין אינטרנט — אבדוק כשיחזור החיבור."], "Проверяю обновления карт…": ["Checking map updates…", "בודק עדכוני מפות…"], "Карты: проверено": ["Maps: checked", "מפות: נבדקו"], "Обновляю дороги и тропы": ["Updating roads and trails", "מעדכן דרכים ושבילים"], "тайлов обновлено": ["tiles updated", "אריחים עודכנו"], "без изменений": ["unchanged", "ללא שינוי"], "не удалось": ["failed", "נכשלו"], "областей дорог обновлено": ["road areas updated", "אזורי דרכים עודכנו"], "Проверено": ["Checked", "נבדק"], "всё свежее, обновлять нечего": ["everything is up to date", "הכול עדכני"], "Офлайн-карты обновлены": ["Offline maps updated", "המפות הלא מקוונות עודכנו"], "Проверка не удалась": ["Check failed", "הבדיקה נכשלה"], "Komoot — MTB в Израиле": ["Komoot — MTB in Israel", "Komoot — MTB בישראל"], "MTB Project — Израиль": ["MTB Project — Israel", "MTB Project — ישראל"], "Trailforks — Израиль": ["Trailforks — Israel", "Trailforks — ישראל"],"Старт и финиш почти в одной точке — передвиньте B дальше.": ["Start and finish are almost the same point — move B further away.", "ההתחלה והסיום כמעט באותה נקודה — הזז את B רחוק יותר."],"Из точки в точку": ["Point to point", "מנקודה לנקודה"], "Отметьте старт и финиш — подберу варианты по покрытию и сложности": ["Mark start and finish — I'll suggest routes by surface and difficulty", "סמן התחלה וסיום — אציע מסלולים לפי משטח וקושי"], "Из точки в точку: старт и финиш на карте, варианты": ["Point to point: start and finish on the map, route options", "מנקודה לנקודה: התחלה וסיום במפה, אפשרויות מסלול"], "Нажмите на карту — поставлю старт (A).": ["Tap the map to set the start (A).", "הקש על המפה כדי לקבוע התחלה (A)."], "Теперь нажмите точку, до которой доехать и вернуться (B).": ["Now tap the turnaround point (B).", "עכשיו הקש על נקודת הסיבוב (B)."], "Теперь нажмите финиш (B).": ["Now tap the finish (B).", "עכשיו הקש על הסיום (B)."], "Точки можно перетаскивать. Выберите опции и нажмите «Подобрать маршруты».": ["Points can be dragged. Choose options and tap “Find routes”.", "אפשר לגרור את הנקודות. בחר אפשרויות והקש „מצא מסלולים”."], "Старт — где я": ["Start — my location", "התחלה — המיקום שלי"], "⇄ Поменять": ["⇄ Swap", "⇄ החלף"], "Сбросить": ["Reset", "איפוס"], "В одну сторону": ["One way", "בכיוון אחד"], "Кольцо (туда и обратно)": ["Loop (out and back)", "מעגלי (הלוך וחזור)"], "Сложность": ["Difficulty", "קושי"], "Лёгкий": ["Easy", "קל"], "Средний": ["Medium", "בינוני"], "Сложный": ["Hard", "קשה"], "лёгкий": ["easy", "קל"], "средний": ["medium", "בינוני"], "сложный": ["hard", "קשה"], "Подобрать маршруты": ["Find routes", "מצא מסלולים"], "Подбираю…": ["Searching…", "מחפש…"], "Варианты": ["Options", "אפשרויות"], "Вариант": ["Option", "אפשרות"], "кольцо": ["loop", "מעגלי"], "вы просили": ["you asked for", "ביקשת"], "Точка разворота": ["Turnaround point", "נקודת סיבוב"], "Кольцо A→B→A": ["Loop A→B→A", "מעגלי A→B→A"], "Маршрут сохранён в «Мои»": ["Route saved to “Mine”", "המסלול נשמר ב„שלי”"], "Жду GPS…": ["Waiting for GPS…", "ממתין ל-GPS…"], "BRouter не нашёл маршрут": ["BRouter found no route", "BRouter לא מצא מסלול"], "BRouter недоступен — один вариант от встроенного движка": ["BRouter unavailable — one option from the built-in engine", "BRouter לא זמין — אפשרות אחת מהמנוע המובנה"], "Не получилось": ["Failed", "נכשל"], "Из точки в точку · ": ["Point to point · ", "מנקודה לנקודה · "],"Легенда":["Legend","מקרא"],"Легенда цветов троп":["Trail colour legend","מקרא צבעי שבילים"]});
   Object.assign(D, {"⟳ Кольцом":["⟳ Loop it","⟳ מעגלי"],"Сделать маршрут кольцевым":["Make the route a loop","להפוך את המסלול למעגלי"],"Вернуться к старту":["Back to the start","חזרה להתחלה"],"⇄ Туда и обратно":["⇄ There and back","⇄ הלוך ושוב"],"Обратно той же дорогой":["Back the same way","חזרה באותה דרך"],"⟳ Назад другой дорогой":["⟳ Back another way","⟳ חזרה בדרך אחרת"],"Обратно по другим дорогам, если рядом они есть":["Back by other roads, if there are any nearby","חזרה בדרכים אחרות, אם יש כאלה בקרבת מקום"],"Отмена":["Cancel","ביטול"],"сейчас в одну сторону":["one way now","כרגע בכיוון אחד"]});
   Object.assign(D, {"участок": ["section", "קטע"], "участка": ["sections", "קטעים"], "участков": ["sections", "קטעים"]});
@@ -100,7 +109,7 @@ const tr = (() => {
   Object.assign(D, {"Приложение не запустилось из-за ошибки в программе. Закройте его и откройте снова.": ["The app did not start because of an error in the program. Close it and open it again.", "האפליקציה לא עלתה בגלל שגיאה בתוכנה. סגרו אותה ופתחו שוב."]});
   Object.assign(D, {});
   Object.assign(D, {});
-  Object.assign(D, {"🧭 Включить компас": ["🧭 Turn the compass on", "🧭 הפעל מצפן"], "Разрешение дано": ["Permission given", "ההרשאה ניתנה"], "Разрешение не дано": ["Permission refused", "ההרשאה נדחתה"], "Разрешение не запрашивалось": ["Permission not asked yet", "עדיין לא התבקשה הרשאה"], "Запрос не прошёл": ["The request did not go through", "הבקשה לא עברה"], "Разрешение не нужно": ["No permission needed", "לא נדרשת הרשאה"], "Компас выключен": ["Compass off", "המצפן כבוי"], "Компас не слушается": ["Compass not listening", "המצפן לא מאזין"], "Данных от телефона нет": ["No data from the phone", "אין נתונים מהטלפון"], "Данные от телефона": ["Data from the phone", "נתונים מהטלפון"], "Режим карты не «По компасу»": ["Map mode is not «By compass»", "מצב המפה אינו «לפי מצפן»"], "Едете — карта по направлению езды": ["Riding — the map follows the direction of travel", "בנסיעה — המפה לפי כיוון הנסיעה"], "Карта занята жестом": ["The map is busy with a gesture", "המפה עסוקה במחווה"], "Карта крутится по компасу": ["The map turns with the compass", "המפה מסתובבת לפי המצפן"], "Карта": ["Map", "מפה"], "Компас включён": ["Compass on", "המצפן פועל"], "Компас не включился — посмотрите строку под кнопкой": ["The compass did not turn on — see the line under the button", "המצפן לא הופעל — ראו את השורה מתחת לכפתור"], "Доступ к движению и ориентации запрещён. Закройте Chrome полностью (смахните его из списка приложений), откройте снова и нажмите «Включить компас»": ["Motion and orientation access is refused. Close Chrome completely (swipe it away in the app switcher), open it again and tap «Turn the compass on»", "הגישה לתנועה וכיוון נדחתה. סגרו את Chrome לגמרי (החליקו אותו מרשימת האפליקציות), פתחו שוב והקישו «הפעל מצפן»"], "Если карта не крутится: нажмите «Включить компас» и пришлите снимок этой строки": ["If the map does not turn: tap «Turn the compass on» and send a screenshot of this line", "אם המפה לא מסתובבת: הקישו «הפעל מצפן» ושלחו צילום מסך של השורה הזו"], "Версия приложения: 2026-11-20 · навигация v149 · карту можно крутить двумя пальцами, как в Google Maps; нажатие на компас возвращает обычный режим": ["App version: 2026-11-20 · navigation v149 · the map can be turned with two fingers, like Google Maps; a tap on the compass brings the usual mode back", "גרסת האפליקציה: 2026-11-20 · ניווט v149 · אפשר לסובב את המפה בשתי אצבעות, כמו ב-Google Maps; הקשה על המצפן מחזירה את המצב הרגיל"], "✓ Сохранить": ["✓ Save", "✓ שמור"],
+  Object.assign(D, {"🧭 Включить компас": ["🧭 Turn the compass on", "🧭 הפעל מצפן"], "Разрешение дано": ["Permission given", "ההרשאה ניתנה"], "Разрешение не дано": ["Permission refused", "ההרשאה נדחתה"], "Разрешение не запрашивалось": ["Permission not asked yet", "עדיין לא התבקשה הרשאה"], "Запрос не прошёл": ["The request did not go through", "הבקשה לא עברה"], "Разрешение не нужно": ["No permission needed", "לא נדרשת הרשאה"], "Компас выключен": ["Compass off", "המצפן כבוי"], "Компас не слушается": ["Compass not listening", "המצפן לא מאזין"], "Данных от телефона нет": ["No data from the phone", "אין נתונים מהטלפון"], "Данные от телефона": ["Data from the phone", "נתונים מהטלפון"], "Режим карты не «По компасу»": ["Map mode is not «By compass»", "מצב המפה אינו «לפי מצפן»"], "Едете — карта по направлению езды": ["Riding — the map follows the direction of travel", "בנסיעה — המפה לפי כיוון הנסיעה"], "Карта занята жестом": ["The map is busy with a gesture", "המפה עסוקה במחווה"], "Карта крутится по компасу": ["The map turns with the compass", "המפה מסתובבת לפי המצפן"], "Карта": ["Map", "מפה"], "Компас включён": ["Compass on", "המצפן פועל"], "Компас не включился — посмотрите строку под кнопкой": ["The compass did not turn on — see the line under the button", "המצפן לא הופעל — ראו את השורה מתחת לכפתור"], "Доступ к движению и ориентации запрещён. Закройте Chrome полностью (смахните его из списка приложений), откройте снова и нажмите «Включить компас»": ["Motion and orientation access is refused. Close Chrome completely (swipe it away in the app switcher), open it again and tap «Turn the compass on»", "הגישה לתנועה וכיוון נדחתה. סגרו את Chrome לגמרי (החליקו אותו מרשימת האפליקציות), פתחו שוב והקישו «הפעל מצפן»"], "Если карта не крутится: нажмите «Включить компас» и пришлите снимок этой строки": ["If the map does not turn: tap «Turn the compass on» and send a screenshot of this line", "אם המפה לא מסתובבת: הקישו «הפעל מצפן» ושלחו צילום מסך של השורה הזו"], "✓ Сохранить": ["✓ Save", "✓ שמור"],
     "В Историю и в «Мои маршруты»": ["To History and «My routes»", "להיסטוריה ול«המסלולים שלי»"],
     "✓ Сохранено": ["✓ Saved", "✓ נשמר"],
     "Сохранено": ["Saved", "נשמר"],
@@ -1227,6 +1236,19 @@ body:not(.wide) .ctrls .cb svg{width:20px;height:20px}
 .nv-snd{width:30px;height:30px}
 .nv-snd svg{width:16px;height:16px}
 .nv-snd:not(.on){background:rgba(255,106,92,.22);border-color:rgba(255,106,92,.55);color:var(--warn)}
+/* v151 (R06): no fresh GPS in the navigation banner */
+#navb.stale #nv-dist { opacity: .75; } .nv-nogps { font-size: 30px; line-height: 1; filter: grayscale(1); }
+/* v151 (audit R18): riding (recording or navigating) the main buttons are big enough for a gloved hand on a bumpy trail;
+   standing (nothing recorded, no route) they stay compact */
+/* the folded panel: its grid gets wider columns for ▶ / ■ and the opener (44 px — the iPhone minimum for a touch; the
+   numbers still need their room); under 360 px wide its own compact layout stays */
+@media (min-width: 360px) {
+  body.onride .mini.has-stop { grid-template-columns: 44px 44px repeat(4, auto) 40px; gap: 4px 5px; }
+  body.onride #m-play, body.onride #m-stop { width: 44px !important; height: 44px !important; }
+  body.onride #hud-max { width: 40px !important; height: 40px !important; }
+}
+body.onride #t-mic, body.onride #t-compass, body.onride #z-in, body.onride #z-out, body.onride #z-me, body.onride #c-loc { width: 48px !important; height: 48px !important; }
+@media (orientation: portrait) { body.onride #legend-tab { min-width: 28px !important; min-height: 44px !important; } }
 </style>
 </head>
 <body>
@@ -1456,11 +1478,12 @@ body:not(.wide) .ctrls .cb svg{width:20px;height:20px}
   <div id="r-trails" hidden>
     <h3 style="margin-top:4px">Маршруты рядом со мной</h3>
     <div class="seg" id="nr-r"><button data-r="5000">5 км</button><button data-r="15000">15 км</button><button data-r="30000">30 км</button></div>
+    <div class="seg" id="nr-k" style="margin-top:6px"><button data-k="all" class="on">Все</button><button data-k="mtb">MTB</button><button data-k="bike">Вело</button><button data-k="mine">Мои</button></div>
     <p class="note" id="nr-status" style="margin:8px 0 0"></p>
     <div class="list" id="nr-list" style="margin-top:8px"></div>
     <div class="row" style="margin-top:8px"><button class="btn" id="nr-load">Обновить</button></div>
-    <p class="note">MTB- и веломаршруты из OpenStreetMap (база Israel Hiking Map) и ваши сохранённые маршруты — ближайшие первыми.</p>
-    <p class="note">Маршруты из OpenStreetMap Израиля — та же база, что у Israel Hiking Map. Слой трасс IHM — кнопка карты слева вверху.</p>
+    <p class="note">MTB- и веломаршруты, отмеченные в OpenStreetMap (на этих данных рисует карту и Israel Hiking Map), и ваши сохранённые маршруты — до 15 ближайших. Сколько найдётся, зависит от данных OSM. Маршруты, опубликованные пользователями на сайте Israel Hiking, сюда не входят — их можно открыть по ссылке.</p>
+    <p class="note">Слой трасс Israel Hiking Map — кнопка карты слева вверху.</p>
     <h3>В видимой области карты</h3>
     <label class="chk"><input type="checkbox" id="tr-mtb" checked> MTB-маршруты</label>
     <label class="chk"><input type="checkbox" id="tr-bike" checked> Веломаршруты (город, шоссе)</label>
@@ -1696,7 +1719,7 @@ body:not(.wide) .ctrls .cb svg{width:20px;height:20px}
   </details>
   <details class="grp" data-g="about"><summary><span>ℹ️ О приложении</span><small>Версия, Safari и Chrome, источники карт</small></summary>
   <h3>О приложении</h3>
-  <p class="note" style="margin-top:0">Версия приложения: 2026-11-20 · навигация v149 · карту можно крутить двумя пальцами, как в Google Maps; нажатие на компас возвращает обычный режим</p>
+  <p class="note" id="ver-note" style="margin-top:0"></p>
   <div class="row" style="margin:0 0 8px;align-items:center"><button class="btn" id="upd-go">Проверить обновление</button><span class="note" style="margin:0">Сборка <b id="upd-build"></b></span></div>
   <div class="row" style="margin-bottom:8px"><a class="btn" id="open-chrome" href="googlechromes://foxyatina32-debug.github.io/bike-computer-navigator/dima/">Открыть в Chrome</a><a class="btn" href="https://foxyatina32-debug.github.io/bike-computer-navigator/dima/" target="_blank" rel="noopener">Открыть в Safari</a></div>
   <p class="note">Кнопка Chrome сработает, если Chrome установлен. Сохранённые поездки и маршруты у каждого браузера свои.</p>
@@ -1948,14 +1971,27 @@ function toastPos(t) {
   if (!$('#v3d').hidden) y = innerHeight - 150;
   else if (!wide && !hud.hidden && $$('.sheet').every(x => x.hidden)) y = Math.min(y, hud.getBoundingClientRect().top - 60);
   // A dialog (window from below) is open: the message goes to the top, so it does not cover the dialog's title and buttons.
-  if ($$('.ask').some(a => !a.hidden && !a.classList.contains('nb'))) { t.style.bottom = 'auto'; t.style.top = 'calc(var(--top) + 12px)'; return; }
+  const dlg = $$('.ask').find(a => !a.hidden && !a.classList.contains('nb'));
+  if (dlg) {
+    t.style.bottom = 'auto'; t.style.top = 'calc(var(--top) + 12px)';
+    // v151 (audit R18): no room above the dialog (a small screen) — the message waits and shows when the dialog closes,
+    // instead of covering its title
+    const card = dlg.firstElementChild || dlg, top = card.getBoundingClientRect().top, tr0 = t.getBoundingClientRect();
+    const wait = top > 0 && tr0.bottom + 6 > top;
+    t.style.visibility = wait ? 'hidden' : ''; t.dataset.wait = wait ? '1' : '';
+    return;
+  }
+  if (t.dataset.wait) { t.dataset.wait = ''; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 3000); }
+  t.style.visibility = '';
+  // v151: the SOS button is never covered — the message goes above it
+  { const sos = $('#t-sos'); if (sos && !sos.hidden && sos.getClientRects().length && getComputedStyle(sos).visibility !== 'hidden') { const r = sos.getBoundingClientRect(); if (r.top > 0 && r.top < y) y = Math.min(y, r.top + 2); } }
   t.style.top = 'auto'; t.style.bottom = Math.max(16, innerHeight - y + 10) + 'px';
 }
 // Re-place a visible message when a screen or a dialog opens or closes (it was placed for the screen it appeared on).
 function toastWatch() { try { const mo = new MutationObserver(() => { const t = $('#toast'); if (t && !t.hidden) try { toastPos(t); } catch {} });
   document.querySelectorAll('.ask, .sheet, #hud, #navb').forEach(el => mo.observe(el, { attributes: true, attributeFilter: ['hidden'] })); } catch {} }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', toastWatch); else toastWatch();
-function toast(msg, ms = 2600) { const t = $('#toast'); t.textContent = msg; t.hidden = false; try { toastPos(t); } catch {} clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, ms); }
+function toast(msg, ms = 2600) { const t = $('#toast'); t.textContent = msg; t.hidden = false; try { toastPos(t); } catch {} clearTimeout(toast.t); toast.t = setTimeout(() => { if (!t.dataset.wait) t.hidden = true; }, ms); }
 function lsGet(k, d) { try { const v = localStorage.getItem('velo:'+k); return v == null ? d : JSON.parse(v); } catch { return d; } }
 function lsSet(k, v) { try { localStorage.setItem('velo:'+k, JSON.stringify(v)); return true; } catch { return false; } }
 function cumDist(coords) { const c = [0]; for (let i = 1; i < coords.length; i++) c.push(c[i-1] + hav(coords[i-1], coords[i])); return c; }
@@ -2017,6 +2053,29 @@ const DB = {
 // v150: while another account is signed in, the rides and routes that belong to the account synced before it (v147 keeps
 // them on the phone and never uploads them) are not shown, searched or put into a backup — they come back when their own
 // account signs in again (or when signed out: then the phone shows everything on it). The account's sync reads the store directly.
+// v151 (audit R15): the smallest / largest of an array of any length, exactly as Math.min / Math.max (Math.min with a long array spread runs out
+// of stack on a long track: 150 000 points broke the fly-over)
+const amin = a => { let m = Infinity; for (const x of a) { const v = +x; if (v !== v) return NaN; if (v < m) m = v; } return m; };
+const amax = a => { let m = -Infinity; for (const x of a) { const v = +x; if (v !== v) return NaN; if (v > m) m = v; } return m; };
+// v151 (audit R10): what a ride, a route and an own section must be before they are written from a backup file or the
+// account. The id alone let a route with coords {bad: true} in — the app then broke on it every time it was opened.
+const okLL = q => Array.isArray(q) && typeof q[0] === 'number' && typeof q[1] === 'number' && Number.isFinite(q[0]) && Number.isFinite(q[1]) && Math.abs(q[0]) <= 90 && Math.abs(q[1]) <= 180;
+const okNum = v => v == null || (typeof v === 'number' && Number.isFinite(v));
+const okRecId = r => !!r && typeof r === 'object' && !Array.isArray(r) && (typeof r.id === 'string' ? /^[\w.:-]{1,80}$/.test(r.id) : Number.isFinite(r.id));
+function validRoute(r) {
+  if (!okRecId(r) || !Array.isArray(r.coords) || r.coords.length < 2 || r.coords.length > 400000 || !r.coords.every(q => okLL(q) && okNum(q[2] == null ? null : q[2]))) return false;
+  if ((r.name != null && typeof r.name !== 'string') || (r.wpts != null && !Array.isArray(r.wpts))) return false;
+  return ['dist', 'asc', 'desc', 'created'].every(k => okNum(r[k]));
+}
+function validRide(r) {
+  if (!okRecId(r) || !Array.isArray(r.track) || r.track.length > 600000 || !r.track.every(q => okLL(q) && okNum(q[3] == null ? null : q[3]))) return false;
+  if (!(typeof r.start === 'number' && Number.isFinite(r.start)) || (r.name != null && typeof r.name !== 'string')) return false;
+  if (!['end', 'dist', 'movingMs', 'max', 'asc', 'desc'].every(k => okNum(r[k]))) return false;
+  if (r.brk != null && (!Array.isArray(r.brk) || !r.brk.every(t => typeof t === 'number' && Number.isFinite(t)))) return false;
+  if (r.est != null && (!Array.isArray(r.est) || !r.est.every(e => e && typeof e === 'object' && Number.isFinite(e.t0) && Number.isFinite(e.t1)))) return false;
+  return true;
+}
+const validWay = w => okRecId(w) && Array.isArray(w.coords) && w.coords.length >= 2 && w.coords.length <= 20000 && w.coords.every(okLL);
 function foreignItem(st, id) {
   const u = lsGet('acct', null); if (!u || !u.uid) return false;
   const o = (lsGet('syncOwn', {}) || {})[st + '~' + id]; return !!o && o !== u.uid;
@@ -3087,6 +3146,17 @@ function startGPS() {
 }
 function onFix(pos) {
   const c = pos.coords;
+  // v151 (audit R06): a fix older than the last one (delivered out of order or twice) or a stale cached one is dropped before it
+  // changes anything — one 71 s old added a kilometre of «ride» back to where the rider had been. Five older fixes in a row
+  // that agree with each other are the phone's clock set back, not a stray fix: taken.
+  { const pv = GPS.fix, t = +pos.timestamp || 0;
+    if (pv && (t < pv.t || (t === pv.t && c.latitude === pv.lat && c.longitude === pv.lon))) {
+      const o = GPS.olderRun = (GPS.olderRun || []).filter(x => hav([x[0], x[1]], [c.latitude, c.longitude]) < 300 && x[2] <= t + 30000); o.push([c.latitude, c.longitude, t]);
+      if (o.length < 5) return;
+      GPS.good = null; GPS.hist = []; GPS.dop = []; GPS.jumpRun = []; GPS.fix = null;
+    }
+    GPS.olderRun = [];
+    if (Date.now() - t > 30000) return; }
   if (GPS.denied || $('#geohelp').dataset.kind === 'denied') { GPS.denied = false; geoHelp(false); }
   // Approximate location gives accuracy in kilometres (real GPS, even indoors, stays within a few hundred metres): warn once.
   GPS.approx = c.accuracy > 1000 ? (GPS.approx || 0) + 1 : 0;
@@ -3116,7 +3186,7 @@ function onFix(pos) {
       const run = GPS.jumpRun || [];
       if (run.length && hav([run[run.length - 1].lat, run[run.length - 1].lon], [fix.lat, fix.lon]) < 150) run.push(fix); else run.splice(0, run.length, fix);
       GPS.jumpRun = run;
-      if (run.length < 3) fix.jump = true;
+      if (run.length < 3) fix.jump = true; else { GPS.hist = []; GPS.dop = []; }
     }
   }
   if (!fix.jump) { GPS.good = fix; GPS.jumpRun = []; }
@@ -3125,15 +3195,39 @@ function onFix(pos) {
   // speed or none at all (then it is derived from that wander and can read 30+ km/h). Drift goes back and forth, riding
   // goes somewhere: compare where you are on average now (last ~2 s) with ~6 s ago. Hysteresis: once standing, it takes a
   // clearly bigger move to count as riding again, so the speedometer does not flicker.
+  // v151 (audit R01): slow riding — a climb at walking pace under trees, accuracy 20–35 m — moves only 4–8 m in 5 s, inside
+  // the drift tolerance, and was taken for standing (autopause, no track, then «Не было GPS» estimates). Two signs of real
+  // movement drift does not give: the receiver's own (Doppler) speed held for several seconds, and a steady displacement
+  // over ~20 s (drift goes back and forth, riding goes somewhere).
+  const rs = fix.rawSpd, hv = c.heading != null && c.heading >= 0 && !Number.isNaN(c.heading) ? c.heading : null;
+  const dop = GPS.dop = (GPS.dop || []).filter(x => fix.t - x.t <= 5500); if (rs != null && !fix.jump) dop.push({ t: fix.t, v: rs, h: hv });
+  let dopMove = false;
+  if (dop.length >= 3) {
+    const vs = dop.map(x => x.v), avgV = vs.reduce((a, x) => a + x, 0) / vs.length, minV = Math.min.apply(null, vs);
+    const hs = dop.map(x => x.h).filter(x => x != null), spread = hs.length === dop.length ? Math.max.apply(null, hs.map(x => Math.abs(norm180(x - hs[0])))) : 999;
+    dopMove = (avgV >= 1.0 && minV >= 0.7) || (avgV >= 0.65 && minV >= 0.45 && spread <= 45);
+  }
   if (!fix.jump) {
-    const h = GPS.hist = (GPS.hist || []).filter(x => fix.t - x.t <= 9500); h.push({ t: fix.t, lat: fix.lat, lon: fix.lon });
+    const h = GPS.hist = (GPS.hist || []).filter(x => fix.t - x.t <= 26500); h.push({ t: fix.t, lat: fix.lat, lon: fix.lon });
     const now = h.filter(x => fix.t - x.t <= 3000), past = h.filter(x => fix.t - x.t >= 5000 && fix.t - x.t <= 9000);
     if (now.length && past.length) {
       const avg = a => [a.reduce((s, x) => s + x.lat, 0) / a.length, a.reduce((s, x) => s + x.lon, 0) / a.length, a.reduce((s, x) => s + x.t, 0) / a.length];
       const A = avg(past), B = avg(now), net = hav(A, B), dt = Math.max(1, (B[2] - A[2]) / 1000), move5 = net / dt * 5;   // metres per 5 s
       const tol = Math.max(4, Math.min(fix.acc, 30) * 0.6) * (GPS.still ? 1.25 : 1);
       const reported = c.speed != null && c.speed >= 0 && !Number.isNaN(c.speed), slow = !reported || fix.spd < 2.2;
-      if (move5 < tol && slow) { fix.spd = 0; GPS.still = true; GPS.moveHits = 0; }
+      // the steady displacement over ~20 s (18–26 s ago against the last 3 s)
+      const old = h.filter(x => fix.t - x.t >= 18000 && fix.t - x.t <= 26000);
+      let longMove = false, longV = 0;
+      // it must go one way (half-way point in between), and a receiver that reports its own speed ≈ 0 is believed: standing
+      const mid = h.filter(x => fix.t - x.t >= 8000 && fix.t - x.t <= 14000), dAvg = dop.length ? dop.reduce((a, x) => a + x.v, 0) / dop.length : null;
+      if (old.length >= 3 && mid.length >= 2 && (!reported || (dAvg != null && dAvg >= 0.4))) {
+        const O = avg(old), M = avg(mid), net2 = hav(O, B), dt2 = Math.max(1, (B[2] - O[2]) / 1000); longV = net2 / dt2;
+        longMove = net2 >= Math.max(12, Math.min(fix.acc, 35) * 0.9) && longV >= 0.55 && longV <= 6 && hav(O, M) >= net2 * 0.3 && hav(M, B) >= net2 * 0.3 && hav(O, M) + hav(M, B) <= net2 * 1.5;
+      }
+      if ((dopMove || longMove) && slow) {
+        // moving slowly: keep it, with a steady speed (the receiver's own, else the ~20-s one; not the noisy point-to-point one)
+        GPS.still = false; GPS.moveHits = 3; if (!reported) fix.spd = longV;
+      } else if (move5 < tol && slow) { fix.spd = 0; GPS.still = true; GPS.moveHits = 0; }
       else {
         GPS.moveHits = (GPS.moveHits || 0) + 1;
         if (GPS.still && slow && GPS.moveHits < 3) fix.spd = 0;   // a couple of odd fixes are not setting off
@@ -3489,6 +3583,18 @@ function trackSegs(tr, brk) {
   return out;
 }
 const segLL = (tr, brk) => trackSegs(tr, brk).map(sg => sg.map(p => [p[0], p[1]]));
+// v151 (audit R08): where a recorded track is not one line — a new piece after a manual pause or a GPS gap (brk), and after
+// a stretch counted without GPS (est: its straight line is an estimate, not a road). The indices of the points that start one.
+function trackCuts(tr, brk, est) {
+  const B = new Set(brk || []), E = new Set((est || []).map(e => e && e.t1)), out = new Set();
+  for (let i = 1; i < tr.length; i++) { const t = tr[i][3]; if (t != null && (B.has(t) || E.has(t))) out.add(i); }
+  return out;
+}
+function trackParts(tr, brk, est) {
+  const cuts = trackCuts(tr, brk, est), out = [[]];
+  tr.forEach((p, i) => { if (cuts.has(i) && out[out.length - 1].length) out.push([]); out[out.length - 1].push(p); });
+  return out.filter(x => x.length);
+}
 // v150: the stretches counted without GPS (est) as lines from the last point before the gap to the first one after it.
 function estLL(tr, est) {
   if (!est || !est.length || !tr || tr.length < 2) return [];
@@ -3533,11 +3639,20 @@ const Ride = {
     if (newSeg && this.track.length > 1) { this.brk.push(p[3]); this.line.setLatLngs(segLL(this.track, this.brk)); return; }
     const r = this.line.getLatLngs(); this.line.addLatLng([p[0], p[1]], r.length && Array.isArray(r[0]) ? r[r.length - 1] : r);
   },
-  async stop(save = true) {
-    if (this.status === 'idle') return true;
+  // v151 (audit R05): one finish at a time. A second ■ (a double tap, the voice and the button together) while the ride is
+  // being saved gets the same answer — never a second copy of the ride. The ride stops taking points at once (a frozen copy
+  // goes to the storage); not saved → it stays on pause, ■ tries again.
+  stop(save = true) {
+    if (this.stopping) return this.stopping;
+    if (this.status === 'idle') return Promise.resolve(true);
+    const pr = this.stopping = this.finish(save).finally(() => { this.stopping = null; renderRecUI(); });
+    renderRecUI(); return pr;
+  },
+  async finish(save) {
     this.lastSaved = null;
+    if (this.status === 'rec') this.status = 'paused';
     const ride = { id: uid(), name: autoRideName(this.startTs, S.act || 'bike'),
-      start: this.startTs, end: Date.now(), type: S.act || 'bike', dist: this.dist, movingMs: this.movingMs, max: this.max, asc: this.asc, desc: this.desc, track: this.track };
+      start: this.startTs, end: Date.now(), type: S.act || 'bike', dist: this.dist, movingMs: this.movingMs, max: this.max, asc: this.asc, desc: this.desc, track: this.track.slice() };
     if (this.brk && this.brk.length) ride.brk = this.brk.slice();
     if (this.est && this.est.length) ride.est = this.est.map(e => ({ ...e }));
     if (Nav.rid) ride.routeId = Nav.rid;
@@ -3575,16 +3690,23 @@ const Ride = {
     if (this.status !== 'rec') return;
     const spd = f.spd;
     if (S.autopause) {
-      if (spd < 0.6) { if (!this.slowSince) this.slowSince = f.t; if (f.t - this.slowSince > 4000) this.autoPaused = true; }
-      else if (spd > 1.0) { this.slowSince = 0; this.autoPaused = false; }
+      if (spd < 0.6 && GPS.still !== false) { if (!this.slowSince) this.slowSince = f.t; if (f.t - this.slowSince > 4000) this.autoPaused = true; }
+      else if (spd > 1.0 || (spd >= 0.45 && GPS.still === false)) { this.slowSince = 0; this.autoPaused = false; }
     } else this.autoPaused = false;
     if (f.acc <= 20 && !f.jump && spd < vMax() - 3) this.max = Math.max(this.max, GPS.spdEma);
     if (f.alt != null && (f.altAcc == null || f.altAcc <= 20) && !f.jump) {
       this.altS = this.altS == null ? f.alt : this.altS * 0.75 + f.alt * 0.25;
       const a = this.altS;
-      if (this.altRef == null) this.altRef = a;
-      else if (a - this.altRef >= 5) { this.asc += a - this.altRef; this.altRef = a; }
-      else if (this.altRef - a >= 5) { this.desc += this.altRef - a; this.altRef = a; }
+      // v151 (audit R07): standing (a stop, the auto-pause) the GPS height drifts — 113 m of «climb» in a café stop. Standing,
+      // the reference follows the height (nothing counted); riding, a change counts once it is past the height's own error
+      // and some ground was covered (a few metres of height on the spot are noise, not a climb).
+      const standing = this.autoPaused || GPS.still === true || (spd < 0.5 && GPS.still !== false);
+      const thr = Math.max(5, Math.min(f.altAcc || 0, 20) * 0.5);
+      if (this.altRef == null || standing) { this.altRef = a; this.altDist = this.dist; }
+      else if (this.dist - (this.altDist || 0) >= 8) {
+        if (a - this.altRef >= thr) { this.asc += a - this.altRef; this.altRef = a; this.altDist = this.dist; }
+        else if (this.altRef - a >= thr) { this.desc += this.altRef - a; this.altRef = a; this.altDist = this.dist; }
+      }
     }
     renderRecUI();
     if (f.acc > 35 || f.jump) return;
@@ -3604,6 +3726,8 @@ const Ride = {
     // Ridden at a plausible pace → count it once and join the line (an approximate straight stretch);
     // otherwise (standing, GPS off, wild jump) leave the time and distance out and start a new piece.
     const gapMs = (p[3] || 0) - (last[3] || 0);
+    // v151 (R01): fixes kept coming (the standstill filter held the points back) — no outage: the line just goes on
+    if (gapMs > 20000 && d > 30 && fixGap > 0 && fixGap <= 15000) { if (!f.jump) this.dist += d; this.addPt(p); return; }
     if (gapMs > 20000 && d > 30) {
       // Handled once (the point becomes the new last one), whatever the standstill filter thinks right after the gap.
       // v150: the counted stretch is marked (dashed on the map, «без GPS» in the ride) and, when both ends lie on the route
@@ -3622,11 +3746,21 @@ const Ride = {
     }
     // A short dropout (≤ 20 s) while riding on: its time was riding time too.
     if (missed && fixGap > 5000 && gapMs <= 20000 && spd > 1 && !this.autoPaused) this.movingMs += Math.min(missed, fixGap);
-    if (d >= Math.max(3, f.acc * 0.3) && !this.autoPaused && !GPS.still) { if (!f.jump) this.dist += d; this.addPt(p); }
+    const slowPoor = spd < 2.5 && f.acc > 8, thr = slowPoor ? Math.max(3, f.acc * 0.5) : Math.max(3, f.acc * 0.3);
+    const buf = this.fbuf = (this.fbuf || []).concat([p]).slice(-4);
+    if (d >= thr && !this.autoPaused && !GPS.still) {
+      let q = p;
+      // the Kalman-smoothed position (it weighs the position by its accuracy and follows the receiver's speed); else the average
+      if (slowPoor && GPS.kf && isFinite(GPS.kf.lat) && isFinite(GPS.kf.lon)) q = [GPS.kf.lat, GPS.kf.lon, p[2], p[3]];
+      else if (slowPoor && buf.length >= 3) { const n = buf.length; q = [buf.reduce((a, x) => a + x[0], 0) / n, buf.reduce((a, x) => a + x[1], 0) / n, p[2], p[3]]; }
+      if (!f.jump) this.dist += hav(last, q); this.addPt(q); this.fbuf = [];
+    }
   },
   persist() {
     if (this.status === 'idle') return Promise.resolve();
-    return DB.put('kv', { id: 'currentRide', v: { status: this.status, gap: !!this.gap, savedAt: Date.now(), startTs: this.startTs, movingMs: this.movingMs, dist: this.dist, max: this.max, asc: this.asc, desc: this.desc, brk: this.brk || [], est: this.est || [], track: this.track } }).catch(() => {});
+    return DB.put('kv', { id: 'currentRide', v: { status: this.status, gap: !!this.gap, savedAt: Date.now(), startTs: this.startTs, movingMs: this.movingMs, dist: this.dist, max: this.max, asc: this.asc, desc: this.desc, brk: this.brk || [], est: this.est || [], track: this.track } })
+      .then(() => { if (this.persistErr) { this.persistErr = 0; toast('Аварийная копия поездки снова сохраняется', 3000); } },
+        () => { const now = Date.now(); if (!this.persistErr || now - (this.persistToast || 0) > 300000) { this.persistToast = now; toast('⚠️ Не удаётся сохранить аварийную копию поездки в телефоне — проверьте свободную память. Запись продолжается', 6000); } this.persistErr = this.persistErr || now; });
   }
 };
 const PLAY = '<svg viewBox="0 0 24 24"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.2-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z" fill="currentColor"/></svg>';
@@ -3637,9 +3771,11 @@ function renderRecUI() {
   $('#hud-st').textContent = Ride.status === 'idle' ? 'Готов к записи' : Ride.status === 'paused' ? 'Пауза' : Ride.autoPaused ? 'Автопауза' : Ride.live === false ? 'Жду GPS — трек не пишется' : 'Запись';
   const mp = $('#m-play'); mp.innerHTML = Ride.status === 'rec' ? PAUSE : PLAY; mp.classList.toggle('rec', Ride.status === 'rec'); mp.setAttribute('aria-label', p.getAttribute('aria-label') || 'Старт');
   p.setAttribute('aria-label', Ride.status === 'rec' ? 'Пауза' : Ride.status === 'paused' ? 'Продолжить' : 'Старт');
-  $('#c-stop').disabled = Ride.status === 'idle'; $('#c-stop').hidden = Ride.status === 'idle';
+  $('#c-stop').disabled = Ride.status === 'idle' || !!Ride.stopping; $('#c-stop').hidden = Ride.status === 'idle'; $('#m-stop').disabled = !!Ride.stopping;
+  $$('#ask-stop button').forEach(b => b.disabled = !!Ride.stopping);
   if (renderRecUI.st !== Ride.status) { const was = renderRecUI.st; renderRecUI.st = Ride.status; if (was !== undefined) setCompact(hudWant()); }
   $('#m-stop').hidden = Ride.status === 'idle'; $('#mini').classList.toggle('has-stop', Ride.status !== 'idle');
+  document.body.classList.toggle('onride', Ride.status !== 'idle' || !!(typeof Nav !== 'undefined' && Nav.route));
   renderMetrics();
 }
 $('#c-play').onclick = () => Ride.status === 'rec' ? Ride.pause() : Ride.start();
@@ -3718,6 +3854,9 @@ const KF = {
     return { lat: st.lat0 + st.ay[0] / st.ky, lon: st.lon0 + st.ax[0] / st.kx, v: Math.hypot(st.ax[1], st.ay[1]) };
   }
 };
+// v151 (audit R06): the fixes stopped while riding → after 20 s the last one is no longer where the rider is; standing (iPhone
+// then sends few fixes) → after 2 min. Navigation, rerouting and «from here» do not act on a stale fix.
+function gpsStale() { if (!GPS.fix) return true; const a = Date.now() - (GPS.lastT || 0); return a > 120000 || (a > 20000 && (GPS.spdEma || 0) >= 1); }
 function curSpeed() { return GPS.fix && Date.now() - GPS.lastT < 6000 && GPS.spdEma >= 0.4 ? GPS.spdEma : 0; }
 /* ---- Telemetry cells: 12 slots, each shows any metric from the pool; long press on a cell chooses it ---- */
 const METRICS = {
@@ -3823,6 +3962,7 @@ setInterval(() => {
   Ride.tick();
   spdHist.shift(); spdHist.push(curSpeed()); renderTicks();
   if (GPS.fix && Date.now() - GPS.lastT > 15000) gpsDot('weak');
+  if (Nav.route && GPS.fix && gpsStale() && !Nav.rejoining) { try { Nav.stale(); } catch {} }
   // During navigation return to the rider 15 s after the map was last touched.
   if (Nav.route && !GPS.follow && GPS.fix && Date.now() - lastMapTouch > 15000 && Date.now() - Nav.setAt > 8000) { setFollow(true); centerOn([GPS.fix.lat, GPS.fix.lon], Math.max(map.getZoom(), 16)); }
   renderDash();
@@ -3919,7 +4059,7 @@ function classOf(t, sc, ms) {
 }
 const NO_HW = /^(motorway|motorway_link|construction|proposed|platform|raceway|bus_guideway|elevator|corridor|via_ferrata|abandoned|disused|bus_stop|rest_area|services)$/;
 // Returns [forward factor, backward factor, surface class] or null if the bike cannot use the way.
-function wayCost(t, bk, terrain) {
+function wayCost(t, bk, terrain, loose) {
   const h = t.highway; if (!h || NO_HW.test(h)) return null;
   const B = BIKES[bk], bic = t.bicycle || '', acc = t.access || '';
   if (bic === 'no' || bic === 'use_sidepath') return null;
@@ -3941,14 +4081,20 @@ function wayCost(t, bk, terrain) {
   else if (terrain === 'off') f *= [h === 'cycleway' ? 1.5 : 2.2, 0.85, 0.7][cls];
   if (ms != null && !isNaN(ms)) { if (bk === 'trail' && ms >= 1) f *= 0.85; if (bk === 'xc' || bk === 'gravel') f *= 1 + 0.25 * ms; }
   let fw = f, bw = f;
-  const ow = t.oneway, contra = t['oneway:bicycle'] === 'no' || /opposite/.test(t.cycleway || '');
-  if (!contra && (ow === 'yes' || ow === '1' || ow === 'true' || t.junction === 'roundabout')) bw = f * 6;
-  else if (!contra && ow === '-1') fw = f * 6;
+  // v151 (audit R04): the wrong way of a one-way street is closed (it was only ×6 dearer — a short street the wrong way beat
+  // a longer legal way). Open for bikes against the flow: oneway:bicycle=no, cycleway[:left|:right|:both]=opposite*.
+  // oneway:bicycle=yes/-1 makes a way one-way for bikes alone; a roundabout is one-way unless tagged otherwise.
+  const ob = String(t['oneway:bicycle'] || ''), cw = [t.cycleway, t['cycleway:left'], t['cycleway:right'], t['cycleway:both']].join(' ');
+  let ow = String(t.oneway || '');
+  if (/^(yes|1|true|-1)$/.test(ob)) ow = ob;
+  else if (ob === 'no' || /opposite/.test(cw)) ow = 'no';
+  else if (!ow && /^(roundabout|circular)$/.test(t.junction || '')) ow = 'yes';
+  if (!loose) { if (/^(yes|1|true)$/.test(ow)) bw = Infinity; else if (ow === '-1' || ow === 'reverse') fw = Infinity; }
   return [fw, bw, cls];
 }
 
 /* --- OSM road/trail graph (built-in engine) --- */
-const KEEP_TAGS = ['highway', 'surface', 'tracktype', 'mtb:scale', 'bicycle', 'access', 'oneway', 'oneway:bicycle', 'cycleway', 'smoothness', 'sac_scale', 'junction', 'name'];
+const KEEP_TAGS = ['highway', 'surface', 'tracktype', 'mtb:scale', 'bicycle', 'access', 'oneway', 'oneway:bicycle', 'cycleway', 'cycleway:left', 'cycleway:right', 'cycleway:both', 'smoothness', 'sac_scale', 'junction', 'name'];
 const overpassGraphQuery = (s, w, n, e, timeout) => `[out:json][timeout:${timeout}][maxsize:536870912];(way["highway"]["highway"!~"^(motorway|motorway_link|construction|proposed|platform|corridor|elevator|bus_guideway|raceway|abandoned|bus_stop|rest_area|services)$"](${s},${w},${n},${e}););out body;>;out skel qt;`;
 function compactOverpass(j) {
   const idx = new Map(), lat = [], lon = [];
@@ -3979,9 +4125,9 @@ function makeGraph(reg) {
   });
   return { reg, N, off, to, from, len, way, dir, mx, my };
 }
-function wayFactors(G, bk, terrain) {
+function wayFactors(G, bk, terrain, loose) {
   const W = G.reg.ways.length, wf = new Float32Array(W * 2).fill(Infinity), wc = new Uint8Array(W);
-  G.reg.ways.forEach((w, i) => { const c = wayCost(w.t, bk, terrain); if (c) { wf[i * 2] = c[0]; wf[i * 2 + 1] = c[1]; wc[i] = c[2]; } });
+  G.reg.ways.forEach((w, i) => { const c = wayCost(w.t, bk, terrain, loose); if (c) { wf[i * 2] = c[0]; wf[i * 2 + 1] = c[1]; wc[i] = c[2]; } });
   return { wf, wc };
 }
 function snapNode(G, wf, ll) {
@@ -4033,7 +4179,11 @@ function graphRoute(G, points, bk, terrain, avoid) {
     if (a.dist > 600) throw new Error(`точка ${k + 1} в ${Math.round(a.dist)} м от ближайшей дороги/тропы`);
     if (b.dist > 600) throw new Error(`точка ${k + 2} в ${Math.round(b.dist)} м от ближайшей дороги/тропы`);
     const edges = astar(G, wf, a.node, b.node, k === 0 ? avoid : null);
-    if (!edges) throw new Error(`для «${BIKES[bk].name}» нет проезда между точками ${k + 1} и ${k + 2}`);
+    if (!edges) {
+      // say why: is there a way at all, if one-way streets were ignored?
+      let wrongWay = false; try { const lw = wayFactors(G, bk, terrain, true).wf, la = snapNode(G, lw, points[k]), lb = snapNode(G, lw, points[k + 1]); wrongWay = la.node >= 0 && lb.node >= 0 && !!astar(G, lw, la.node, lb.node, null); } catch {}
+      throw new Error(`для «${BIKES[bk].name}» нет проезда между точками ${k + 1} и ${k + 2}` + (wrongWay ? ': путь есть только против одностороннего движения — выберите BRouter или другие точки' : ''));
+    }
     if (!coords.length) coords.push([reg.lat[a.node], reg.lon[a.node], null]);
     for (const e of edges) { const v = to[e]; coords.push([reg.lat[v], reg.lon[v], null]); mix[wc[way[e]]] += len[e]; }
   }
@@ -4995,7 +5145,7 @@ const RoadAlerts = {
       else if (e.type === 'way' && e.geometry) {
         const k = this.kindOf(e.tags, true); if (!k) continue;
         const ats = e.geometry.map(g => near(g.lat, g.lon)).filter(([d]) => d <= 10).map(([, at]) => at);
-        if (ats.length >= 2 && Math.max(...ats) - Math.min(...ats) >= 4) out.push({ kind: k, d: Math.min(...ats), len: Math.max(...ats) - Math.min(...ats) });
+        if (ats.length >= 2 && amax(ats) - amin(ats) >= 4) out.push({ kind: k, d: amin(ats), len: amax(ats) - amin(ats) });
       }
     }
     out.sort((a, b) => a.d - b.d);
@@ -5037,12 +5187,13 @@ function aheadCard(show) {
   el.hidden = false;
   // Never over «⟳ Кольцом» / 🎤 on the right: the card is narrowed to end before them.
   const rb = ['#t-ret', '#t-mic'].map(q => $(q)).filter(x => x && !x.hidden && getComputedStyle(x).visibility !== 'hidden' && getComputedStyle(x).display !== 'none').map(x => x.getBoundingClientRect()).filter(r => r.width && r.bottom > el.getBoundingClientRect().top && r.top < el.getBoundingClientRect().bottom);
-  el.style.maxWidth = rb.length ? Math.max(150, Math.min(...rb.map(r => r.left)) - el.getBoundingClientRect().left - 8) + 'px' : '';
+  el.style.maxWidth = rb.length ? Math.max(150, amin(rb.map(r => r.left)) - el.getBoundingClientRect().left - 8) + 'px' : '';
 }
 const Nav = {
   route: null, line: null, wptLayer: null, setAt: 0, wrongWay: 0, lastFlip: 0, progress: 0, offCount: 0, lost: false, lastReroute: 0, ignoreOffUntil: 0, said: {},
   set(r) {
     try { if (RotMan.on) setOrientation(S.orient || 'north', true); } catch {}
+    this.gen = (this.gen || 0) + 1; this.rejoining = false;   // v151 (R02): a new route — answers asked for the old one are void
     const coords = r.coords.filter(c => c && isFinite(c[0]) && isFinite(c[1]));
     if (coords.length < 2) { toast('В маршруте нет точек'); return; }
     const cum = cumDist(coords);
@@ -5109,6 +5260,7 @@ const Nav = {
     this.finMk = L.marker(fin, { icon: L.divIcon({ className: '', iconSize: [36, 43], iconAnchor: [5, 42], html: '<svg class="rte-fin" viewBox="0 0 30 36" aria-label="Финиш"><path d="M4 2v33" stroke="#1b1f24" stroke-width="2.6" stroke-linecap="round"/><path d="M4 3h22v14H4Z" fill="#fff" stroke="#1b1f24" stroke-width="1.4"/><path d="M4 3h5.5v4.67H4ZM15 3h5.5v4.67H15ZM9.5 7.67H15v4.66H9.5ZM20.5 7.67H26v4.66h-5.5ZM4 12.33h5.5V17H4ZM15 12.33h5.5V17H15Z" fill="#1b1f24"/></svg>' }), interactive: false, zIndexOffset: 500 }).addTo(map);
   },
   stop() {
+    this.gen = (this.gen || 0) + 1; this.rejoining = false;   // v151 (R02): late answers must not bring the route back
     try { retHide(); aheadCard(null); preHide(true); } catch {}
     if (this.picking) this.pick(false);
     this.askPending = false; this.toStart = false; this.choosing = false; $('#ask-start').hidden = true; $('#ask-join').hidden = true;
@@ -5568,6 +5720,14 @@ const Nav = {
     }
     aheadCard(show);
   },
+  // v151 (audit R06): no fresh fix — the last instruction is not passed off as current; how old the last fix is instead
+  stale() {
+    const a = Math.round((Date.now() - (GPS.lastT || 0)) / 1000);
+    $('#navb').classList.add('stale'); $('#navb').classList.remove('off'); $('#nv-act').hidden = true;
+    $('#nv-icon').innerHTML = '<span class="nv-nogps" aria-hidden="true">📡</span>';
+    $('#nv-dist').textContent = a < 60 ? a + ' ' + tr('сек') : Math.floor(a / 60) + ' ' + tr('мин');
+    $('#nv-txt').textContent = tr('Нет свежего GPS — подсказка вернётся с сигналом');
+  },
   render(off = false, offDist = 0) {
     const r = this.route; this.nextD = null; if (!r) return;
     $('#navb').classList.toggle('off', !!off); $('#nv-act').hidden = !off; $('#nv-rejoin').textContent = tr('Перестроить'); syncSheetMax();
@@ -5578,6 +5738,8 @@ const Nav = {
     }
     if (this.wrongWay) { $('#nv-icon').innerHTML = ARROW('uturn-l'); $('#nv-dist').textContent = ''; $('#nv-txt').textContent = 'Развернитесь — вы едете против маршрута'; drawElev(); return; }
     if (!GPS.fix) { $('#nv-icon').innerHTML = ARROW(0); $('#nv-dist').textContent = '—'; $('#nv-txt').textContent = 'Ожидание GPS…'; drawElev(); return; }
+    if (gpsStale()) { this.stale(); drawElev(); return; }
+    $('#navb').classList.remove('stale');
     const i = r.cues.findIndex(c => c.d > this.progress + 5); const cue = r.cues[i] || r.cues[r.cues.length - 1];
     const d = Math.max(0, cue.d - this.progress); this.nextD = d;
     // «Затем…» (like Google Maps): the next manoeuvre when it comes right after this one, so the second turn is not missed.
@@ -5599,6 +5761,7 @@ const Nav = {
   // usually a parallel street or trail forward; a short U-turn only when it really is shorter.
   async rejoin(auto) {
     if (!this.route || !GPS.fix) { if (!auto) toast('Нужен сигнал GPS'); return; }
+    if (gpsStale()) { if (!auto) toast('Нет свежего GPS — перестрою, когда вернётся сигнал', 4000); return; }
     if (this.rejoining) return;
     if (this.approaching()) return this.reApproach(auto);
     if (S.tofinish) return this.toFinish(auto);
@@ -5607,7 +5770,7 @@ const Nav = {
     // the route): they know where they are going — stop pulling them back, lead to the finish from here.
     if (auto && ep && (ep.give || (ep.n >= 2 && Date.now() - ep.at >= 60000 && hav(me, ep.from) >= 400))) { ep.give = true; ep.onFrom = null; return this.toFinish(auto, true); }
     if (ep) { ep.n++; ep.onFrom = null; }
-    this.rejoining = true;
+    this.rejoining = true; const g = this.gen, live = () => this.gen === g && this.route === r;
     const base = this.lost || this.progress < 1 ? this.locate(me, null).along : this.progress;  // where you left the route
     const left = Math.max(0, r.total - base);
     const offs = [150, 600].filter(o => o < left - 20); if (left > 20) offs.push(Math.max(20, left - 1)); // 3 points ahead × 2 variants
@@ -5657,6 +5820,7 @@ const Nav = {
         if (!best || score < best.score) best = { score, i, coords: c, len, skip, uturn };
       });
       // Way back + the rest of the route from where it joins, against the new way to the destination.
+      if (!live()) return;   // v151 (R02): another route was chosen, or the navigation stopped, meanwhile
       if (bestB && (!best || bestB.len + bestB.uturn <= best.len + Math.max(0, r.total - r.cum[best.i]) + best.uturn)) {
         this.set({ name: r.name, coords: bestB.coords, osrmSteps: bestB.steps, opts: r.opts, wpts: this.wpts, keepView: true, rr: true });
         this.lastRejoin = null; setFollow(true); centerOn(me);
@@ -5670,14 +5834,16 @@ const Nav = {
       setFollow(true); centerOn(me);
       const msg = best.uturn ? 'Развернитесь и вернитесь на маршрут' : 'Маршрут перестроен. Возвращаемся на маршрут';
       say(msg); toast('↪ ' + msg + ` · ${Math.round(best.len)} м до маршрута`, 4000);
-    } catch (e) { this.rrFailed = true; if (!auto) toast('Не удалось перестроить: ' + e.message, 5000); if (GPS.fix) this.onFix(GPS.fix); else this.render(true, 0); }
-    finally { this.rejoining = false; }
+    } catch (e) { if (!live()) return; this.rrFailed = true; if (!auto) toast('Не удалось перестроить: ' + e.message, 5000); if (GPS.fix) this.onFix(GPS.fix); else this.render(true, 0); }
+    finally { if (this.gen === g) this.rejoining = false; }
   }
 };
 Nav.toFinish = async function (auto, ownWay) {
   // Off the route: build a fresh way from here to the finish, preferring to keep going forward (no needless U-turn).
+  if (!this.route || !GPS.fix) { if (!auto) toast('Нужен сигнал GPS'); return; }
+  if (gpsStale()) { if (!auto) toast('Нет свежего GPS — перестрою, когда вернётся сигнал', 4000); return; }
   this.rejoining = true;
-  const r = this.route, me = [GPS.fix.lat, GPS.fix.lon], end = r.coords[r.coords.length - 1], fin = [end[0], end[1]];
+  const r = this.route, me = [GPS.fix.lat, GPS.fix.lon], end = r.coords[r.coords.length - 1], fin = [end[0], end[1]], g = this.gen, live = () => this.gen === g && this.route === r;
   const opts = rrOpts(r);
   $('#nv-txt').textContent = 'Перестраиваю маршрут к финишу…'; $('#nv-dist').textContent = '…';
   if (!auto) toast('Перестраиваю маршрут к финишу…');
@@ -5700,13 +5866,14 @@ Nav.toFinish = async function (auto, ownWay) {
       const score = len + uturn;
       if (!best || score < best.score) best = { score, coords: c, len, uturn, steps: x.value.osrmSteps };
     });
+    if (!live()) return;   // v151 (R02)
     if (!best) throw new Error('нет пути к финишу');
     this.set({ name: r.name, coords: best.coords, osrmSteps: best.steps, opts: r.opts, wpts: this.wpts, keepView: true, rr: true });
     setFollow(true); centerOn(me);
     const msg = ownWay ? 'Едете своей дорогой — маршрут перестроен к финишу' : best.uturn ? 'Развернитесь. Маршрут перестроен к финишу' : 'Маршрут перестроен к финишу';
     say(msg); toast('↪ ' + msg + ` · ${fmtKm(best.len)} км`, 4000);
-  } catch (e) { if (ownWay) this.rrFailed = true; if (!auto) toast('Не удалось перестроить: ' + e.message, 5000); this.render(true, 0); }
-  finally { this.rejoining = false; }
+  } catch (e) { if (!live()) return; if (ownWay) this.rrFailed = true; if (!auto) toast('Не удалось перестроить: ' + e.message, 5000); this.render(true, 0); }
+  finally { if (this.gen === g) this.rejoining = false; }
 };
 $('#nv-rejoin').onclick = () => { if (Nav.route && !Nav.joined && GPS.fix) Nav.offerJoin([GPS.fix.lat, GPS.fix.lon]); else Nav.rejoin(false); };
 $('#aj-near').onclick = () => Nav.joinChoice('near');
@@ -5895,7 +6062,7 @@ function drawRouteProf(mark) {
   const c = r.coords, cum = cumDist(c), T = cum[cum.length - 1] || 1, idx = c.map((p, i) => i).filter(i => c[i][2] != null); if (idx.length < 2) return null;
   const dpr = window.devicePixelRatio || 1, w = cv.clientWidth || 340, h = cv.clientHeight || 150; cv.width = w * dpr; cv.height = h * dpr;
   const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, h);
-  let lo = Math.min(...idx.map(i => c[i][2])), hi = Math.max(...idx.map(i => c[i][2])); const top = hi, bot = lo; if (hi - lo < 20) { const m = (hi + lo) / 2; lo = m - 10; hi = m + 10; }
+  let lo = amin(idx.map(i => c[i][2])), hi = amax(idx.map(i => c[i][2])); const top = hi, bot = lo; if (hi - lo < 20) { const m = (hi + lo) / 2; lo = m - 10; hi = m + 10; }
   const B = 22, X = d => 6 + d / T * (w - 12), Y = e => 8 + (h - B - 8) - (e - lo) / (hi - lo) * (h - B - 16);
   g.strokeStyle = 'rgba(255,255,255,.08)'; g.setLineDash([3, 4]); [8, h - B].forEach(y => { g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); }); g.setLineDash([]);
   g.beginPath(); g.moveTo(X(0), h - B); idx.forEach(i => g.lineTo(X(cum[i]), Y(c[i][2]))); g.lineTo(X(T), h - B); g.closePath();
@@ -5980,7 +6147,7 @@ async function buildPlan(pre) {
     $('#r-dist').textContent = fmtKm(r.distance); $('#r-asc').textContent = r.ascent != null ? Math.round(r.ascent) : '—';
     { const es = r.coords.map(c => c[2]).filter(e => e != null), has = es.length > 1;
       $('#r-desc').textContent = has ? Math.round(ascentOf(r.coords.slice().reverse())) : '—';
-      $('#r-emax').textContent = has ? Math.round(Math.max(...es)) : '—'; $('#r-emin').textContent = has ? Math.round(Math.min(...es)) : '—';
+      $('#r-emax').textContent = has ? Math.round(amax(es)) : '—'; $('#r-emin').textContent = has ? Math.round(amin(es)) : '—';
       $('#r-prof').hidden = $('#r-profx').hidden = !has; }
     renderResWps(); requestAnimationFrame(() => { try { drawRouteProf(); } catch {} });
     $('#r-time').textContent = fmtHM(r.gdur || rideTime(r, o.bike, o.mode)); $('#r-mix').innerHTML = mixHtml(r.mix); $('#r-eng').textContent = r.engine + (r.gdur ? (o.mode === 'car' ? ' · время — оценка Google без пробок' : ' · время — оценка Google. Велодорожки и тротуары учтены не везде — проверьте маршрут') : o.mode === 'car' ? ' · время без пробок' : o.mode === 'foot' ? ' · время пешком с учётом подъёмов' : ' · время — оценка по типу велосипеда и покрытию');
@@ -6516,6 +6683,7 @@ async function openRouteFiles(files) {
   const added = [];
   for (const f of files) {
     try {
+      impTooBig(f, IMP.file);
       const items = await parseBuffer(await f.arrayBuffer(), f.name);
       if (!items.length) throw new Error('в файле нет трека, маршрута или точек');
       for (const it of items) {
@@ -6608,9 +6776,9 @@ async function makeRouteCard(r, info) {
   g.fillStyle = '#fff'; g.font = `800 56px ${FONT}`; let title = r.name; while (g.measureText(title).width > W - 112 && title.length > 4) title = title.slice(0, -2) + '…'; g.fillText(title, 56, 150);
   const box = { x: 40, y: 190, w: W - 80, h: 800 };
   const la = c.map(p => p[0]), lo = c.map(p => p[1]); let z = 17, P;
-  for (; z > 3; z--) { const w = 256 * 2 ** z, xs = lo.map(x => shX(x, w)), ys = la.map(y => shY(y, w)); if (Math.max(...xs) - Math.min(...xs) <= box.w - 140 && Math.max(...ys) - Math.min(...ys) <= box.h - 140) break; }
+  for (; z > 3; z--) { const w = 256 * 2 ** z, xs = lo.map(x => shX(x, w)), ys = la.map(y => shY(y, w)); if (amax(xs) - amin(xs) <= box.w - 140 && amax(ys) - amin(ys) <= box.h - 140) break; }
   const WW = 256 * 2 ** z, xs = lo.map(x => shX(x, WW)), ys = la.map(y => shY(y, WW));
-  const ox = (Math.min(...xs) + Math.max(...xs)) / 2 - box.w / 2, oy = (Math.min(...ys) + Math.max(...ys)) / 2 - box.h / 2;
+  const ox = (amin(xs) + amax(xs)) / 2 - box.w / 2, oy = (amin(ys) + amax(ys)) / 2 - box.h / 2;
   P = i => [box.x + xs[i] - ox, box.y + ys[i] - oy];
   g.fillStyle = '#1e293b'; roundRect(g, box.x, box.y, box.w, box.h, 30); g.fill();
   const attr = await drawTiles(g, box, z, ox, oy);
@@ -6982,7 +7150,7 @@ async function insWeather(c, data, ms) {
     if (!rows.length) throw new Error('прогноз есть только на ближайшие 2–3 дня');
     const at = ts => { const along = Math.max(0, Math.min(total, (ts * 1000 - start) / ms * total)); const i = Math.max(0, Math.min(c.length - 2, lowerBound(cum, along) - 1)); return bearing(c[i], c[i + 1]); };
     const wind = (i, t) => { const rel = Math.abs(norm180(h.wind_direction_10m[i] - at(t))); return rel < 50 ? 'встречный' : rel > 130 ? 'попутный' : 'боковой'; };
-    const hot = Math.max(...rows.map(i => h.apparent_temperature[i])), rain = Math.max(...rows.map(i => h.precipitation_probability[i] ?? 0)), wmax = Math.max(...rows.map(i => h.wind_speed_10m[i])), uv = Math.max(...rows.map(i => h.uv_index[i] ?? 0));
+    const hot = amax(rows.map(i => h.apparent_temperature[i])), rain = amax(rows.map(i => h.precipitation_probability[i] ?? 0)), wmax = amax(rows.map(i => h.wind_speed_10m[i])), uv = amax(rows.map(i => h.uv_index[i] ?? 0));
     const warn = [];
     if (hot >= 32) warn.push(`🔥 Жара до ${Math.round(hot)}° по ощущению — возьмите больше воды${data ? ` (точек с водой по пути: ${data.pois.filter(p => p.k === 'water' || p.k === 'spring').length})` : ''}`);
     if (rain >= 50) warn.push(`🌧 Вероятность дождя до ${rain}% — тропы могут быть скользкими`);
@@ -7203,7 +7371,7 @@ async function preWeather(c, ms) {
     const brg = ts => { const along = Math.max(0, Math.min(total, (ts * 1000 - start) / ms * total)), i = Math.max(0, Math.min(c.length - 2, lowerBound(cum, along) - 1)); return bearing(c[i], c[i + 1]); };
     let head = 0, tail = 0;
     rows.forEach(i => { const rel = Math.abs(norm180(h.wind_direction_10m[i] - brg(Math.max(T[i], start / 1000)))); if (rel < 50) head++; else if (rel > 130) tail++; });
-    const mx = a => Math.max(...rows.map(i => a[i] ?? 0)), mn = a => Math.min(...rows.map(i => a[i] ?? 0));
+    const mx = a => amax(rows.map(i => a[i] ?? 0)), mn = a => amin(rows.map(i => a[i] ?? 0));
     return { tmin: mn(h.temperature_2m), tmax: mx(h.temperature_2m), hot: mx(h.apparent_temperature), rain: Math.round(mx(h.precipitation_probability)), wmax: mx(h.wind_speed_10m), uv: mx(h.uv_index || []),
       code: mx(h.weather_code), head: head / rows.length, tail: tail / rows.length };
   } catch (e) { return { err: navigator.onLine === false ? PR3('нет интернета', 'no internet', 'אין אינטרנט') : String(e && e.message || e) }; }
@@ -7219,7 +7387,7 @@ const speedTxt = (r, v) => ACTS[actOf(r)].pace ? fmtPace(v) + ' /км' : kmh(v) 
 const fmtDay = ts => new Date(ts).toLocaleDateString(LOC, { day: 'numeric', month: 'long', year: 'numeric' });
 const fmtHrs = ms => ms < 3600000 ? Math.round(ms / 60000) + ' мин' : Math.floor(ms / 3600000) + ' ч ' + Math.round(ms % 3600000 / 60000) + ' мин';
 const plural = (n, a, b, c) => { if (LANG !== 'ru') return n === 1 ? a : c; const m = n % 100, k = n % 10; return m > 10 && m < 20 ? c : k === 1 ? a : k >= 2 && k <= 4 ? b : c; };
-const HS = { seg: 'list', type: 'all', list: [], cur: null };
+const HS = { seg: 'list', type: 'all', list: [], cur: null, lim: 30 };   // lim: cards shown (v151, R11: in pages of 30)
 
 // 'shared' | 'cancel' | 'download'
 async function shareFile(file, title) {
@@ -7279,7 +7447,7 @@ function drawProfile(cv, tr, color, opts = {}) {
   if (!opts.ctx) { cv.width = w * dpr; cv.height = h * dpr; }
   const g = opts.ctx || cv.getContext('2d'); if (!opts.ctx) g.setTransform(dpr, 0, 0, dpr, 0, 0);
   const ox = opts.x || 0, oy = opts.y || 0, cum = cumDist(pts), len = cum[cum.length - 1] || 1;
-  let lo = Math.min(...pts.map(p => p[2])), hi = Math.max(...pts.map(p => p[2])); if (hi - lo < 20) { const m = (hi + lo) / 2; lo = m - 10; hi = m + 10; }
+  let lo = amin(pts.map(p => p[2])), hi = amax(pts.map(p => p[2])); if (hi - lo < 20) { const m = (hi + lo) / 2; lo = m - 10; hi = m + 10; }
   const X = i => ox + cum[i] / len * w, Yy = e => oy + h - 4 - (e - lo) / (hi - lo) * (h - 8);
   g.beginPath(); g.moveTo(X(0), oy + h); pts.forEach((p, i) => g.lineTo(X(i), Yy(p[2]))); g.lineTo(ox + w, oy + h); g.closePath();
   const gr = g.createLinearGradient(0, oy, 0, oy + h); gr.addColorStop(0, color + 'aa'); gr.addColorStop(1, color + '10'); g.fillStyle = gr; g.fill();
@@ -7316,7 +7484,7 @@ function miniTiles() {
 const pinIcon = kind => L.divIcon({ className: '', iconSize: [26, 26], iconAnchor: [13, 13], html: `<div class="rpin ${kind}">${kind === 'fin' ? '<svg viewBox="0 0 24 24"><path d="M6 21V4h11l-2 4 2 4H6" fill="currentColor"/></svg>' : '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>'}</div>` });
 function miniMap(el, tr, opts = {}) {
   const pts = tr.filter(p => isFinite(p[0]) && isFinite(p[1])); if (pts.length < 2) { el.classList.add('nomap'); return null; }
-  const m = L.map(el, { zoomControl: false, attributionControl: false, rotate: false, rotateControl: false, compassControl: false, dragging: !!opts.live, touchZoom: !!opts.live, scrollWheelZoom: false, doubleClickZoom: !!opts.live, boxZoom: false, keyboard: false, tap: false, maxZoom: 18 });
+  const m = L.map(el, { trackResize: !!opts.live, zoomControl: false, attributionControl: false, rotate: false, rotateControl: false, compassControl: false, dragging: !!opts.live, touchZoom: !!opts.live, scrollWheelZoom: false, doubleClickZoom: !!opts.live, boxZoom: false, keyboard: false, tap: false, maxZoom: 18 });
   el.classList.toggle('darkmap', !!S.darkmap);
   miniTiles().addTo(m);
   const ll = pts.map(p => [p[0], p[1]]), lls = segLL(pts, opts.brk);
@@ -7329,9 +7497,13 @@ function miniMap(el, tr, opts = {}) {
   return m;
 }
 let histObs = null;
+// v151 (audit R11): every small map of the list is kept and removed before the list is drawn again (they used to pile up —
+// maps, layers and window listeners — with every redraw of the History)
+const HMAPS = [];
+function clearHistMaps() { if (histObs) histObs.disconnect(); HMAPS.splice(0).forEach(m => { try { m.remove(); } catch {} }); }
 function lazyMaps(root, list) {
   if (histObs) histObs.disconnect();
-  const make = el => { if (el.dataset.done) return; el.dataset.done = 1; const r = list.find(x => x.id === el.dataset.mm); if (r) try { miniMap(el, r.track || [], { brk: r.brk, est: r.est }); } catch {} };
+  const make = el => { if (el.dataset.done) return; el.dataset.done = 1; const r = list.find(x => x.id === el.dataset.mm); if (r) try { const m = miniMap(el, r.track || [], { brk: r.brk, est: r.est }); if (m) HMAPS.push(m); } catch {} };
   if (!('IntersectionObserver' in window)) { [...root.querySelectorAll('[data-mm]')].forEach(make); return; }
   histObs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { make(e.target); histObs.unobserve(e.target); } }), { rootMargin: '300px' });
   [...root.querySelectorAll('[data-mm]')].forEach(el => histObs.observe(el));
@@ -7346,7 +7518,7 @@ async function renderRides() {
   if (HS.type !== 'all' && !types.includes(HS.type)) HS.type = 'all';
   $('#h-types').innerHTML = types.length > 1 ? ['all', ...types].map(k => `<button class="chip${HS.type === k ? ' on' : ''}" data-ht="${k}">${k === 'all' ? 'Все' : ACTS[k].ic + ' ' + ACTS[k].n}</button>`).join('') : '';
   $('#h-types').hidden = types.length < 2;
-  $$('#h-types [data-ht]').forEach(b => b.onclick = () => { HS.type = b.dataset.ht; renderRides(); });
+  $$('#h-types [data-ht]').forEach(b => b.onclick = () => { HS.type = b.dataset.ht; HS.lim = 30; renderRides(); });
   $$('#hseg button').forEach(b => b.classList.toggle('on', b.dataset.h === HS.seg));
   $('#h-list').hidden = HS.seg !== 'list'; $('#h-prog').hidden = HS.seg !== 'prog';
   const byType = HS.type === 'all' ? all : all.filter(r => actOf(r) === HS.type);
@@ -7358,7 +7530,9 @@ async function renderRides() {
   const avg = tot.t > 0 ? tot.d / (tot.t / 1000) : 0, pace = HS.type !== 'all' && ACTS[HS.type].pace;
   $('#hist-sum').innerHTML = `<div class="hs3"><div><span>${tr('Поездки')}</span><b>${list.length}</b></div><div><span>${tr('Дистанция')}</span><b class="acc">${fmtKm(tot.d)} <small>км</small></b></div><div><span>${tr('Время')}</span><b>${fmtDur(tot.t)}</b></div></div>
     <div class="hsrow"><span>◎ ${pace ? tr('Средний темп') : tr('Средняя скорость')}</span><b>${pace ? fmtPace(avg) + ' /км' : kmh0(avg) + ' км/ч'}</b></div>`;
-  const groups = []; list.forEach(r => { const d = new Date(r.start), k = d.getFullYear() * 12 + d.getMonth(); let g = groups[groups.length - 1]; if (!g || g.k !== k) groups.push(g = { k, ts: r.start, items: [] }); g.items.push(r); });
+  clearHistMaps();
+  const shown = list.slice(0, HS.lim), more = list.length - shown.length;
+  const groups = []; shown.forEach(r => { const d = new Date(r.start), k = d.getFullYear() * 12 + d.getMonth(); let g = groups[groups.length - 1]; if (!g || g.k !== k) groups.push(g = { k, ts: r.start, items: [] }); g.items.push(r); });
   const monthName = ts => { const s = new Date(ts).toLocaleDateString(LOC, { month: 'long', year: 'numeric' }); return s.charAt(0).toUpperCase() + s.slice(1); };
   $('#ride-list').innerHTML = list.length ? groups.map(g => `<div class="hmon"><b>${esc(monthName(g.ts))}</b><span>${g.items.length}</span></div>` + g.items.map(r => {
     const a = ACTS[actOf(r)], v = rideAvg(r);
@@ -7368,11 +7542,12 @@ async function renderRides() {
         <div class="rc3"><div><span>${tr('Дистанция')}</span><b>${fmtKm(r.dist)} <small>км</small></b></div><div><span>${tr('Время')}</span><b>${fmtClock(r.movingMs)}</b></div><div><span>${a.pace ? tr('Темп') : tr('Средняя')}</span><b>${a.pace ? fmtPace(v) : kmh0(v)} <small>${a.pace ? '/км' : 'км/ч'}</small></b></div></div></div>
     </div>`; }).join('')).join('')
     : `<div class="empty">${HS.per === 'all' ? 'Пока нет поездок — нажмите «Старт» на карте или импортируйте тренировку.' : 'За этот период поездок нет.'}</div>`;
+  if (more > 0) { $('#ride-list').insertAdjacentHTML('beforeend', `<button class="btn" id="h-more" style="width:100%;margin:6px 0 14px">${esc(tr('Показать ещё'))} (${more})</button>`); $('#h-more').onclick = () => { HS.lim += 30; renderRides(); }; }
   $$('#ride-list [data-card]').forEach(b => b.onclick = e => { e.stopPropagation(); openCardAsk(all.find(r => r.id === b.dataset.card)); });
   $$('#ride-list .rideit').forEach(el => el.onclick = e => { if (!e.target.closest('[data-card]')) { HS.fromRoute = null; openRide(el.dataset.open); } });
-  lazyMaps($('#ride-list'), list);
+  lazyMaps($('#ride-list'), shown);
 }
-$$('#h-per button').forEach(b => b.onclick = () => { HS.per = b.dataset.p; renderRides(); });
+$$('#h-per button').forEach(b => b.onclick = () => { HS.per = b.dataset.p; HS.lim = 30; renderRides(); });
 $('#h-imp').onclick = () => $('#act-file').click();
 
 // ---- one ride ----
@@ -7402,7 +7577,7 @@ function speedSegments(ser) {
   ser.forEach((s, i) => { const b = bucket(s.v); if (!cur || cur.b !== b || s.brk) { const seg = cur && !s.brk ? [cur.seg[cur.seg.length - 1]] : []; cur = { b, seg }; segs.push(cur); } cur.seg.push(s.ll); });
   return segs.filter(s => s.seg.length > 1).map(s => [s.seg, SPD_COL[s.b]]);
 }
-function hrStats(tr) { const h = tr.map(p => p[4]).filter(x => x > 30 && x < 240); return h.length ? { avg: Math.round(h.reduce((a, b) => a + b, 0) / h.length), max: Math.max(...h) } : null; }
+function hrStats(tr) { const h = tr.map(p => p[4]).filter(x => x > 30 && x < 240); return h.length ? { avg: Math.round(h.reduce((a, b) => a + b, 0) / h.length), max: amax(h) } : null; }
 // Calories: from the workout file, otherwise an estimate by activity, speed and the weight from Settings.
 function rideKcal(r) {
   if (r.kcal) return { v: Math.round(r.kcal), est: false };
@@ -7424,7 +7599,7 @@ function drawRideChart(cv, ser, mark) {
   const L0 = 34, R0 = 40, T0 = 8, B0 = 24, pw = w - L0 - R0, ph = h - T0 - B0, T = ser[ser.length - 1].t || 1;
   const vmax = Math.max(5, ...ser.map(s => s.v * 3.6)), vtop = Math.ceil(vmax / 4) * 4;
   const es = ser.map(s => s.e).filter(e => e != null), hasE = es.length > 1;
-  let elo = hasE ? Math.min(...es) : 0, ehi = hasE ? Math.max(...es) : 1; if (ehi - elo < 20) { const m = (ehi + elo) / 2; elo = m - 10; ehi = m + 10; }
+  let elo = hasE ? amin(es) : 0, ehi = hasE ? amax(es) : 1; if (ehi - elo < 20) { const m = (ehi + elo) / 2; elo = m - 10; ehi = m + 10; }
   const X = t => L0 + t / T * pw, Yv = v => T0 + ph - v / vtop * ph, Ye = e => T0 + ph - (e - elo) / (ehi - elo) * ph;
   g.font = '11px -apple-system,system-ui,sans-serif'; g.fillStyle = 'rgba(255,255,255,.5)'; g.strokeStyle = 'rgba(255,255,255,.08)'; g.setLineDash([3, 4]);
   for (let i = 0; i <= 4; i++) { const y = T0 + ph - i / 4 * ph; g.beginPath(); g.moveTo(L0, y); g.lineTo(L0 + pw, y); g.stroke(); g.textAlign = 'right'; g.fillText(String(Math.round(vtop * i / 4)), L0 - 6, y + 4); if (hasE) { g.textAlign = 'left'; g.fillText(String(Math.round(elo + (ehi - elo) * i / 4)), L0 + pw + 6, y + 4); } }
@@ -7447,7 +7622,7 @@ async function openRide(id) {
   const a = ACTS[actOf(r)], tr0 = r.track || [], v = rideAvg(r), sp = splits(tr0), ser = rideSeries(tr0, r.brk), hr = hrStats(tr0), kc = rideKcal(r);
   const title = rideTitle(r);
   $('#rd-title').textContent = title;
-  const fast = sp.length ? Math.max(...sp.map(s => s.len / s.ms)) : 1;
+  const fast = sp.length ? amax(sp.map(s => s.len / s.ms)) : 1;
   const time = ts => new Date(ts).toLocaleTimeString(LOC, { hour: '2-digit', minute: '2-digit' });
   const row = (ic, lab, val) => `<div class="rdrow"><span><i>${ic}</i>${lab}</span><b>${val}</b></div>`;
   $('#rd-body').innerHTML = `
@@ -7495,29 +7670,42 @@ async function openRide(id) {
     }
   });
   RD.dot = null;
-  $('#rd-3d').onclick = () => { rdStopFly(); open3D(tr0); };
+  $('#rd-3d').onclick = () => { rdStopFly(); open3D(tr0, { brk: r.brk, est: r.est }); };
   $('#rd-full').onclick = () => tr0.length > 1 ? preview(tr0, css('--track'), r.brk) : toast('У этой поездки нет трека');
   // «Пролёт» = the 3D fly-over (like Strava). Without internet or WebGL — a simple fly-over on this small map.
   $('#rd-fly').onclick = () => {
     if (RD.fly) return rdStopFly();
     if (tr0.length < 2) return toast('У этой поездки нет трека');
-    if (navigator.onLine && hasWebGL()) return open3D(tr0, { fly: true });
+    if (navigator.onLine && hasWebGL()) return open3D(tr0, { fly: true, brk: r.brk, est: r.est });
     if (!RD.map) return;
-    const pts = tr0.filter(p => isFinite(p[0]) && isFinite(p[1])).map(p => [p[0], p[1]]), cum = cumDist(pts), total = cum[cum.length - 1] || 0; if (total < 30) return;
-    const m = RD.map, dur = Math.max(12000, Math.min(40000, total / 160 * 1000)), done = L.polyline([], { color: css('--accent'), weight: 6, opacity: .95 }).addTo(m);
+    const tf = tr0.filter(p => isFinite(p[0]) && isFinite(p[1])), cuts = trackCuts(tf, r.brk, r.est), pts = tf.map(p => [p[0], p[1]]);
+    const cum = [0]; for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + (cuts.has(i) ? 0 : hav(pts[i - 1], pts[i])));   // v151 (R08): a gap is jumped
+    const total = cum[cum.length - 1] || 0; if (total < 30) return;
+    const m = RD.map, dur = Math.max(12000, Math.min(40000, total / 160 * 1000)), lines = [L.polyline([], { color: css('--accent'), weight: 6, opacity: .95 }).addTo(m)];
+    let done = lines[0];
     const at = d => { const i = Math.max(1, Math.min(pts.length - 1, lowerBound(cum, d))), A = pts[i - 1], B = pts[i], k = Math.max(0, Math.min(1, (d - cum[i - 1]) / Math.max(cum[i] - cum[i - 1], 1e-9))); return { i, p: [A[0] + (B[0] - A[0]) * k, A[1] + (B[1] - A[1]) * k] }; };
     if (!RD.dot) RD.dot = L.circleMarker(pts[0], { radius: 8, color: '#fff', weight: 3, fillColor: css('--accent'), fillOpacity: 1 }).addTo(m);
     m.setView(pts[0], Math.max(m.getZoom(), 15), { animate: false }); $('#rd-fly').innerHTML = '■ ' + tr('Стоп');
     let t0 = null, k0 = 0;
     const tail = L.polyline([], { color: css('--accent'), weight: 6, opacity: .95 }).addTo(m);
-    RD.flyEnd = () => { try { m.removeLayer(done); m.removeLayer(tail); } catch {} };
+    RD.flyEnd = () => { try { lines.forEach(l => m.removeLayer(l)); m.removeLayer(tail); } catch {} };
     const step = now => { if (t0 == null) t0 = now; const f = Math.min(1, (now - t0) / dur), e = f < .5 ? 2 * f * f : 1 - (-2 * f + 2) ** 2 / 2, r = at(e * total);
-      while (k0 < r.i) done.addLatLng(pts[k0++]); tail.setLatLngs([pts[Math.max(0, k0 - 1)], r.p]);
+      while (k0 < r.i) { if (cuts.has(k0)) { done = L.polyline([], { color: css('--accent'), weight: 6, opacity: .95 }).addTo(m); lines.push(done); } done.addLatLng(pts[k0++]); }
+      tail.setLatLngs(cuts.has(r.i) ? [] : [pts[Math.max(0, k0 - 1)], r.p]);
       RD.dot.setLatLng(r.p); m.panTo(r.p, { animate: false });
       if (f < 1) RD.fly = requestAnimationFrame(step); else { rdStopFly(); m.fitBounds(L.latLngBounds(pts), { padding: [30, 30] }); } };
     RD.fly = requestAnimationFrame(step);
   };
-  $('#rd-again').onclick = () => { if (tr0.length < 2) return toast('У этой поездки нет трека'); rdStopFly(); showTab('rec'); Nav.set({ name: title, coords: tr0.map(p => [p[0], p[1], p[2]]), rid: r.routeId || undefined }); };
+  $('#rd-again').onclick = async () => {
+    if (tr0.length < 2) return toast('У этой поездки нет трека'); rdStopFly();
+    const ps = rideRouteParts(r) || []; let c = ps.length === 1 ? ps[0] : null;
+    if (ps.length > 1) {   // v151 (R08): no straight line over a gap in the recording
+      toast('Соединяю разрывы путём по дорогам…', 3000);
+      try { c = await joinParts(ps); } catch { const L = partsLen(ps); c = ps[L.indexOf(Math.max.apply(null, L))]; toast(tr('Не удалось соединить разрывы — веду по самой длинной части поездки'), 5000); }
+    }
+    if (!c || c.length < 2) return;
+    showTab('rec'); Nav.set({ name: title, coords: c.map(p => [p[0], p[1], p[2]]), rid: r.routeId || undefined });
+  };
   $('#rd-card').onclick = () => openCardAsk(r);
   if ($('#rd-wt')) $('#rd-wt').onclick = () => openSetting('#s-weight');
   $$('#rd-type button').forEach(b => b.onclick = async () => { r.type = b.dataset.t; await DB.put('rides', r); openRide(r.id); });
@@ -7533,16 +7721,52 @@ $('#rdm-del').onclick = () => { const b = $('#rdm-del'); if (!b.dataset.armed) {
 $('#rdm-x').onclick = () => $('#ask-ride').hidden = true;
 $('#rdm-route').onclick = async () => { $('#ask-ride').hidden = true; const r = HS.cur; if (await rideToRoute(r) && HS.cur === r && !$('#sheet-ride').hidden) openRide(r.id); };
 /* ---- A ridden track → a route in «Маршруты → Мои» (v110): offered after «Завершить и сохранить», and a button in the ride ---- */
-function rideRouteCoords(r) {
+function rideRouteParts(r) {
   const t = ((r && r.track) || []).filter(q => q && isFinite(q[0]) && isFinite(q[1]));
   if (t.length < 2) return null;
+  const out = [];
+  for (const pc of trackParts(t, r.brk, r.est)) { const pv = out[out.length - 1]; if (pv && hav(pv[pv.length - 1], pc[0]) <= 40) out[out.length - 1] = pv.concat(pc); else out.push(pc); }
   // GPS writes a point every second: thin it out (3 m tolerance keeps every bend of a singletrack).
-  return simplifyIdx(t, 3).map(i => [t[i][0], t[i][1], t[i][2] != null && isFinite(t[i][2]) ? t[i][2] : null]);
+  return out.filter(pc => pc.length >= 2).map(pc => simplifyIdx(pc, 3).map(i => [pc[i][0], pc[i][1], pc[i][2] != null && isFinite(pc[i][2]) ? pc[i][2] : null]));
 }
-async function rideToRoute(r, askName = true, preset) {
+// one line, or null when the recording has gaps
+function rideRouteCoords(r) { const ps = rideRouteParts(r); return ps && ps.length === 1 ? ps[0] : null; }
+// gaps joined by a way along the roads, asked for explicitly (never a straight line)
+async function joinParts(parts) {
+  let out = parts[0].slice();
+  for (let i = 1; i < parts.length; i++) {
+    const a = out[out.length - 1], b = parts[i][0], w = await routeVia([[a[0], a[1]], [b[0], b[1]]], curOpts(), { quiet: true });
+    if (!w || !w.coords || w.coords.length < 2) throw new Error('нет пути');
+    out = out.concat(w.coords.map(c => [c[0], c[1], c[2] != null ? c[2] : null]), parts[i]);
+  }
+  return out;
+}
+const partsLen = ps => ps.map(pc => cumDist(pc).pop() || 0);
+async function rideToRoute(r, askName = true, preset, coords) {
   if (!r) return null;
   if (r.savedRoute) { const have = await DB.get('routes', r.savedRoute).catch(() => null); if (have) { toast('Уже есть в «Маршруты → Мои»', 3000); return have; } }
-  const c = rideRouteCoords(r);
+  let c = coords || rideRouteCoords(r);
+  // v151 (audit R08): gaps in the recording are not joined by straight lines: joined along the roads, or the pieces apart
+  const parts = !c ? rideRouteParts(r) : null;
+  if (parts && parts.length > 1) {
+    if (!askName) return null;
+    const k = parts.length - 1, base = preset || rideTitle(r) + ' · ' + fmtShortDay(r.start);
+    if (confirm(PR3(`В записи ${k} ${plural(k, 'разрыв', 'разрыва', 'разрывов')} — там трек не писался. Соединить их путём по дорогам и сохранить одним маршрутом?`,
+      `The recording has ${k} gap${k > 1 ? 's' : ''} — no track there. Join ${k > 1 ? 'them' : 'it'} by a way along the roads and save one route?`,
+      `בהקלטה ${k} ${k > 1 ? 'פערים' : 'פער'} — שם המסלול לא נרשם. לחבר בדרך לאורך הכבישים ולשמור כמסלול אחד?`))) {
+      toast('Соединяю разрывы путём по дорогам…', 3000);
+      try { c = await joinParts(parts); } catch (e) { toast(tr('Не удалось соединить разрывы') + ': ' + (e.message || ''), 4000); return null; }
+    } else {
+      const keep = parts.filter((pc, i) => partsLen(parts)[i] >= 100);
+      if (!keep.length || !confirm(PR3(`Сохранить ${keep.length} ${plural(keep.length, 'часть', 'части', 'частей')} поездки отдельными маршрутами?`, `Save the ${keep.length} pieces of the ride as separate routes?`, `לשמור את ${keep.length} חלקי הרכיבה כמסלולים נפרדים?`))) return null;
+      let first = null;
+      try { for (let i = 0; i < keep.length; i++) { const rec = await saveRoute(`${base} · ${i + 1}/${keep.length}`, keep[i], 'Моя поездка'); first = first || rec; } }
+      catch { toast('Не удалось сохранить маршрут', 3500); return first; }
+      r.savedRoute = first.id; await DB.put('rides', r).catch(() => {});
+      toast('⭐ Маршрут сохранён в «Маршруты → Мои»', 3500);
+      return first;
+    }
+  }
   if (!c || cumDist(c).pop() < 100) { toast('Трек слишком короткий для маршрута', 3000); return null; }
   let name = preset || rideTitle(r) + ' · ' + fmtShortDay(r.start);
   if (askName) { const n = prompt(trx('Название маршрута'), name); if (n === null) return null; if (n.trim()) name = n.trim().slice(0, 80); }
@@ -7568,21 +7792,24 @@ function autoRouteName(r, town) {
   return `${town || rideTitle(r)} · ${fmtShortDay(r.start)} · ${km} ${tr('км')}`;
 }
 async function quickSave(r, asRoute = true) {
-  if (!r) return;
-  let rec = null, tried = false;
-  if (asRoute && !r.routeId && (r.dist || 0) >= 500 && rideRouteCoords(r)) {
+  if (!r || r.quickSaved) return; r.quickSaved = true;   // v151 (R05): two finishes answered together make one route
+  let rec = null, tried = false, gaps = false;
+  const parts = asRoute && !r.routeId && (r.dist || 0) >= 500 ? rideRouteParts(r) : null;
+  let c = parts && parts.length === 1 ? parts[0] : null;
+  if (parts && parts.length > 1) { const L = partsLen(parts), tot = L.reduce((a, x) => a + x, 0), im = L.indexOf(Math.max.apply(null, L)); if (L[im] >= 500 && L[im] >= tot * 0.9) c = parts[im]; else gaps = true; }
+  if (c) {
     tried = true;
     showSaveBar(r, null, false, true);
-    rec = await rideToRoute(r, false, autoRouteName(r, await rideTown(r)));
+    rec = await rideToRoute(r, false, autoRouteName(r, await rideTown(r)), c);
   }
-  showSaveBar(r, rec, tried);
+  showSaveBar(r, rec, tried, false, gaps);
 }
 let sbT = 0;
-function showSaveBar(r, rec, tried, pending) {
+function showSaveBar(r, rec, tried, pending, gaps) {
   $('#toast').hidden = true;
   if (pending) $('#savebar').dataset.pending = '1'; else delete $('#savebar').dataset.pending;
   const sub = () => pending ? tr('В Истории. Сохраняю как маршрут…') : rec ? `${rec.name} — ${tr('в Истории и в «Маршруты → Мои»')}` : tried ? tr('В Истории. Маршрут сохранить не удалось')
-    : r.routeId ? tr('В Истории. Маршрут уже есть в «Маршруты → Мои»') : tr('В Истории');
+    : r.routeId ? tr('В Истории. Маршрут уже есть в «Маршруты → Мои»') : gaps ? tr('В Истории. В записи разрывы — маршрут не создан сам: «В мои маршруты» в поездке') : tr('В Истории');
   $('#sb-title').textContent = '✓ ' + tr(rec ? 'Сохранено' : 'Поездка сохранена');
   $('#sb-sub').textContent = sub();
   $('#sb-ren').hidden = !rec; $('#sb-gpx').hidden = !!pending;
@@ -7625,9 +7852,9 @@ async function makeCard(r, img) {
   const box = { x: 40, y: 190, w: W - 80, h: 660 };
   if (pts.length > 1) {
     const la = pts.map(p => p[0]), lo = pts.map(p => p[1]); let z = 17;
-    for (; z > 3; z--) { const w = 256 * 2 ** z, xs = lo.map(x => shX(x, w)), ys = la.map(y => shY(y, w)); if (Math.max(...xs) - Math.min(...xs) <= box.w - 140 && Math.max(...ys) - Math.min(...ys) <= box.h - 140) break; }
+    for (; z > 3; z--) { const w = 256 * 2 ** z, xs = lo.map(x => shX(x, w)), ys = la.map(y => shY(y, w)); if (amax(xs) - amin(xs) <= box.w - 140 && amax(ys) - amin(ys) <= box.h - 140) break; }
     const WW = 256 * 2 ** z, xs = lo.map(x => shX(x, WW)), ys = la.map(y => shY(y, WW));
-    const ox = (Math.min(...xs) + Math.max(...xs)) / 2 - box.w / 2, oy = (Math.min(...ys) + Math.max(...ys)) / 2 - box.h / 2;
+    const ox = (amin(xs) + amax(xs)) / 2 - box.w / 2, oy = (amin(ys) + amax(ys)) / 2 - box.h / 2;
     const P = i => [box.x + xs[i] - ox, box.y + ys[i] - oy];
     let attr = null;
     if (!img) { g.fillStyle = '#1e293b'; roundRect(g, box.x, box.y, box.w, box.h, 30); g.fill(); attr = await drawTiles(g, box, z, ox, oy); }
@@ -7798,7 +8025,9 @@ $('#act-file').onchange = async e => {
   const have = (await DB.all('rides')).map(r => r.start); let n = 0, dup = 0; const bad = [];
   for (const f of files) {
     try {
+      impTooBig(f, IMP.file);
       const acts = await parseActivities(await f.arrayBuffer(), f.name);
+      for (const a of acts) impTooMany((a.track || []).length);
       if (!acts.length) throw new Error('в файле нет тренировки');
       for (const a of acts) { const r = rideFromTrack(a); if (have.some(s => Math.abs(s - r.start) < 2000)) { dup++; continue; } await DB.put('rides', r); have.push(r.start); n++; }
     } catch (err) { bad.push(`${f.name}: ${err.message}`); }
@@ -7817,7 +8046,7 @@ try { localStorage.removeItem('velo:bkNag'); } catch {}
 async function makeBackupFile() {
   const ls = {};
   for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (!k || !k.startsWith('velo:')) continue; const n = k.slice(5); if (BK_SKIP.includes(n) || BK_KEYS.includes(n)) continue; ls[n] = localStorage.getItem(k); }
-  const data = { app: 'velokomp', ver: 2, exported: new Date().toISOString(), settings: S, ls, rides: await DB.allStrict('rides'), routes: await DB.allStrict('routes'), myWays: ((await DB.get('kv', 'myWays')) || {}).ways || [] };
+  const data = { app: 'velokomp', ver: 2, exported: new Date().toISOString(), settings: S, ls, rides: await DB.allStrict('rides'), routes: await DB.allStrict('routes'), myWays: foreignItem('kv', 'myWays') ? [] : ((await DB.get('kv', 'myWays')) || {}).ways || [] };
   return new File([JSON.stringify(data)], `velocomp-backup-${new Date().toISOString().slice(0, 10)}.json`, { type: 'application/json' });
 }
 async function saveBackup() {
@@ -7838,9 +8067,11 @@ $('#bk-exp').onclick = () => saveBackup();
 // settings put back if writing them fails — a failed restore no longer leaves the phone half-overwritten.
 async function restoreBackup(d) {
   if (!d || d.app !== 'velokomp') throw new Error(tr('это не резервная копия Велокомпа'));
-  // Only plain ids (as the app makes them) — a hand-edited file with odd ids or objects is skipped, not inserted.
-  const okId = r => r && typeof r === 'object' && (typeof r.id === 'string' ? /^[\w.:-]{1,80}$/.test(r.id) : Number.isFinite(r.id));
-  const rides = (Array.isArray(d.rides) ? d.rides : []).filter(okId), routes = (Array.isArray(d.routes) ? d.routes : []).filter(okId);
+  if (d.ver != null && !(d.ver >= 1 && d.ver <= 2)) throw new Error(tr('копия сделана более новой версией приложения — обновите его'));
+  // v151 (R10): every ride and route checked whole (points, numbers, times, pieces) — a damaged one is skipped and counted, not inserted
+  const okId = okRecId;
+  const rides0 = Array.isArray(d.rides) ? d.rides : [], routes0 = Array.isArray(d.routes) ? d.routes : [];
+  const rides = rides0.filter(validRide), routes = routes0.filter(validRoute), bad = rides0.length - rides.length + routes0.length - routes.length;
   // Own sections (pieces of way the map does not have): added to the ones already on this phone.
   await NewWays.init();
   const have = new Set(NewWays.ways.map(w => w.id)), addWays = [];
@@ -7850,7 +8081,7 @@ async function restoreBackup(d) {
     addWays.push({ id: w.id, coords: c, len: Math.round(+w.len || cumDist(c).pop()), at: +w.at || Date.now() }); have.add(w.id);
   }
   const ls = d.ls && typeof d.ls === 'object' ? Object.entries(d.ls).filter(([k, v]) => typeof v === 'string' && typeof k === 'string' && !BK_SKIP.includes(k)) : [];
-  if (!rides.length && !routes.length && !addWays.length && !ls.length) throw new Error(tr('в копии нет поездок, маршрутов и настроек'));
+  if (!rides.length && !routes.length && !addWays.length && !ls.length) throw new Error(bad ? tr('все поездки и маршруты в копии повреждены') : tr('в копии нет поездок, маршрутов и настроек'));
   if (!DB.db) throw new Error(tr('хранилище недоступно'));
   const ways = addWays.length ? NewWays.ways.concat(addWays) : null;
   await new Promise((res, rej) => {
@@ -7876,10 +8107,11 @@ async function restoreBackup(d) {
       ns = -1;
     }
   }
-  return { nr: rides.length, nt: routes.length, nw: addWays.length, ns };
+  return { nr: rides.length, nt: routes.length, nw: addWays.length, ns, bad };
 }
 $('#bk-file').onchange = async e => {
   const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try { impTooBig(f, IMP.backup); } catch (err) { toast(tr('Резервная копия не восстановлена — на телефоне ничего не изменилось') + ': ' + err.message, 6000); return; }
   let d = null; try { d = JSON.parse(await f.text()); } catch {}
   let res;
   try { res = await restoreBackup(d); }
@@ -7887,7 +8119,8 @@ $('#bk-file').onchange = async e => {
     const why = err && (err.name === 'QuotaExceededError' || /quota/i.test(err.message || '')) ? tr('не хватает места в телефоне') : (err && err.message) || '';
     toast(tr('Резервная копия не восстановлена — на телефоне ничего не изменилось') + (why ? ': ' + why : ''), 6000); return;
   }
-  const { nr, nt, nw, ns } = res;
+  const { nr, nt, nw, ns, bad } = res;
+  if (bad) setTimeout(() => toast(PR3(`Пропущено повреждённых записей: ${bad}`, `Damaged records skipped: ${bad}`, `רשומות פגומות שדולגו: ${bad}`), 5000), 3200);
   toast(`Восстановлено: ${nr} ${plural(nr, 'поездка', 'поездки', 'поездок')}, ${nt} ${plural(nt, 'маршрут', 'маршрута', 'маршрутов')}${nw ? `, ${nw} ${plural(nw, 'участок', 'участка', 'участков')}` : ''}${ns > 0 ? ' и настройки — перезапускаю' : ns < 0 ? ' · настройки не записаны (нет места) — остались прежние' : ''}`, ns < 0 ? 7000 : 4000);
   renderRoutes(); try { if (!$('#sheet-history').hidden) renderRides(); } catch {}
   if (ns > 0) setTimeout(() => location.reload(), 1800);
@@ -7905,8 +8138,11 @@ const Acct = {
   get u() { return lsGet('acct', null); },   // { email, uid, idToken, refreshToken, exp } — the password itself is never stored
   on() { return !!(FB.apiKey && FB.projectId); },
   async post(url, body, form) {
-    let r; try { r = await fetch(url, { method: 'POST', headers: { 'Content-Type': form ? 'application/x-www-form-urlencoded' : 'application/json' }, body: form ? body : JSON.stringify(body) }); }
-    catch { throw new Error('Нет связи с сервером — проверьте интернет'); }
+    // v151 (audit R16): no request waits for ever (a hung one kept «Синхронизация…» and every later sync blocked)
+    const ac = new AbortController(), tm = setTimeout(() => ac.abort(), 20000);
+    let r; try { r = await fetch(url, { method: 'POST', signal: ac.signal, headers: { 'Content-Type': form ? 'application/x-www-form-urlencoded' : 'application/json' }, body: form ? body : JSON.stringify(body) }); }
+    catch { throw new Error(ac.signal.aborted ? 'Сервер не ответил — попробую позже' : 'Нет связи с сервером — проверьте интернет'); }
+    finally { clearTimeout(tm); }
     const j = await r.json().catch(() => ({})); if (!r.ok) { const e = new Error(Acct.err(j && j.error && j.error.message)); e.status = r.status; throw e; }
     return j;
   },
@@ -7923,18 +8159,32 @@ const Acct = {
     lsSet('acct', { email: j.email || email, uid: j.localId || j.user_id, idToken: j.idToken || j.id_token, refreshToken: j.refreshToken || j.refresh_token,
       exp: Date.now() + (+(j.expiresIn || j.expires_in || 3600) - 120) * 1000 });
   },
-  async token() {
+  // v151 (audit R03): which sign-in this is. A sign-out or another sign-in makes every answer asked for the older one void —
+  // a late token refresh no longer writes account A's tokens over account B, a late sync no longer writes into B.
+  gen: 0,
+  stale() { const e = new Error('Аккаунт сменился'); e.stale = true; return e; },
+  async token(uid) {
     const u = this.u; if (!u) throw new Error('Вы не вошли в аккаунт');
+    if (uid && u.uid !== uid) throw this.stale();
     if (u.exp > Date.now()) return u.idToken;
-    try { this.keep(await this.post(`https://securetoken.googleapis.com/v1/token?key=${encodeURIComponent(FB.apiKey)}`, 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(u.refreshToken), true), u.email); }
-    catch (e) { if (e.status === 400 || e.status === 401 || e.status === 403) { this.out(); renderAcct(); throw new Error('Вход устарел — войдите снова'); } throw e; }
+    const g = this.gen, same = () => this.gen === g && this.u && this.u.uid === u.uid;
+    // one refresh at a time: requests asked together wait for the same answer
+    if (!this.rp || this.rpUid !== u.uid) {
+      this.rpUid = u.uid; const pr = this.rp = this.post(`https://securetoken.googleapis.com/v1/token?key=${encodeURIComponent(FB.apiKey)}`, 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(u.refreshToken), true);
+      pr.then(() => {}, () => {}).then(() => { if (this.rp === pr) this.rp = null; });
+    }
+    let j; try { j = await this.rp; }
+    catch (e) { if (!same()) throw this.stale(); if (e.status === 400 || e.status === 401 || e.status === 403) { this.out(); renderAcct(); throw new Error('Вход устарел — войдите снова'); } throw e; }
+    if (!same()) throw this.stale();
+    if ((j.user_id || u.uid) !== u.uid) throw this.stale();
+    this.keep(j, u.email);
     return this.u.idToken;
   },
-  async signUp(email, pass) { this.keep(await this.auth('signUp', { email, password: pass, returnSecureToken: true }), email); lsSet('sync', null); },
-  async signIn(email, pass) { this.keep(await this.auth('signInWithPassword', { email, password: pass, returnSecureToken: true }), email); lsSet('sync', null); },
+  async signUp(email, pass) { const j = await this.auth('signUp', { email, password: pass, returnSecureToken: true }); this.gen++; this.rp = null; this.keep(j, email); lsSet('sync', null); },
+  async signIn(email, pass) { const j = await this.auth('signInWithPassword', { email, password: pass, returnSecureToken: true }); this.gen++; this.rp = null; this.keep(j, email); lsSet('sync', null); },
   reset(email) { return this.auth('sendOobCode', { requestType: 'PASSWORD_RESET', email }); },
   // v147: what was synced with this account stays its own on this phone — another account signed in later never gets it
-  out() { const u = this.u, m = lsGet('sync', null); if (u && u.uid && m && m.items) { const own = lsGet('syncOwn', {}) || {}; for (const k of Object.keys(m.items)) if (k !== 'ls~all' && !own[k]) own[k] = u.uid; lsSet('syncOwn', own); }
+  out() { this.gen++; this.rp = null; const u = this.u, m = lsGet('sync', null); if (u && u.uid && m && m.items) { const own = lsGet('syncOwn', {}) || {}; for (const k of Object.keys(m.items)) if (k !== 'ls~all' && !own[k]) own[k] = u.uid; lsSet('syncOwn', own); }
     if (u && u.uid) lsSet('syncLast', u.uid);
     lsSet('acct', null); lsSet('sync', null); }
 };
@@ -7953,7 +8203,7 @@ const Sync = {
     if (this.busy) { this.pend[k] = e; this.again = true; }
     const m = this.meta(); m.items[k] = e; lsSet('sync', m); this.soon();
   },
-  soon(ms = 4000) { if (!Acct.u || !Acct.on()) return; clearTimeout(this.t); this.t = setTimeout(() => this.run(), ms); },
+  soon(ms = 4000, auto) { if (!Acct.u || !Acct.on()) return; clearTimeout(this.t); this.t = setTimeout(() => this.run(auto), ms); },
   lsMap() {
     const o = {};
     for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (!k || !k.startsWith('velo:')) continue; const n = k.slice(5);
@@ -7976,11 +8226,19 @@ const Sync = {
     if (z === 'gzip') b = new Uint8Array(await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer());
     return JSON.parse(new TextDecoder().decode(b));
   },
-  base() { return `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(FB.projectId)}/databases/(default)/documents/users/${encodeURIComponent(Acct.u.uid)}/items`; },
+  base(uid) { return `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(FB.projectId)}/databases/(default)/documents/users/${encodeURIComponent(uid)}/items`; },
+  sess: null,
+  live(ss = this.sess) { return !ss || (Acct.gen === ss.g && !!Acct.u && Acct.u.uid === ss.uid); },
   async req(path, opt = {}) {
-    const tok = await Acct.token(); let r;
-    try { r = await fetch(this.base() + path, { method: opt.method || 'GET', body: opt.body, headers: { Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json' } }); }
-    catch { throw new Error('Нет связи с сервером — проверьте интернет'); }
+    const ss = this.sess, uid = ss ? ss.uid : Acct.u && Acct.u.uid;
+    if (!this.live(ss) || !uid) throw Acct.stale();
+    const tok = await Acct.token(uid); if (!this.live(ss)) throw Acct.stale();
+    let r; const ac = new AbortController(), tm = setTimeout(() => ac.abort(), opt.body ? 60000 : 30000);   // v151 (R16): time limits
+    try { r = await fetch(this.base(uid) + path, { method: opt.method || 'GET', body: opt.body, signal: ac.signal, headers: { Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json' } }); }
+    catch { if (!this.live(ss)) throw Acct.stale(); throw new Error(ac.signal.aborted ? 'Сервер не ответил — попробую позже' : 'Нет связи с сервером — проверьте интернет'); }
+    finally { clearTimeout(tm); }
+    if (!this.live(ss)) throw Acct.stale();
+    if (r.status === 404 && opt.miss) return null;
     if (!r.ok) {
       const j = await r.json().catch(() => ({})), st = j && j.error && j.error.status;
       if (r.status === 401) { const u = Acct.u; if (u) { u.exp = 0; lsSet('acct', u); } }
@@ -7997,19 +8255,29 @@ const Sync = {
     } while (pt);
     return out;
   },
+  // v151 (audit R16): the parts of a big item carry its version in their ids (id.<version>.<i>); the main document, written last,
+  // names the version — a phone never mixes parts of two versions (two phones writing at once used to overwrite the same
+  // ids); then the parts of the previous version are deleted (they used to stay for ever).
+  partIds(id, f) { const n = +(f && f.n && f.n.integerValue) || 1, pv = f && f.pv && f.pv.stringValue, out = []; for (let i = 1; i < n; i++) out.push(id + '.' + (pv ? pv + '.' : '') + i); return out; },
   async up(k, u, obj) {
-    const id = this.docId(k), F = (n, z, b) => ({ k: { stringValue: k }, u: { integerValue: String(u) }, d: { booleanValue: obj == null }, n: { integerValue: String(n) }, z: { stringValue: z }, b: { bytesValue: b } });
-    if (obj == null) { await this.req('/' + id, { method: 'PATCH', body: JSON.stringify({ fields: F(1, 'none', '') }) }); return; }
-    const { b, z } = await this.pack(obj), n = Math.max(1, Math.ceil(b.length / this.CH));
-    // parts first, the main document last: a phone that sees the new version finds all its parts already there
-    for (let i = 1; i < n; i++) await this.req('/' + id + '.' + i, { method: 'PATCH', body: JSON.stringify({ fields: { c: { bytesValue: this.b64(b.subarray(i * this.CH, (i + 1) * this.CH)) } } }) });
-    await this.req('/' + id, { method: 'PATCH', body: JSON.stringify({ fields: F(n, z, this.b64(b.subarray(0, this.CH))) }) });
+    const id = this.docId(k), pv = Number(u).toString(36);
+    const F = (n, z, b) => Object.assign({ k: { stringValue: k }, u: { integerValue: String(u) }, d: { booleanValue: obj == null }, n: { integerValue: String(n) }, z: { stringValue: z }, b: { bytesValue: b } }, n > 1 ? { pv: { stringValue: pv } } : {});
+    const old = ((await this.req('/' + id + '?mask.fieldPaths=n&mask.fieldPaths=pv', { miss: true })) || {}).fields;
+    let fresh = [];
+    if (obj == null) await this.req('/' + id, { method: 'PATCH', body: JSON.stringify({ fields: F(1, 'none', '') }) });
+    else {
+      const { b, z } = await this.pack(obj), n = Math.max(1, Math.ceil(b.length / this.CH));
+      // parts first, the main document last: a phone that sees the new version finds all its parts already there
+      for (let i = 1; i < n; i++) { const pid = id + '.' + pv + '.' + i; fresh.push(pid); await this.req('/' + pid, { method: 'PATCH', body: JSON.stringify({ fields: { c: { bytesValue: this.b64(b.subarray(i * this.CH, (i + 1) * this.CH)) } } }) }); }
+      await this.req('/' + id, { method: 'PATCH', body: JSON.stringify({ fields: F(n, z, this.b64(b.subarray(0, this.CH))) }) });
+    }
+    for (const pid of this.partIds(id, old)) if (!fresh.includes(pid)) { try { await this.req('/' + pid, { method: 'DELETE', miss: true }); } catch {} }
   },
   async down(k) {
     const id = this.docId(k), f = ((await this.req('/' + id)) || {}).fields || {};
     if (f.d && f.d.booleanValue) return null;
-    const n = +(f.n && f.n.integerValue) || 1, parts = [this.unb64(f.b && f.b.bytesValue)];
-    for (let i = 1; i < n; i++) { const c = await this.req('/' + id + '.' + i); parts.push(this.unb64(c.fields.c.bytesValue)); }
+    const parts = [this.unb64(f.b && f.b.bytesValue)];
+    for (const pid of this.partIds(id, f)) { const c = await this.req('/' + pid); parts.push(this.unb64(c.fields.c.bytesValue)); }
     const all = new Uint8Array(parts.reduce((s, p) => s + p.length, 0)); let o = 0; for (const p of parts) { all.set(p, o); o += p.length; }
     return this.unpack(all, f.z && f.z.stringValue);
   },
@@ -8029,16 +8297,20 @@ const Sync = {
       return;
     }
     if (obj == null) { if (ids.has(k)) { await DB.raw.del(st, ids.get(k)); got[st] = (got[st] || 0) + 1; } return; }
-    if (st === 'kv') { if (id !== 'myWays' || !Array.isArray(obj.ways)) return; await DB.raw.put('kv', obj); got.ways = true; return; }
+    if (st === 'kv') { if (id !== 'myWays' || !Array.isArray(obj.ways)) return; await DB.raw.put('kv', { id: 'myWays', ways: obj.ways.filter(validWay) }); got.ways = true; return; }
     if (!this.okId(obj) || String(obj.id) !== id) return;
+    if (st === 'rides' ? !validRide(obj) : st === 'routes' ? !validRoute(obj) : true) { got.bad = (got.bad || 0) + 1; return; }   // v151 (R10)
     await DB.raw.put(st, obj); got[st] = (got[st] || 0) + 1;
   },
-  async run() {
+  async run(auto) {
     if (!Acct.on() || !Acct.u) return;
+    // v151 (audit R16): an automatic sync (timer, back to the app, back online) with nothing changed here reads the whole list
+    // at most every 15 min — it used to every 5 min (48 × N reads in 4 hours). A tap on «Синхронизировать» always syncs.
+    if (auto && !this.busy) { const m = this.meta(); if (m.at && Date.now() - m.at < 15 * 60000 && !Object.values(m.items).some(l => l && l.dirty) && this.lsHash() === m.lsH) return; }
     if (this.busy) { this.again = true; return; }
     if (navigator.onLine === false) { this.err = 'Нет интернета — синхронизирую, когда появится'; renderAcct(); return; }
     this.busy = true; this.err = ''; renderAcct();
-    const got = {};
+    const got = {}, ss = this.sess = { g: Acct.gen, uid: Acct.u.uid }, chk = () => { if (!this.live(ss)) throw Acct.stale(); };
     try {
       const m = this.meta(), first = !m.at, ids = new Map();
       // whose each item is (v147): synced with an account → that account's; never synced (made while signed out) → free.
@@ -8051,6 +8323,7 @@ const Sync = {
       if (first && otherBefore) { for (const n of ['gkey', 'mapykey', 'tfkey', 'worker', 'home']) if (localStorage.getItem('velo:' + n) != null) { localStorage.removeItem('velo:' + n); got.cleared = true; } }
       for (const st of ['rides', 'routes']) for (const id of (await DB.tx(st, 'readonly', s => s.getAllKeys())) || []) ids.set(st + '~' + id, id);
       if (await DB.get('kv', 'myWays')) ids.set('kv~myWays', 'myWays');
+      chk();
       ids.set('ls~all', 'all');
       // settings changed since the last sync → a local change (on the very first sync the account's settings win)
       const lh = this.lsHash();
@@ -8060,25 +8333,36 @@ const Sync = {
       for (const k of ids.keys()) if (!m.items[k] && mine(k)) m.items[k] = { u: 0, dirty: 1 };
       // gone from the phone without a deletion mark → deleted here
       for (const [k, l] of Object.entries(m.items)) if (!ids.has(k) && !l.d) m.items[k] = { u: Date.now(), d: 1, dirty: 1 };
-      const remote = await this.list(), R = new Map(remote.map(r => [r.k, r]));
+      const remote = await this.list(), R = new Map(remote.map(r => [r.k, r])); chk();
       for (const r of remote) {
         const l = m.items[r.k];
         if (l && (l.u > r.u || (l.u === r.u && !l.dirty) || (l.d && r.d))) continue;
-        await this.apply(r.k, r.d ? null : await this.down(r.k), ids, got);
-        m.items[r.k] = { u: r.u, d: r.d ? 1 : 0 }; this.save(m); if (r.k !== 'ls~all') own[r.k] = uid;
+        const obj = r.d ? null : await this.down(r.k); chk();
+        // whose it is, recorded before it is written: a sign-out in the middle never leaves it «free» for the next account
+        if (r.k !== 'ls~all') { own[r.k] = uid; lsSet('syncOwn', own); }
+        await this.apply(r.k, obj, ids, got); chk();
+        m.items[r.k] = { u: r.u, d: r.d ? 1 : 0 }; this.save(m);
       }
       for (const [k, l] of Object.entries(m.items)) {
         if (!l.dirty) continue;
         const r = R.get(k), u = l.u || Date.now();
-        if (l.d) { if (r && !r.d) await this.up(k, u, null); if (r || l.d) { m.items[k] = { u, d: 1 }; this.save(m); } continue; }
-        const obj = await this.read(k, ids); if (obj == null) continue;
-        await this.up(k, u, obj); m.items[k] = { u, d: 0 }; this.save(m); if (k !== 'ls~all') own[k] = uid;
+        if (l.d) { if (r && !r.d) await this.up(k, u, null); chk(); if (r || l.d) { m.items[k] = { u, d: 1 }; this.save(m); } continue; }
+        const obj = await this.read(k, ids); chk(); if (obj == null) continue;
+        await this.up(k, u, obj); chk(); m.items[k] = { u, d: 0 }; this.save(m); if (k !== 'ls~all') own[k] = uid;
       }
-      lsSet('syncOwn', own); lsSet('syncLast', uid);
+      chk(); lsSet('syncOwn', own); lsSet('syncLast', uid);
       if (got.ls) m.lsH = this.lsHash();
       m.at = Date.now(); this.save(m); this.pend = {};
-    } catch (e) { this.err = (e && e.message) || 'Ошибка синхронизации'; }
-    this.busy = false; renderAcct();
+    } catch (e) { if (this.live(ss) && !(e && e.stale)) this.err = (e && e.message) || 'Ошибка синхронизации'; }
+    this.busy = false; this.sess = null;
+    if (!this.live(ss)) {
+      // signed out, or another account signed in, meanwhile: nothing more of this sync — the new account's own sync follows
+      this.pend = {}; this.again = false; renderAcct();
+      if (got.rides || got.routes) { try { renderRoutes(); } catch {} }
+      if (Acct.u && Acct.on()) this.soon(300);
+      return;
+    }
+    renderAcct();
     if (got.rides || got.routes) { try { renderRoutes(); } catch {} try { if (!$('#sheet-history').hidden) renderRides(); } catch {} }
     if (got.ways) { try { NewWays.inited = false; await NewWays.init(); NewWays.segs = null; NewWays.draw(); } catch {} }
     const nr = got.rides || 0, nt = got.routes || 0;
@@ -8117,6 +8401,7 @@ async function acctGo(kind) {
     if (kind === 'reset') { await Acct.reset(email); toast('Письмо для смены пароля отправлено на ' + email, 5000); return; }
     if (kind === 'up') await Acct.signUp(email, pass); else await Acct.signIn(email, pass);
     $('#ac-pass').value = ''; renderAcct(); toast('✓ Вы вошли: ' + email, 3000);
+    try { await waysSwap(Acct.u.uid); } catch {}
     Sync.run();
   } catch (e) { toast(e.message, 5000); }
   finally { bs.forEach(b => b.disabled = false); }
@@ -8130,9 +8415,9 @@ $('#ac-out').onclick = () => { if (!confirm(tr('Выйти из аккаунта
 if (ACCOUNTS_ON) renderAcct(); else { const g = document.querySelector('details.grp[data-g=acct]'); if (g) g.remove(); }
 if (ACCOUNTS_ON && Acct.on()) {
   setTimeout(() => Sync.run(), 3000);
-  setInterval(() => Sync.run(), 5 * 60000);
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') Sync.soon(1500); else if (Acct.u) Sync.run(); });
-  window.addEventListener('online', () => Sync.soon(1000));
+  setInterval(() => Sync.run(true), 5 * 60000);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') Sync.soon(1500, true); else if (Acct.u) Sync.run(true); });
+  window.addEventListener('online', () => Sync.soon(1000, true));
 }
 
 
@@ -8140,12 +8425,30 @@ if (ACCOUNTS_ON && Acct.on()) {
 // Riding where the map has no road or trail (a new bike path, a fresh singletrack): once back on a mapped way the app asks
 // whether to keep that piece. Kept pieces are drawn on the map (tap → delete) and the built-in routing engine uses them.
 // The map's ways come from OpenStreetMap (the data Israel Hiking Map is drawn from), a few square kilometres at a time.
+// v151 (audit R09): own sections of way belong to an account like its rides. On a phone that another account signs in to,
+// they are put aside (kv «myWays@<uid>») — not shown, not in a backup, not used by the router, never uploaded to the other
+// account — and come back when their account signs in again.
+async function waysSwap(uid) {
+  if (!uid || !DB.db) return false;
+  const own = lsGet('syncOwn', {}) || {}, o = own['kv~myWays'];
+  let cur = await DB.get('kv', 'myWays').catch(() => null), changed = false;
+  if (cur && o && o !== uid) { await DB.raw.put('kv', { id: 'myWays@' + o, ways: cur.ways || [] }); await DB.raw.del('kv', 'myWays'); cur = null; changed = true; }
+  const back = await DB.get('kv', 'myWays@' + uid).catch(() => null);
+  if (back) {
+    const ids = new Set(((cur && cur.ways) || []).map(w => w.id)), ways = ((cur && cur.ways) || []).concat((back.ways || []).filter(w => !ids.has(w.id)));
+    await DB.raw.put('kv', { id: 'myWays', ways }); await DB.raw.del('kv', 'myWays@' + uid); changed = true;
+  }
+  if (changed) { own['kv~myWays'] = uid; if (!cur && !back) delete own['kv~myWays']; lsSet('syncOwn', own); }
+  if (changed && NewWays.inited) { NewWays.inited = false; await NewWays.init(); try { Graphs.online = null; Graphs.mem.clear(); } catch {} }
+  return changed;
+}
 const NewWays = {
   ways: [], cells: new Map(), run: null, lastOn: null, lastPt: null, onHits: 0, layer: null, ask: null, queue: [], prev: null, inited: false,
   CELL: 0.006,   // ≈ 670 × 570 m; the ways of 3 × 3 cells around the rider are loaded in one request
   async init() {
     if (this.inited || !DB.db) return; this.inited = true;
-    try { const v = await DB.get('kv', 'myWays'); this.ways = (v && Array.isArray(v.ways) ? v.ways : []).filter(w => w && w.coords && w.coords.length > 1); } catch { this.ways = []; }
+    try { const u = lsGet('acct', null); if (u && u.uid && foreignItem('kv', 'myWays')) { this.inited = false; await waysSwap(u.uid); this.inited = true; } } catch {}
+    try { const v = foreignItem('kv', 'myWays') ? null : await DB.get('kv', 'myWays'); this.ways = (v && Array.isArray(v.ways) ? v.ways : []).filter(w => w && w.coords && w.coords.length > 1); } catch { this.ways = []; }
     this.segs = null; this.draw();
   },
   draw() {
@@ -8162,6 +8465,7 @@ const NewWays = {
     });
   },
   async store() {
+    if (foreignItem('kv', 'myWays')) { const add = this.ways; this.inited = false; await waysSwap(Acct.u.uid); await this.init(); const ids = new Set(this.ways.map(w => w.id)); this.ways = this.ways.concat(add.filter(w => !ids.has(w.id) && !w.foreign)); }
     try { await DB.put('kv', { id: 'myWays', ways: this.ways }); } catch { toast('Не удалось сохранить участок в телефоне', 4000); return false; }
     this.segs = null; Graphs.online = null; Graphs.mem.clear();   // the built-in engine picks the change up on its next route
     this.draw(); return true;
@@ -8476,7 +8780,7 @@ async function loadRelation(id, btn) {
 }
 
 /* ================= Routes near me: OpenStreetMap (Israel Hiking base) + my saved routes, nearest first ================= */
-const Near = { seq: 0, at: 0, from: null, r: 0, items: [] };
+const Near = { seq: 0, at: 0, from: null, r: 0, items: [], kind: 'all' };   // kind (v151, R17): all / mtb / bike / mine
 // Metres from p to the nearest point of a line (long lines are sampled so a 10 000-point track stays fast).
 function lineDist(p, c) {
   if (!c || !c.length) return Infinity; if (c.length === 1) return hav(p, c[0]);
@@ -8515,19 +8819,22 @@ async function loadNear() {
     if (top.length) {
       const g = await overpass(`[out:json][timeout:60];relation(id:${top.map(x => x.e.id).join(',')});out geom;`);
       if (my !== Near.seq) return;
-      osm = itemsFromOverpass(g).map(it => ({ ...it, name: tName(it.tags), len: cumDist(it.line).pop(), d: Math.min(...(it.parts || [it.line]).map(l => lineDist(p, l))) })).filter(x => x.d <= R);
+      osm = itemsFromOverpass(g).map(it => ({ ...it, name: tName(it.tags), len: cumDist(it.line).pop(), d: amin((it.parts || [it.line]).map(l => lineDist(p, l))) })).filter(x => x.d <= R);
     }
   } catch (e) { osmErr = e.name === 'AbortError' ? tr('таймаут') : e.message || String(e); }
   if (my !== Near.seq) return;
   // A route saved from OSM is shown once — as mine.
   const savedOsm = new Set(mine.map(x => (String(x.src).match(/(relation\/\d+)/) || [])[1]).filter(Boolean));
-  Near.items = mine.concat(osm.filter(x => !savedOsm.has(x.osm))).sort((a, b) => a.d - b.d).slice(0, 15);
+  Near.items = mine.concat(osm.filter(x => !savedOsm.has(x.osm))).sort((a, b) => a.d - b.d);   // all of them; the list shows the 15 nearest of the chosen kind
   Near.at = Date.now(); Near.from = p; Near.r = R; Near.fromMap = fromMap; Near.err = osmErr;
   $('#nr-load').disabled = false;
   renderNear();
 }
 function renderNear() {
-  const L0 = Near.items, km = d => d >= 1000 ? fmtKm(d) + ' км' : Math.round(d / 10) * 10 + ' м';
+  // v151 (R17): MTB apart from ordinary bike routes; the 15 nearest of the chosen kind
+  const okK = it => Near.kind === 'all' || (Near.kind === 'mine' ? it.kind === 'mine' : Near.kind === 'mtb' ? it.kind === 'mtb' : it.kind !== 'mine' && it.kind !== 'mtb');
+  const L0 = Near.items.filter(okK).slice(0, 15), km = d => d >= 1000 ? fmtKm(d) + ' км' : Math.round(d / 10) * 10 + ' м';
+  Near.shown = L0; $$('#nr-k button').forEach(b => b.classList.toggle('on', b.dataset.k === Near.kind));
   const where = Near.fromMap ? tr('от центра карты (нет GPS)') : tr('от вас');
   $('#nr-status').textContent = (L0.length ? `${tr('Найдено')}: ${L0.length} · ${tr('радиус')} ${fmtKm(Near.r)} км · ${where}` : `${tr('В радиусе')} ${fmtKm(Near.r)} км ${tr('маршрутов не нашлось')}`)
     + (Near.err ? ` · ${tr('OpenStreetMap не ответил')}: ${Near.err}` : '');
@@ -8538,9 +8845,9 @@ function renderNear() {
     const at = it.d < 60 ? tr('вы на маршруте') : `${tr('до него')} ${km(it.d)}`;
     return `<div class="item nrit" data-nv="${i}"><span class="t">${esc(name)}</span><span class="s">${kind} · ${fmtKm(it.len)} км · ${at}</span><span class="a"><button class="btn sm pri" data-nm="${i}">${tr('Смотреть')}</button><button class="btn sm" data-ng="${i}">${tr('Поехали')}</button></span></div>`;
   }).join('') || `<div class="empty">${tr('Попробуйте радиус побольше')}</div>`;
-  $$('#nr-list [data-ng]').forEach(b => b.onclick = e => { e.stopPropagation(); nearGo(Near.items[+b.dataset.ng]); });
-  $$('#nr-list [data-nm]').forEach(b => b.onclick = e => { e.stopPropagation(); nearPreview(Near.items[+b.dataset.nm]); });
-  $$('#nr-list [data-nv]').forEach(el => el.onclick = () => nearPreview(Near.items[+el.dataset.nv]));
+  $$('#nr-list [data-ng]').forEach(b => b.onclick = e => { e.stopPropagation(); nearGo(L0[+b.dataset.ng]); });
+  $$('#nr-list [data-nm]').forEach(b => b.onclick = e => { e.stopPropagation(); nearPreview(L0[+b.dataset.nm]); });
+  $$('#nr-list [data-nv]').forEach(el => el.onclick = () => nearPreview(L0[+el.dataset.nv]));
 }
 
 // Preview before riding: the route on the map with its start and finish, a card with length, time, climb,
@@ -8594,6 +8901,7 @@ function nearPreview(it) {
 $('#nr-pv-back').onclick = () => { nearPvClose(); showTab('routes'); routeSeg('trails'); };
 $('#nr-pv-go').onclick = () => nearGo(NPV.it);
 $$('#nr-r button').forEach(b => b.onclick = () => { lsSet('nearR', +b.dataset.r); loadNear(); });
+$$('#nr-k button').forEach(b => b.onclick = () => { Near.kind = b.dataset.k; renderNear(); });
 $('#nr-load').onclick = () => loadNear();
 
 /* ================= import from links ================= */
@@ -8624,25 +8932,35 @@ async function unzipRoute(buf) {
   if (eocd < 0) throw new Error('архив повреждён');
   const n = dv.getUint16(eocd + 10, true); let p = dv.getUint32(eocd + 16, true);
   for (let k = 0; k < n; k++) {
-    const method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true), nlen = dv.getUint16(p + 28, true), elen = dv.getUint16(p + 30, true), clen = dv.getUint16(p + 32, true), lho = dv.getUint32(p + 42, true);
+    const method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true), usize = dv.getUint32(p + 24, true), nlen = dv.getUint16(p + 28, true), elen = dv.getUint16(p + 30, true), clen = dv.getUint16(p + 32, true), lho = dv.getUint32(p + 42, true);
     const name = new TextDecoder().decode(new Uint8Array(buf, p + 46, nlen)); p += 46 + nlen + elen + clen;
     if (!/\.(kml|gpx|tcx|geojson|json)$/i.test(name)) continue;
     const data = new Uint8Array(buf, lho + 30 + dv.getUint16(lho + 26, true) + dv.getUint16(lho + 28, true), csize);
     if (method === 0) return { name, text: new TextDecoder().decode(data) };
     if (method === 8) {
       if (typeof DecompressionStream === 'undefined') throw new Error('браузер не умеет распаковывать архивы — обновите iOS');
-      const out = await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer();
-      return { name, text: new TextDecoder().decode(out) };
+      if (usize > IMP.unzip) throw new Error(PR3(`файл в архиве слишком большой: ${mb(usize)} МБ, можно до ${mb(IMP.unzip)} МБ`, `the file in the archive is too big: ${mb(usize)} MB, up to ${mb(IMP.unzip)} MB`, `הקובץ בארכיון גדול מדי: ${mb(usize)} MB, עד ${mb(IMP.unzip)} MB`));
+      const rd = new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw')).getReader(), parts = []; let got = 0;
+      for (;;) { const { done, value } = await rd.read(); if (done) break; got += value.byteLength; if (got > IMP.unzip) { try { await rd.cancel(); } catch {} throw new Error(PR3(`файл в архиве больше ${mb(IMP.unzip)} МБ`, `the file in the archive is over ${mb(IMP.unzip)} MB`, `הקובץ בארכיון גדול מ-${mb(IMP.unzip)} MB`)); } parts.push(value); }
+      return { name, text: new TextDecoder().decode(await new Blob(parts).arrayBuffer()) };
     }
     throw new Error('неподдерживаемое сжатие архива');
   }
   throw new Error('в архиве нет файла маршрута');
 }
+// v151 (audit R15): how big an imported file may be (a phone runs out of memory long before a desktop does)
+const IMP = { file: 50e6, backup: 200e6, unzip: 50e6, pts: 300000 };
+const mb = n => Math.round(n / 1e6);
+function impTooBig(f, max) { if (f && f.size > max) throw new Error(PR3(`файл слишком большой: ${mb(f.size)} МБ, можно до ${mb(max)} МБ`, `the file is too big: ${mb(f.size)} MB, up to ${mb(max)} MB`, `הקובץ גדול מדי: ${mb(f.size)} MB, עד ${mb(max)} MB`)); }
+function impTooMany(n) { if (n > IMP.pts) throw new Error(PR3(`слишком много точек: ${n}, можно до ${IMP.pts}`, `too many points: ${n}, up to ${IMP.pts}`, `יותר מדי נקודות: ${n}, עד ${IMP.pts}`)); }
 async function parseBuffer(buf, fname) {
-  if (isFit(buf)) { const a = parseFit(buf, fname); if (a.track.length < 2) throw new Error('в FIT-файле нет координат'); return [{ name: a.name, coords: a.track.map(p => [p[0], p[1], p[2]]) }]; }
+  if (isFit(buf)) { const a = parseFit(buf, fname); if (a.track.length < 2) throw new Error('в FIT-файле нет координат'); impTooMany(a.track.length); return [{ name: a.name, coords: a.track.map(p => [p[0], p[1], p[2]]) }]; }
   const b = new Uint8Array(buf, 0, Math.min(4, buf.byteLength));
-  if (b[0] === 0x50 && b[1] === 0x4b) { const f = await unzipRoute(buf); return parseRouteFile(f.text, f.name); }
-  return parseRouteFile(new TextDecoder().decode(buf), fname);
+  let items;
+  if (b[0] === 0x50 && b[1] === 0x4b) { const f = await unzipRoute(buf); items = parseRouteFile(f.text, f.name); }
+  else items = parseRouteFile(new TextDecoder().decode(buf), fname);
+  for (const it of items || []) if (it && it.coords) impTooMany(it.coords.length);
+  return items;
 }
 const COORD_RE = /^\s*(-?\d{1,2}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)\s*$/;
 async function geocodeOne(q) {
@@ -9224,7 +9542,9 @@ async function v3Style(kind) {
 }
 function v3Data() {
   const c = V3.coords, f = [];
-  if (c) f.push({ type: 'Feature', properties: { k: 'line' }, geometry: { type: 'LineString', coordinates: c.map(p => [p[1], p[0]]) } },
+  const cut = V3.cuts && V3.cuts.size ? V3.cuts : null, lines = [[]];
+  if (c) c.forEach((p, i) => { if (cut && cut.has(i) && lines[lines.length - 1].length) lines.push([]); lines[lines.length - 1].push([p[1], p[0]]); });
+  if (c) f.push({ type: 'Feature', properties: { k: 'line' }, geometry: lines.length > 1 ? { type: 'MultiLineString', coordinates: lines.filter(l => l.length > 1) } : { type: 'LineString', coordinates: lines[0] } },
     { type: 'Feature', properties: { k: 'st' }, geometry: { type: 'Point', coordinates: [c[0][1], c[0][0]] } },
     { type: 'Feature', properties: { k: 'fin' }, geometry: { type: 'Point', coordinates: [c[c.length - 1][1], c[c.length - 1][0]] } });
   return { type: 'FeatureCollection', features: f };
@@ -9246,7 +9566,7 @@ function v3Cam() {
   const c = V3.coords, brg = map.getBearing ? map.getBearing() : 0;
   if (c) {
     const lats = c.map(p => p[0]), lons = c.map(p => p[1]);
-    const cam = V3.map.cameraForBounds([[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]], { padding: 50 });
+    const cam = V3.map.cameraForBounds([[amin(lons), amin(lats)], [amax(lons), amax(lats)]], { padding: 50 });
     if (cam) return V3.map.jumpTo({ center: cam.center, zoom: Math.min(16.5, (cam.zoom || 14) - .4), pitch: 60, bearing: brg });
   }
   const ll = GPS.fix ? [GPS.fix.lon, GPS.fix.lat] : [map.getCenter().lng, map.getCenter().lat];
@@ -9273,6 +9593,7 @@ async function open3D(coords, opts = {}) {
   if (!navigator.onLine) return toast('3D-вид работает только с интернетом', 3500);
   if (!hasWebGL()) return toast('Этот браузер не умеет показывать 3D', 3500);
   V3.coords = coords && coords.length > 1 ? coords.filter(p => isFinite(p[0]) && isFinite(p[1])) : null;
+  V3.cuts = V3.coords ? trackCuts(V3.coords, opts.brk, opts.est) : new Set();   // v151 (R08)
   V3.autoFly = !!(opts.fly && V3.coords);
   $('#v3d').hidden = false; v3Seg();
   $('#v3-load').hidden = false; $('#v3-load').textContent = tr('Загружаю 3D…');
@@ -9285,8 +9606,10 @@ function close3D() { VREC.want = null; v3StopFly(); clearInterval(V3.gps); $('#v
    the ridden part lights up, a dot rides the track, distance / time / climb / elevation and a profile with a scrubber below;
    at the finish the camera pulls back to the whole route. Pause, 1× / 2× / 4×, tap the map to pause. ---- */
 const FX_BASE = 160;                      // m/s of ground at zoom 15 for 1× — the eye still follows and tiles keep up
-function v3FlyPrep(c) {
-  const pts = c.filter(p => isFinite(p[0]) && isFinite(p[1])), cum = cumDist(pts), total = cum[cum.length - 1] || 0;
+function v3FlyPrep(c, cuts) {
+  const pts = c.filter(p => isFinite(p[0]) && isFinite(p[1])), cum = [0];
+  for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + (cuts && cuts.has(i) ? 0 : hav(pts[i - 1], pts[i])));
+  const total = cum[cum.length - 1] || 0;
   if (pts.length < 2 || total < 30) return null;
   const STEP = Math.max(5, total / 4000), N = Math.ceil(total / STEP) + 1;
   const la = new Float64Array(N), lo = new Float64Array(N), el = new Float64Array(N).fill(NaN), tm = new Float64Array(N).fill(NaN);
@@ -9316,11 +9639,13 @@ function v3FlyPrep(c) {
   const avg = (i, w) => { i = Math.max(0, Math.min(N - 1, i)); w = Math.max(0, Math.min(w, i, N - 1 - i)); const a = i - w, b = i + w + 1; return [(pl[b] - pl[a]) / (b - a), (po[b] - po[a]) / (b - a)]; };
   const lerpA = (arr, d) => { const x = Math.max(0, Math.min(N - 1, d / STEP)), i = Math.floor(x), f = x - i, b = Math.min(N - 1, i + 1); return arr[i] + (arr[b] - arr[i]) * f; };
   let s0 = 0, n0 = 0; for (let i = 0; i < N; i++) { s0 += la[i]; n0++; }
-  const lats = pts.map(p => p[0]), lons = pts.map(p => p[1]);
+  let mnLa = Infinity, mxLa = -Infinity, mnLo = Infinity, mxLo = -Infinity, mnE = Infinity, mxE = -Infinity;
+  for (const q of pts) { if (q[0] < mnLa) mnLa = q[0]; if (q[0] > mxLa) mxLa = q[0]; if (q[1] < mnLo) mnLo = q[1]; if (q[1] > mxLo) mxLo = q[1]; }
+  if (hasE) for (let i = 0; i < N; i++) { if (el[i] < mnE) mnE = el[i]; if (el[i] > mxE) mxE = el[i]; }
   return {
     total, hasE, hasT, el, N, STEP, midLat: s0 / n0,
-    bounds: [[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]],
-    eMin: hasE ? Math.min(...el) : 0, eMax: hasE ? Math.max(...el) : 1,
+    bounds: [[mnLo, mnLa], [mxLo, mxLa]],
+    eMin: hasE ? mnE : 0, eMax: hasE ? mxE : 1,
     // the rider: exactly on the recorded line
     at: d => { const i = Math.max(1, Math.min(pts.length - 1, lowerBound(cum, d))), A = pts[i - 1], B = pts[i], k = Math.max(0, Math.min(1, (d - cum[i - 1]) / Math.max(cum[i] - cum[i - 1], 1e-9))); return [A[0] + (B[0] - A[0]) * k, A[1] + (B[1] - A[1]) * k]; },
     // the camera: the line averaged over ±wm metres, so GPS wobble and zig-zags don't shake it
@@ -9437,7 +9762,7 @@ function v3StopFly() {
 function v3Fly() {
   if (V3.fx) return;
   const m = V3.map; if (!V3.coords || !m) return;
-  const P = v3FlyPrep(V3.coords); if (!P) return toast('Маршрут слишком короткий');
+  const P = v3FlyPrep(V3.coords, V3.cuts); if (!P) return toast('Маршрут слишком короткий');
   const dur = Math.max(20, Math.min(70, P.total / FX_BASE)), gs = P.total / dur;
   V3.fx = { P, gs, z0: Math.max(12.8, Math.min(15.8, 15 - Math.log2(gs / FX_BASE))), mult: 1, d: 0, v: 0, run: 0, brg: null, zoom: 15, phase: 'intro', playing: false, raf: 0, tm: 0, prof: null };
   try { m.setLayoutProperty('v3-me', 'visibility', 'none'); } catch {}
@@ -9466,7 +9791,7 @@ async function openFlyVideo(r) {
   if (!navigator.onLine) return toast('3D-вид работает только с интернетом', 3500);
   if (!hasWebGL()) return toast('Этот браузер не умеет показывать 3D', 3500);
   VREC.want = { r }; $('#ask-rshare').hidden = true;
-  await open3D(pts, { fly: true });
+  await open3D(pts, { fly: true, brk: r.brk, est: r.est });   // v151 (R08)
 }
 function fxProfMake(P, w, h, dpr, fill, line) {
   const o = document.createElement('canvas'); o.width = w * dpr; o.height = h * dpr; const g = o.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -9583,6 +9908,7 @@ function syncRideMode() {
   RideUI.mv = moving ? (RideUI.mv || now) : 0;
   const on = S.rideMode !== false && RideUI.mv && now - RideUI.mv > 4000 && now - RideUI.touch > 8000 && !$$('.sheet').some(x => !x.hidden) && $('#v3d').hidden;
   document.body.classList.toggle('ridemode', !!on);
+  document.body.classList.toggle('onride', Ride.status !== 'idle' || !!Nav.route);   // v151 (R18): bigger main buttons while riding
 }
 setInterval(syncRideMode, 1000);
 $('#map').addEventListener('pointerdown', () => { RideUI.touch = Date.now(); syncRideMode(); }, { capture: true });
@@ -9590,7 +9916,11 @@ $('#map').addEventListener('pointerdown', () => { RideUI.touch = Date.now(); syn
 // iPhone can keep the app suspended for days: on every return to the screen and every 30 min the app asks the site for
 // its current build (version.json, a few bytes) and reloads itself when a newer one is out. Never in the middle of a
 // ride or navigation — then it waits until both are finished. Bump APP_BUILD together with version.json.
-const APP_BUILD = '150';
+const APP_BUILD = '151';
+// v151 (audit R19): the version text comes from one place — the build number above, the date and what is new (it said
+// «навигация v149» in build 150)
+const APP_DATE = '2026-11-21', APP_NEWS = "исправления по инженерному аудиту: медленный подъём, пересчёт маршрута, смена аккаунта, односторонние улицы, свежий GPS, разрывы записи, крупные кнопки в поездке";
+try { const vn = $('#ver-note'); if (vn) vn.textContent = `${tr('Версия приложения')}: ${APP_DATE} · ${PR3('навигация', 'navigation', 'ניווט')} v${APP_BUILD} · ${tr(APP_NEWS)}`; } catch {}
 const Upd = { pending: false, t: 0, mv: 0 };
 setInterval(() => { try { if (GPS.fix && GPS.fix.spd > 1.5 && Date.now() - GPS.fix.t < 10000) Upd.mv = Date.now(); } catch {} }, 5000);
 async function checkUpdate(force) {
@@ -9683,8 +10013,8 @@ function askResume(an) {
   }
   requestAnimationFrame(() => { try {
     const cv = $('#rs-thumb'), g = cv.getContext('2d'), W = cv.width, H = cv.height, c = an.coords, k = Math.cos(c[0][0] * D2R);
-    const xs = c.map(p => p[1] * k), ys = c.map(p => -p[0]), mx = Math.min(...xs), my = Math.min(...ys), sc = Math.min((W - 36) / Math.max(Math.max(...xs) - mx, 1e-9), (H - 36) / Math.max(Math.max(...ys) - my, 1e-9));
-    const ox = (W - (Math.max(...xs) - mx) * sc) / 2, oy = (H - (Math.max(...ys) - my) * sc) / 2, P = i => [ox + (xs[i] - mx) * sc, oy + (ys[i] - my) * sc];
+    const xs = c.map(p => p[1] * k), ys = c.map(p => -p[0]), mx = amin(xs), my = amin(ys), sc = Math.min((W - 36) / Math.max(amax(xs) - mx, 1e-9), (H - 36) / Math.max(amax(ys) - my, 1e-9));
+    const ox = (W - (amax(xs) - mx) * sc) / 2, oy = (H - (amax(ys) - my) * sc) / 2, P = i => [ox + (xs[i] - mx) * sc, oy + (ys[i] - my) * sc];
     g.clearRect(0, 0, W, H); g.lineJoin = g.lineCap = 'round'; g.beginPath(); c.forEach((_, i) => { const [x, y] = P(i); i ? g.lineTo(x, y) : g.moveTo(x, y); });
     g.strokeStyle = '#ff2d8a'; g.lineWidth = 7; g.stroke();
     for (const [i, col] of [[c.length - 1, '#ef4444'], [0, '#22c55e']]) { const [x, y] = P(i); g.beginPath(); g.arc(x, y, 9, 0, 7); g.fillStyle = col; g.fill(); g.lineWidth = 3; g.strokeStyle = '#fff'; g.stroke(); }
