@@ -1246,6 +1246,18 @@ body:not(.wide) .ctrls .cb svg{width:20px;height:20px}
 }
 body.onride #t-mic, body.onride #t-compass, body.onride #z-in, body.onride #z-out, body.onride #z-me, body.onride #c-loc { width: 48px !important; height: 48px !important; }
 @media (orientation: portrait) { body.onride #legend-tab { min-width: 28px !important; min-height: 44px !important; } }
+/* v153 audit: «Завершить» (end the navigation) is a red button with white text in every look — in the Google layout the
+   main-button colour (yellow in the dark one) used to win, leaving white text on yellow */
+.btn.dng.pri { background: #dc2626 !important; border-color: #dc2626 !important; color: #fff !important; }
+.ask .opt.dng.pri b, .ask .opt.dng.pri span { color: #fff !important; }
+/* v153 audit: «✓ Поездка сохранена» readable on the light panels (the light green was 1.7 : 1 on white) */
+body.sun .savebar .sb-t b, body.md:not(.mdk):not(.mdn) .savebar .sb-t b { color: #15803d; }
+/* v153 audit: «Яркое солнце», off the route — the red banner with white text and icons (dark text on red was unreadable) */
+body.sun #navb.off { background: #b91c1c; border-color: #7f1d1d; }
+body.sun #navb.off :is(#nv-dist, #nv-txt, #nv-rem, #nv-eta, .nv-next, .nv-next *, small, .d, svg, #nv-icon, #nv-icon *) { color: #fff !important; }
+body.sun #navb.off #nv-icon { background: rgba(255, 255, 255, .2); border-color: rgba(255, 255, 255, .5); }
+body.sun #navb.off .nv-x, body.sun #navb.off #nv-snd { background: rgba(255, 255, 255, .2); color: #fff; }
+body.sun #navb.off .act button { background: #fff; color: #991b1b; border-color: #fff; }
 </style>
 </head>
 <body>
@@ -9927,7 +9939,7 @@ async function manualUpdate() {
     const j = await fetchJSON('version.json?t=' + Date.now(), { cache: 'no-store' }, 8000);
     if (!j || !j.build) throw new Error();
     if (String(j.build) === APP_BUILD) toast(`${tr('У вас последняя версия')} (${tr('сборка')} ${APP_BUILD})`, 3500);
-    else { toast(`${tr('Обновляю до сборки')} ${j.build}…`, 2500); try { const reg = await navigator.serviceWorker?.getRegistration(); await reg?.update(); } catch {} try { lsSet('updatedFrom', APP_BUILD); lsSet('updTried', null); } catch {} setTimeout(() => location.reload(), 600); }
+    else { toast(`${tr('Обновляю до сборки')} ${j.build}…`, 2500); try { const reg = await navigator.serviceWorker?.getRegistration(); await reg?.update(); } catch {} try { lsSet('updatedFrom', APP_BUILD); lsSet('updTried', null); } catch {} Promise.resolve(Ride.persist()).catch(() => {}).finally(() => setTimeout(() => location.reload(), 600)); }   /* v153: the ride being recorded is saved first */
   } catch { toast(tr('Не удалось проверить — нет интернета?'), 3500); }
   finally { b.disabled = false; b.textContent = tr('Проверить обновление'); }
 }
