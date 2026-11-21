@@ -78,7 +78,7 @@ EXTRA = "() => { " + VIS + """
   const ids = ['m-play','m-stop','hud-max','t-mic','t-compass','z-in','z-out','z-me','c-loc','legend-tab','t-layers','t-mode','t-3d','t-sos','t-gpx','t-ret','gsearch'], R = [];
   if ([...document.querySelectorAll('.sheet')].every(s => s.hidden) && [...document.querySelectorAll('.ask')].every(a => a.hidden))
     for (const id of ids) { const el = document.getElementById(id); if (el && vis(el) && getComputedStyle(el).pointerEvents !== 'none') R.push([id, el.getBoundingClientRect()]); }
-  const clash = []; for (let i = 0; i < R.length; i++) for (let j = i + 1; j < R.length; j++) { const a = R[i][1], b = R[j][1]; if (a.left < b.right - 2 && b.left < a.right - 2 && a.top < b.bottom - 2 && b.top < a.bottom - 2) clash.push(R[i][0] + '×' + R[j][0]); }
+  const clash = []; for (let i = 0; i < R.length; i++) for (let j = i + 1; j < R.length; j++) { const a = R[i][1], b = R[j][1]; if (a.left < b.right - 2 && b.left < a.right - 2 && a.top < b.bottom - 2 && b.top < a.bottom - 2) clash.push(R[i][0] + '×' + R[j][0] + (window.__clashDbg ? ' ' + JSON.stringify([a, b].map(r => [r.left, r.top, r.width, r.height].map(Math.round))) + ' ' + document.getElementById(R[i][0]).className + '/' + document.getElementById(R[j][0]).className : '')); }
   return { small: [...small], low: [...low], clash }; }"""
 
 async def main():

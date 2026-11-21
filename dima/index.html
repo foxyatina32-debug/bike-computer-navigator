@@ -2356,7 +2356,9 @@ function placeGpxBtn() {
   let zy = gsv ? above.getBoundingClientRect().bottom + 14 : $('#t-mic').getBoundingClientRect().top + $('#t-mic').offsetHeight + 18; const zOn = S.zoomBtns !== false;
   // SOS: bottom-left above the ride panel (mirrors the «где я» button), out of the way of the left-edge legend tab.
   { const hr = $('#hud').hidden ? null : $('#hud').getBoundingClientRect(), wide = document.body.classList.contains('wide');
-    $('#t-sos').style.top = (!wide && hr && hr.top > 260 ? hr.top - 58 : zy) + 'px';
+    // v153 audit: no room above the panel (the smallest iPhone, the full panel) — under the compass and its label, not on it
+    const cpb = $('#t-compass').getBoundingClientRect(), underCmp = cpb.height ? cpb.bottom + 28 : zy;
+    $('#t-sos').style.top = (!wide && hr && hr.top > 260 ? hr.top - 58 : Math.max(zy, underCmp)) + 'px';
     // Never on top of the legend tab on the left edge (landscape): below it, or above it when there is no room below.
     const sos = $('#t-sos'), tab = $('#legend-tab');
     try { legendPos(); } catch {}
@@ -2365,7 +2367,9 @@ function placeGpxBtn() {
     if (ml && !ml.hidden) { const hudEl = $('#hud'); ml.style.top = Math.max(0, (hudEl.hidden ? $('.tabs') : hudEl).getBoundingClientRect().top - 34) + 'px';
       const l = ml.getBoundingClientRect(), a = sos.getBoundingClientRect(); if (a.bottom > l.top - 6 && a.top < l.bottom) sos.style.top = Math.max(0, l.top - 10 - a.height) + 'px'; }
     if (!tab.hidden) { const t = tab.getBoundingClientRect(), a = sos.getBoundingClientRect();
-      if (a.top < t.bottom + 6 && a.bottom > t.top - 6) { let y = t.bottom + 10; if (y + a.height > lim) y = t.top - 10 - a.height; sos.style.top = y + 'px'; } } }
+      if (a.top < t.bottom + 6 && a.bottom > t.top - 6) { let y = t.bottom + 10; if (y + a.height > lim) y = t.top - 10 - a.height;
+        // v153 audit: the spot above the tab is the compass's on the smallest iPhone — then the legend tab steps aside, SOS stays
+        if (y < cpb.bottom + 24 && y + a.height > cpb.top - 4) tab.classList.add('ovh'); else sos.style.top = y + 'px'; } } }
   // SOS and the place name (both on the left): SOS moves to the first free spot (below the name, below the legend tab, above
   // the name) — never onto the legend tab or the Mapy.com logo; only when there is no room the name steps aside.
   { const lw = $('#locw'), sos = $('#t-sos'), a = sos.getBoundingClientRect(), top = parseFloat(lw.style.top) || lw.getBoundingClientRect().top, h = lw.hidden ? 44 : Math.max(lw.offsetHeight, 30);
@@ -2375,6 +2379,7 @@ function placeGpxBtn() {
     let hit = a.height > 0 && !free(a.top) && a.bottom > top - 4 && a.top < top + h + 4;
     if (hit) { const y = [top + h + 10, tab ? tab.bottom + 10 : -1, top - 10 - a.height].find(free); if (y != null) { sos.style.top = y + 'px'; hit = false; } }
     lw.classList.toggle('ovh', hit); }
+  try { legendPos(); } catch {}   // v153 audit: the legend tab last, against where SOS ended up
   ['#z-in', '#z-out', '#z-me'].forEach(k => { const el = $(k); el.hidden = !zOn; el.style.top = zy + 'px'; zy += el.offsetHeight + (k === '#z-out' ? 14 : 6); });
   { const tb = $('#t-traffic'); if (!tb.hidden) { tb.style.top = zy + 'px'; zy += tb.offsetHeight + 6; } }
   const lf = $('#c-loc'), lr = lf && getComputedStyle(lf).display !== 'none' && !$('#hud').hidden ? lf.getBoundingClientRect() : null;
@@ -2383,6 +2388,10 @@ function placeGpxBtn() {
   try { spdPos(lim); } catch {}
 }
 window.addEventListener('resize', () => setTimeout(placeGpxBtn, 50));
+// v153 audit: the panel and the route banner change size (expanding, the bigger buttons riding, a longer instruction) — the
+// floating buttons are placed again when they have settled, whatever the timing (they used to overlap for a moment or for good)
+if ('ResizeObserver' in window) { let raf = 0; const ro = new ResizeObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { try { placeGpxBtn(); } catch {} }); });
+  ['hud', 'navb', 't-compass', 'c-loc'].forEach(id => { const el = document.getElementById(id); if (el) ro.observe(el); }); }
 function syncSheetMax() {
   placeGpxBtn();
   setTimeout(updateLegend, 0); setTimeout(mapyLogo, 0);
@@ -2705,6 +2714,7 @@ function setCompact(on, remember) {
   hudCompact = !!on; $('#hud').classList.toggle('compact', hudCompact);
   if (remember) { S.compact = hudCompact; saveS(); }
   syncSheetMax();
+  clearTimeout(setCompact.t); setCompact.t = setTimeout(syncSheetMax, 400);   // v153 audit: once more when the panel has settled (fonts, sizes, animation)
   if (GPS.follow && GPS.fix) setTimeout(() => { const f = GPS.fix; if (f) centerOn([f.lat, f.lon]); }, 30);   // v150: the fix may be gone by then
 }
 $('#hud-min').onclick = () => { hudIdleOpen = false; setCompact(true, true); };
@@ -3773,6 +3783,9 @@ const Ride = {
 };
 const PLAY = '<svg viewBox="0 0 24 24"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.2-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z" fill="currentColor"/></svg>';
 const PAUSE = '<svg viewBox="0 0 24 24"><rect x="6" y="4.5" width="4.2" height="15" rx="1.6" fill="currentColor"/><rect x="13.8" y="4.5" width="4.2" height="15" rx="1.6" fill="currentColor"/></svg>';
+// v153 audit: the buttons change size riding (R18) — the floating buttons are placed again then (they used to overlap:
+// «+» on «где я» on a small iPhone navigating, SOS on the compass on the smallest one)
+function setOnride(on) { on = !!on; if (document.body.classList.contains('onride') === on) return; document.body.classList.toggle('onride', on); try { placeGpxBtn(); } catch {} clearTimeout(setOnride.t); setOnride.t = setTimeout(() => { try { placeGpxBtn(); } catch {} }, 400); }
 function renderRecUI() {
   const p = $('#c-play');
   p.innerHTML = (Ride.status === 'rec' ? PAUSE : PLAY) + '<span>' + (Ride.status === 'rec' ? 'Пауза' : Ride.status === 'paused' ? 'Продолжить' : 'Старт') + '</span>'; p.classList.toggle('rec', Ride.status === 'rec'); p.classList.toggle('paused', Ride.status === 'paused');
@@ -3783,7 +3796,7 @@ function renderRecUI() {
   $$('#ask-stop button').forEach(b => b.disabled = !!Ride.stopping);
   if (renderRecUI.st !== Ride.status) { const was = renderRecUI.st; renderRecUI.st = Ride.status; if (was !== undefined) setCompact(hudWant()); }
   $('#m-stop').hidden = Ride.status === 'idle'; $('#mini').classList.toggle('has-stop', Ride.status !== 'idle');
-  document.body.classList.toggle('onride', Ride.status !== 'idle' || !!(typeof Nav !== 'undefined' && Nav.route));
+  setOnride(Ride.status !== 'idle' || !!(typeof Nav !== 'undefined' && Nav.route));
   renderMetrics();
 }
 $('#c-play').onclick = () => Ride.status === 'rec' ? Ride.pause() : Ride.start();
@@ -8658,6 +8671,12 @@ function legendPos() {
   const lw = $('#locw'), top = Math.max($('#compass-lbl').getBoundingClientRect().bottom, $('#navb').hidden ? 0 : $('#navb').getBoundingClientRect().bottom,
     !lw.hidden && lw.offsetHeight ? lw.getBoundingClientRect().bottom : 0) + 8;
   tab.style.top = top + 'px';
+  // v153 audit: never on SOS (both by the left edge): below it, or — no room (the smallest iPhone, the full panel) — out of the way
+  tab.classList.remove('ovh');
+  { const sos = $('#t-sos'); if (sos && getComputedStyle(sos).display !== 'none' && !sos.classList.contains('ovh')) { const a = sos.getBoundingClientRect(), t = tab.getBoundingClientRect();
+    if (a.height && a.left < t.right + 4 && a.right > t.left - 4 && a.top < t.bottom + 6 && a.bottom > t.top - 6) {
+      const ctl = document.body.classList.contains('wide') ? null : $('#hud').classList.contains('compact') ? $('#mini') : $('#hud-panel'), lim = ctl && !$('#hud').hidden ? ctl.getBoundingClientRect().top - 8 : innerHeight - 8;
+      if (a.bottom + 8 + t.height <= lim) tab.style.top = (a.bottom + 8) + 'px'; else tab.classList.add('ovh'); } } }
   if (el.hidden) return;
   // Opened on purpose and closed by a tap, so on small screens it may lie over the dashboard, but never over the tab bar.
   const ptop = top + tab.offsetHeight + 6, bottom = $('.tabs').getBoundingClientRect().top - 8;
@@ -9904,7 +9923,7 @@ function syncRideMode() {
   RideUI.mv = moving ? (RideUI.mv || now) : 0;
   const on = S.rideMode !== false && RideUI.mv && now - RideUI.mv > 4000 && now - RideUI.touch > 8000 && !$$('.sheet').some(x => !x.hidden) && $('#v3d').hidden;
   document.body.classList.toggle('ridemode', !!on);
-  document.body.classList.toggle('onride', Ride.status !== 'idle' || !!Nav.route);   // v151 (R18): bigger main buttons while riding
+  setOnride(Ride.status !== 'idle' || !!Nav.route);   // v151 (R18): bigger main buttons while riding
 }
 setInterval(syncRideMode, 1000);
 $('#map').addEventListener('pointerdown', () => { RideUI.touch = Date.now(); syncRideMode(); }, { capture: true });
