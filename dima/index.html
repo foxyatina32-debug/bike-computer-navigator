@@ -90,6 +90,7 @@ const tr = (() => {
   Object.assign(D, {"Нет свежего GPS — подсказка вернётся с сигналом": ["No fresh GPS — the instruction comes back with the signal", "אין GPS עדכני — ההנחיה תחזור עם הקליטה"], "Нет свежего GPS — перестрою, когда вернётся сигнал": ["No fresh GPS — I will reroute when the signal is back", "אין GPS עדכני — אחשב מחדש כשהקליטה תחזור"], "сек": ["s", "שנ׳"]});
   Object.assign(D, {"Соединяю разрывы путём по дорогам…": ["Joining the gaps by a way along the roads…", "מחבר את הפערים בדרך לאורך הכבישים…"], "Не удалось соединить разрывы": ["Could not join the gaps", "לא ניתן לחבר את הפערים"], "Не удалось соединить разрывы — веду по самой длинной части поездки": ["Could not join the gaps — navigating the longest piece of the ride", "לא ניתן לחבר את הפערים — מנווט לפי החלק הארוך ביותר של הרכיבה"], "В Истории. В записи разрывы — маршрут не создан сам: «В мои маршруты» в поездке": ["In History. The recording has gaps — no route made by itself: «To my routes» in the ride", "בהיסטוריה. בהקלטה יש פערים — מסלול לא נוצר אוטומטית: «למסלולים שלי» ברכיבה"], "нет пути": ["no way", "אין דרך"]});
   Object.assign(D, {"копия сделана более новой версией приложения — обновите его": ["the backup was made by a newer version of the app — update it", "הגיבוי נוצר בגרסה חדשה יותר של האפליקציה — עדכנו אותה"], "все поездки и маршруты в копии повреждены": ["all rides and routes in the backup are damaged", "כל הרכיבות והמסלולים בגיבוי פגומים"]});
+  Object.assign(D, {"Показать ещё": ["Show more", "הצג עוד"]});
   Object.assign(D, {"В одну сторону":["One way","בכיוון אחד"],"Туда и обратно":["There and back","הלוך ושוב"],"Назад другой дорогой":["Back another way","חזרה בדרך אחרת"],"Ищу дорогу назад…":["Looking for a way back…","מחפש דרך חזרה…"],"Другой дороги назад рядом нет — обратно почти тем же путём":["No other way back nearby — back almost the same way","אין דרך חזרה אחרת בקרבת מקום — חזרה כמעט באותה דרך"],"Этот маршрут уже возвращается к старту":["This route already returns to the start","המסלול הזה כבר חוזר להתחלה"],"Не получилось построить обратный путь":["Could not build the way back","לא הצלחתי לבנות דרך חזרה"],"Кольцо от меня":["Loop from here","מסלול מעגלי מכאן"],"Любое":["Any","כל כיוון"],"Кольцо нужной длины от того места, где вы сейчас, по выбранному велосипеду и покрытию. Нажмите ещё раз — другой вариант.":["A loop of the chosen length from where you are, for the chosen bike and surface. Tap again for another variant.","מסלול מעגלי באורך שבחרתם מהמקום שבו אתם נמצאים, לפי האופניים והמשטח שנבחרו. לחצו שוב לגרסה אחרת."],"Строю кольцо…":["Building a loop…","בונה מסלול מעגלי…"],"Кольцо не построено":["Loop not built","המסלול המעגלי לא נבנה"],"Финиш = старт":["Finish = start","סיום = התחלה"],"Длина кольца, км":["Loop length, km","אורך המסלול, ק״מ"],"затем":["then","ואז"],"Впереди крутой спуск":["Steep descent ahead","ירידה תלולה לפנים"],"Впереди серпантин":["Hairpins ahead","סרפנטינות לפנים"],"Крутой спуск":["Steep descent","ירידה תלולה"],"Серпантин":["Hairpins","סרפנטינות"],"Через":["In","בעוד"],"метров":["meters","מטר"],"процентов":["percent","אחוז"],"крутых поворотов":["sharp turns","פניות חדות"],"крутых поворота":["sharp turns","פניות חדות"],"крутой поворот":["sharp turn","פנייה חדה"],"крутой спуск":["steep descent","ירידה תלולה"],"серпантин":["hairpins","סרפנטינות"],"Экстренно":["Emergency","חירום"],"Завершить навигацию?":["End navigation?","לסיים את הניווט?"],"Завершить навигацию":["End navigation","סיום ניווט"],"Маршрут уберётся с карты; запись поездки продолжится":["The route is removed from the map; ride recording continues","המסלול יוסר מהמפה; הקלטת הרכיבה תימשך"],"Продолжить ехать по маршруту":["Keep following the route","להמשיך במסלול"],"Навигация завершена":["Navigation ended","הניווט הסתיים"],"Мои координаты":["My coordinates","הקואורדינטות שלי"],"Точность":["Accuracy","דיוק"],"Рядом":["Near","ליד"],"Отправить в WhatsApp":["Send via WhatsApp","שלחו ב-WhatsApp"],"Поделиться":["Share","שיתוף"],"Скопировать":["Copy","העתקה"],"Скорая помощь":["Ambulance","מד״א"],"Полиция":["Police","משטרה"],"Пожарные":["Fire brigade","כבאות"],"Координаты скопированы":["Coordinates copied","הקואורדינטות הועתקו"],"Нужна помощь. Я здесь":["I need help. I am here","אני צריך עזרה. אני כאן"],"Жду GPS…":["Waiting for GPS…","ממתין ל-GPS…"],"Позвоните 101 — скорая, 100 — полиция. Скажите координаты из этого экрана.":["Call 101 — ambulance, 100 — police. Read out the coordinates from this screen.","התקשרו 101 — מד״א, 100 — משטרה. הקריאו את הקואורדינטות מהמסך הזה."],"Тропы MTB":["MTB trails","שבילי MTB"],"лёгкая":["easy","קל"],"велодорожка":["cycleway","שביל אופניים"],"средняя":["medium","בינוני"],"сложная":["hard","קשה"],"очень сложная":["very hard","קשה מאוד"],"велосипед разрешён":["bikes allowed","מותר לאופניים"],"без отметки":["unmarked","ללא סימון"],"мест.":["local","מקומי"],"рег.":["regional","אזורי"],"нац.":["national","ארצי"],"веломаршрут":["bike route","מסלול אופניים"],"синглтрек":["singletrack","סינגל"],"Сменить старт":["Change start","שנה התחלה"],"Свой старт":["Own start","התחלה משלי"],"Анализ":["Analysis","ניתוח"],"Анализ маршрута: покрытие, точки, погода":["Route analysis: surface, points, weather","ניתוח מסלול: משטח, נקודות, מזג אוויר"],"Покрытие и точки ✕":["Surface & points ✕","משטח ונקודות ✕"],"Сложность и время":["Difficulty and time","קושי וזמן"],"Начальная":["Beginner","מתחיל"],"Хорошая":["Good","טוב"],"Ваша физическая подготовка · велосипед":["Your fitness · bike","הכושר שלך · אופניים"],"Лёгкий":["Easy","קל"],"Средний":["Medium","בינוני"],"Сложный":["Hard","קשה"],"в движении":["moving","בתנועה"],"Выносливость":["Endurance","סיבולת"],"техника":["technique","טכניקה"],"лёгкий":["easy","קל"],"средний":["medium","בינוני"],"сложный":["hard","קשה"],"троп":["trails","שבילים"],"м набора на км":["m climb per km","מ׳ טיפוס לק״מ"],"Покрытие по пути":["Surface along the way","משטח לאורך הדרך"],"Асфальт":["Asphalt","אספלט"],"Грунтовка":["Dirt road","דרך עפר"],"Тропа":["Trail","שביל"],"Нет данных":["No data","אין נתונים"],"Полоса — маршрут от старта (слева) до финиша.":["The strip is the route from start (left) to finish.","הפס הוא המסלול מההתחלה (שמאל) עד הסיום."],"Асфальт, грунтовки и тропы по участкам, вода, родники, смотровые и другие точки рядом с маршрутом (из OpenStreetMap). Нужен интернет.":["Asphalt, dirt roads and trails by section, water, springs, viewpoints and other points near the route (from OpenStreetMap). Needs internet.","אספלט, דרכי עפר ושבילים לפי קטעים, מים, מעיינות, תצפיות ונקודות נוספות ליד המסלול (מ-OpenStreetMap). נדרש אינטרנט."],"Точки по пути":["Points along the way","נקודות לאורך הדרך"],"Вода":["Water","מים"],"Родник":["Spring","מעיין"],"Смотровая площадка":["Viewpoint","תצפית"],"Историческое место":["Historic site","אתר היסטורי"],"Место отдыха":["Rest spot","מקום מנוחה"],"Кафе":["Cafe","בית קפה"],"Велоремонт":["Bike repair","תיקון אופניים"],"км от старта":["km from start","ק״מ מההתחלה"],"м в стороне":["m off the route","מ׳ מהמסלול"],"Рядом с маршрутом в OpenStreetMap ничего не отмечено.":["Nothing is mapped near the route in OpenStreetMap.","לא מסומן דבר ליד המסלול ב-OpenStreetMap."],"Показать на карте":["Show on map","הצג במפה"],"Убрать с карты":["Remove from map","הסר מהמפה"],"Обновить":["Refresh","רענן"],"Узнать покрытие и точки":["Get surface and points","קבל משטח ונקודות"],"Загружаю…":["Loading…","טוען…"],"Не удалось загрузить данные":["Could not load data","לא ניתן לטעון נתונים"],"Погода на поездку":["Weather for the ride","מזג אוויר לרכיבה"],"Сегодня":["Today","היום"],"Завтра":["Tomorrow","מחר"],"Прогноз":["Forecast","תחזית"],"До финиша":["To finish","עד הסיום"],"Прибытие":["Arrival","הגעה"],"через":["in","בעוד"],"Загружаю прогноз…":["Loading forecast…","טוען תחזית…"],"Не удалось загрузить прогноз":["Could not load the forecast","לא ניתן לטעון תחזית"],"прогноз есть только на ближайшие 2–3 дня":["the forecast covers only the next 2–3 days","התחזית זמינה רק ל-2–3 הימים הקרובים"],"встречный":["headwind","רוח נגדית"],"попутный":["tailwind","רוח גבית"],"боковой":["crosswind","רוח צד"],"Жара до":["Heat up to","חום עד"],"по ощущению — возьмите больше воды":["feels-like — take extra water","מורגש — קחו יותר מים"],"точек с водой по пути":["water points on the way","נקודות מים בדרך"],"Вероятность дождя до":["Chance of rain up to","סיכוי לגשם עד"],"тропы могут быть скользкими":["trails may be slippery","השבילים עלולים להיות חלקים"],"Сильный ветер до":["Strong wind up to","רוח חזקה עד"],"Очень высокий УФ-индекс":["Very high UV index","מדד UV גבוה מאוד"],"крем и закрытые плечи":["sunscreen and covered shoulders","קרם הגנה וכתפיים מכוסות"],"время":["time","שעה"],"дождь":["rain","גשם"],"ветер, км/ч":["wind, km/h","רוח, קמ״ש"],"Прогноз Open-Meteo для середины маршрута. В скобках — по ощущению. Ветер: встречный/попутный — относительно направления маршрута в этот час.":["Open-Meteo forecast for the middle of the route. In brackets — feels-like. Wind: head/tail — relative to the route direction at that hour.","תחזית Open-Meteo לאמצע המסלול. בסוגריים — מורגש. רוח: נגדית/גבית — ביחס לכיוון המסלול באותה שעה."],"Карта":["Map","מפה"],"Проехать заново":["Ride again","רכב שוב"],"Навигация по этому маршруту":["Navigate this route","ניווט במסלול הזה"],"Тот же маршрут в обратную сторону":["The same route in reverse","אותו מסלול בכיוון ההפוך"],"Выбрать на линии, где начать и закончить":["Pick on the line where to start and finish","בחר על הקו היכן להתחיל ולסיים"],"Данные маршрута":["Route data","נתוני המסלול"],"Расстояние, высоты и все ваши проезды":["Distance, elevation and all your rides on it","מרחק, גבהים וכל הרכיבות שלך"],"Удалить маршрут":["Delete route","מחק מסלול"],"Из сохранённых и недавних":["From saved and recent","מהשמורים והאחרונים"],"Точно удалить?":["Delete for sure?","למחוק בוודאות?"],"Нажмите ещё раз — маршрут удалится":["Tap again to delete the route","הקש שוב כדי למחוק את המסלול"],"Маршрут удалён":["Route deleted","המסלול נמחק"],"проехан":["ridden","נרכב"],"ещё не проезжали":["not ridden yet","עוד לא נרכב"],"добавлен":["added","נוסף"],"проезд":["ride","רכיבה"],"проезда":["rides","רכיבות"],"проездов":["rides","רכיבות"],"лучшее время":["best time","זמן הכי טוב"],"лучшая средняя, км/ч":["best average, km/h","ממוצע הכי טוב, קמ״ש"],"Мои проезды":["My rides","הרכיבות שלי"],"в движении":["moving","בתנועה"],"ср.":["avg","ממוצע"],"макс":["max","מקס׳"],"Вы ещё не проезжали этот маршрут с записью поездки. Нажмите ▶ на главном экране, когда поедете, — проезд появится здесь.":["You haven’t ridden this route with a recorded ride yet. Tap ▶ on the main screen when you ride — it will appear here.","עוד לא רכבת במסלול הזה עם הקלטה. הקש ▶ במסך הראשי כשאתה רוכב — הרכיבה תופיע כאן."],"Маршрут не найден":["Route not found","המסלול לא נמצא"],"Удерживайте маршрут — меню: проехать, удалить, данные":["Press and hold a route for the menu: ride, delete, data","לחיצה ארוכה על מסלול — תפריט: רכיבה, מחיקה, נתונים"],"Вы не на маршруте":["You are not on the route","אינך על המסלול"],"Проложить путь до маршрута":["Build a way to the route","בנה דרך אל המסלול"],"К ближайшей точке, дальше по маршруту":["To the nearest point, then along the route","לנקודה הקרובה, ואז לאורך המסלול"],"Проложить путь до старта":["Build a way to the start","בנה דרך אל ההתחלה"],"Доехать до начала, затем весь маршрут":["Ride to the start, then the whole route","רכב להתחלה, ואז את כל המסלול"],"Нет, доберусь сам":["No, I’ll get there myself","לא, אגיע בעצמי"],"Без прокладки пути — стрелка покажет направление на маршрут":["No way is built — the arrow points to the route","ללא בניית דרך — החץ יצביע אל המסלול"],"До маршрута":["To the route","עד המסלול"],"по прямой":["in a straight line","בקו ישר"],"до старта":["to the start","עד ההתחלה"],"К ближайшей точке":["To the nearest point","לנקודה הקרובה"],"км от старта), дальше по маршруту":["km from the start), then along the route","ק״מ מההתחלה), ואז לאורך המסלול"],"К началу маршрута, затем весь маршрут":["To the start of the route, then the whole route","לתחילת המסלול, ואז את כל המסלול"],"Путь не прокладываю — стрелка показывает на маршрут":["No way built — the arrow points to the route","לא נבנתה דרך — החץ מצביע אל המסלול"],"До маршрута (по прямой)":["To the route (straight line)","עד המסלול (בקו ישר)"],"Проложить":["Build way","בנה דרך"],"Строю путь до маршрута…":["Building a way to the route…","בונה דרך אל המסלול…"],"Вы на маршруте":["You are on the route","אתה על המסלול"],"Путь до маршрута построен":["Way to the route built","הדרך אל המסלול נבנתה"],"затем по маршруту":["then along the route","ואז לאורך המסלול"],"Не удалось построить путь до маршрута":["Could not build a way to the route","לא ניתן לבנות דרך אל המסלול"],"Начать здесь и здесь закончить":["Start and finish here","התחל וסיים כאן"],"Старт и финиш в этой точке, весь маршрут по кругу":["Start and finish at this point, the whole route as a loop","התחלה וסיום בנקודה זו, כל המסלול כמעגל"],"Нажмите на линию маршрута — там будут старт и финиш":["Tap the route line — start and finish will be there","הקש על קו המסלול — שם תהיה ההתחלה והסיום"],"Моё место":["My location","המיקום שלי"],"Отмена":["Cancel","ביטול"],"Нажмите ближе к линии маршрута":["Tap closer to the route line","הקש קרוב יותר לקו המסלול"],"Это и так старт маршрута":["This is already the route start","זו כבר תחילת המסלול"],"Маршрут не кольцевой — строю путь от конца к началу…":["The route is not a loop — building a path from the end to the beginning…","המסלול אינו מעגלי — בונה דרך מהסוף להתחלה…"],"от конца к началу проложено":["end to beginning routed","מהסוף להתחלה נבנו"],"от конца к началу — обратно по этому же треку":["end to beginning — back along the same track","מהסוף להתחלה — חזרה באותו מסלול"],"Старт и финиш перенесены":["Start and finish moved","ההתחלה והסיום הועברו"],"Старт и финиш здесь":["Start and finish here","התחלה וסיום כאן"],"новый старт":["new start","התחלה חדשה"],"от маршрута — нажмите на точку на линии":["from the route — tap a point on the line","מהמסלול — הקש על נקודה בקו"],"Вы в":["You are","אתה במרחק"],"Thunderforest Outdoors — рельеф и тропы": ["Thunderforest Outdoors — relief and trails", "Thunderforest Outdoors — תבליט ושבילים"], "OpenCycleMap — велосипедная": ["OpenCycleMap — cycling", "OpenCycleMap — אופניים"], "Thunderforest Landscape — ландшафт": ["Thunderforest Landscape", "Thunderforest Landscape — נוף"], "Mapy.com — туристическая": ["Mapy.com — outdoor", "Mapy.com — טיולים"], "Mapy.com — обычная": ["Mapy.com — basic", "Mapy.com — רגילה"], "thunderforest.com · нужен ваш ключ (Настройки)": ["thunderforest.com · needs your key (Settings)", "thunderforest.com · נדרש מפתח שלך (הגדרות)"], "mapy.com · нужен ваш ключ (Настройки)": ["mapy.com · needs your key (Settings)", "mapy.com · נדרש מפתח שלך (הגדרות)"], "Рельеф-тени (Esri)": ["Hillshade (Esri)", "הצללת תבליט (Esri)"], "без ключа · подробно до среднего масштаба": ["no key · detailed to medium zoom", "ללא מפתח · מפורט עד זום בינוני"], "Ключи карт": ["Map keys", "מפתחות מפות"], "Бесплатные ключи для карт Thunderforest (Outdoors, OpenCycleMap, Landscape — 150 000 тайлов в месяц) и Mapy.com (250 000 в месяц). Ключи хранятся только на этом телефоне.": ["Free keys for Thunderforest maps (Outdoors, OpenCycleMap, Landscape — 150,000 tiles a month) and Mapy.com (250,000 a month). Keys stay on this phone only.", "מפתחות חינמיים למפות Thunderforest (Outdoors, OpenCycleMap, Landscape — 150,000 אריחים בחודש) ו-Mapy.com (250,000 בחודש). המפתחות נשמרים רק בטלפון הזה."], "Ключ Thunderforest": ["Thunderforest key", "מפתח Thunderforest"], "Ключ Mapy.com": ["Mapy.com key", "מפתח Mapy.com"], "Получить: thunderforest.com → Pricing → Hobby Project (бесплатно) → API key.": ["Get it: thunderforest.com → Pricing → Hobby Project (free) → API key.", "לקבלת מפתח: thunderforest.com → Pricing → Hobby Project (חינם) → API key."], "Получить: developer.mapy.com → My Account (вход через аккаунт Seznam) → API Project → ключ создаётся сразу.": ["Get it: developer.mapy.com → My Account (Seznam login) → API Project → the key is created right away.", "לקבלת מפתח: developer.mapy.com → My Account (כניסה עם חשבון Seznam) → API Project → המפתח נוצר מיד."], "Ключ сохранён — проверю, когда будет интернет.": ["Key saved — I'll check it when online.", "המפתח נשמר — אבדוק כשיהיה אינטרנט."], "Проверяю ключ…": ["Checking the key…", "בודק את המפתח…"], "✓ Ключ работает. Карта включена — другие карты этого сервиса в меню карт.": ["✓ The key works. Map turned on — the service's other maps are in the map menu.", "✓ המפתח עובד. המפה הופעלה — שאר המפות של השירות בתפריט המפות."], "✗ Сервис не принял ключ (или нет связи). Проверьте, что ключ скопирован целиком.": ["✗ The service did not accept the key (or no connection). Check that the whole key was copied.", "✗ השירות לא קיבל את המפתח (או שאין חיבור). ודא שהמפתח הועתק במלואו."], "Ключ удалён.": ["Key removed.", "המפתח נמחק."], "Для карты": ["The map", "למפה"], "нужен ваш ключ: Настройки → Ключи карт": ["needs your key: Settings → Map keys", "נדרש מפתח שלך: הגדרות → מפתחות מפות"],"Старт: адрес, место или координаты": ["Start: address, place or coordinates", "התחלה: כתובת, מקום או קואורדינטות"], "Финиш: адрес, место или координаты": ["Finish: address, place or coordinates", "סיום: כתובת, מקום או קואורדינטות"], "Моё местоположение": ["My location", "המיקום שלי"], "координаты": ["coordinates", "קואורדינטות"], "Ищу…": ["Searching…", "מחפש…"], "Ничего не найдено": ["Nothing found", "לא נמצא דבר"], "Поиск недоступен": ["Search unavailable", "החיפוש לא זמין"],"Google рельеф": ["Google terrain", "Google תבליט"], "Google спутник": ["Google satellite", "Google לוויין"], "Google Maps Platform · тот же ключ API": ["Google Maps Platform · same API key", "Google Maps Platform · אותו מפתח API"], "Esri — топографическая": ["Esri — topographic", "Esri — טופוגרפית"], "MTB-маршруты (Waymarked Trails)": ["MTB routes (Waymarked Trails)", "מסלולי MTB (Waymarked Trails)"], "Веломаршруты (Waymarked Trails)": ["Cycling routes (Waymarked Trails)", "מסלולי אופניים (Waymarked Trails)"], "Пешие маршруты (Waymarked Trails)": ["Hiking routes (Waymarked Trails)", "מסלולי הליכה (Waymarked Trails)"], "Обновление карт": ["Map updates", "עדכון מפות"], "Проверять обновления при подключении к интернету": ["Check for updates when online", "בדוק עדכונים כשיש אינטרנט"], "Скачанные офлайн-карты старше 2 недель и области дорог старше 30 дней тихо обновляются, когда есть интернет (не во время записи поездки). Обычные карты и маршруты BRouter и так всегда свежие.": ["Offline maps older than 2 weeks and road areas older than 30 days are refreshed quietly when online (not while recording a ride). Online maps and BRouter routes are always fresh anyway.", "מפות לא מקוונות בנות יותר משבועיים ואזורי דרכים בני יותר מ-30 יום מתעדכנים בשקט כשיש אינטרנט (לא בזמן הקלטת רכיבה). מפות מקוונות ומסלולי BRouter תמיד עדכניים."], "Проверить сейчас": ["Check now", "בדוק עכשיו"], "Нет интернета — проверю, когда появится связь.": ["No internet — I'll check when online.", "אין אינטרנט — אבדוק כשיחזור החיבור."], "Проверяю обновления карт…": ["Checking map updates…", "בודק עדכוני מפות…"], "Карты: проверено": ["Maps: checked", "מפות: נבדקו"], "Обновляю дороги и тропы": ["Updating roads and trails", "מעדכן דרכים ושבילים"], "тайлов обновлено": ["tiles updated", "אריחים עודכנו"], "без изменений": ["unchanged", "ללא שינוי"], "не удалось": ["failed", "נכשלו"], "областей дорог обновлено": ["road areas updated", "אזורי דרכים עודכנו"], "Проверено": ["Checked", "נבדק"], "всё свежее, обновлять нечего": ["everything is up to date", "הכול עדכני"], "Офлайн-карты обновлены": ["Offline maps updated", "המפות הלא מקוונות עודכנו"], "Проверка не удалась": ["Check failed", "הבדיקה נכשלה"], "Komoot — MTB в Израиле": ["Komoot — MTB in Israel", "Komoot — MTB בישראל"], "MTB Project — Израиль": ["MTB Project — Israel", "MTB Project — ישראל"], "Trailforks — Израиль": ["Trailforks — Israel", "Trailforks — ישראל"],"Старт и финиш почти в одной точке — передвиньте B дальше.": ["Start and finish are almost the same point — move B further away.", "ההתחלה והסיום כמעט באותה נקודה — הזז את B רחוק יותר."],"Из точки в точку": ["Point to point", "מנקודה לנקודה"], "Отметьте старт и финиш — подберу варианты по покрытию и сложности": ["Mark start and finish — I'll suggest routes by surface and difficulty", "סמן התחלה וסיום — אציע מסלולים לפי משטח וקושי"], "Из точки в точку: старт и финиш на карте, варианты": ["Point to point: start and finish on the map, route options", "מנקודה לנקודה: התחלה וסיום במפה, אפשרויות מסלול"], "Нажмите на карту — поставлю старт (A).": ["Tap the map to set the start (A).", "הקש על המפה כדי לקבוע התחלה (A)."], "Теперь нажмите точку, до которой доехать и вернуться (B).": ["Now tap the turnaround point (B).", "עכשיו הקש על נקודת הסיבוב (B)."], "Теперь нажмите финиш (B).": ["Now tap the finish (B).", "עכשיו הקש על הסיום (B)."], "Точки можно перетаскивать. Выберите опции и нажмите «Подобрать маршруты».": ["Points can be dragged. Choose options and tap “Find routes”.", "אפשר לגרור את הנקודות. בחר אפשרויות והקש „מצא מסלולים”."], "Старт — где я": ["Start — my location", "התחלה — המיקום שלי"], "⇄ Поменять": ["⇄ Swap", "⇄ החלף"], "Сбросить": ["Reset", "איפוס"], "В одну сторону": ["One way", "בכיוון אחד"], "Кольцо (туда и обратно)": ["Loop (out and back)", "מעגלי (הלוך וחזור)"], "Сложность": ["Difficulty", "קושי"], "Лёгкий": ["Easy", "קל"], "Средний": ["Medium", "בינוני"], "Сложный": ["Hard", "קשה"], "лёгкий": ["easy", "קל"], "средний": ["medium", "בינוני"], "сложный": ["hard", "קשה"], "Подобрать маршруты": ["Find routes", "מצא מסלולים"], "Подбираю…": ["Searching…", "מחפש…"], "Варианты": ["Options", "אפשרויות"], "Вариант": ["Option", "אפשרות"], "кольцо": ["loop", "מעגלי"], "вы просили": ["you asked for", "ביקשת"], "Точка разворота": ["Turnaround point", "נקודת סיבוב"], "Кольцо A→B→A": ["Loop A→B→A", "מעגלי A→B→A"], "Маршрут сохранён в «Мои»": ["Route saved to “Mine”", "המסלול נשמר ב„שלי”"], "Жду GPS…": ["Waiting for GPS…", "ממתין ל-GPS…"], "BRouter не нашёл маршрут": ["BRouter found no route", "BRouter לא מצא מסלול"], "BRouter недоступен — один вариант от встроенного движка": ["BRouter unavailable — one option from the built-in engine", "BRouter לא זמין — אפשרות אחת מהמנוע המובנה"], "Не получилось": ["Failed", "נכשל"], "Из точки в точку · ": ["Point to point · ", "מנקודה לנקודה · "],"Легенда":["Legend","מקרא"],"Легенда цветов троп":["Trail colour legend","מקרא צבעי שבילים"]});
   Object.assign(D, {"⟳ Кольцом":["⟳ Loop it","⟳ מעגלי"],"Сделать маршрут кольцевым":["Make the route a loop","להפוך את המסלול למעגלי"],"Вернуться к старту":["Back to the start","חזרה להתחלה"],"⇄ Туда и обратно":["⇄ There and back","⇄ הלוך ושוב"],"Обратно той же дорогой":["Back the same way","חזרה באותה דרך"],"⟳ Назад другой дорогой":["⟳ Back another way","⟳ חזרה בדרך אחרת"],"Обратно по другим дорогам, если рядом они есть":["Back by other roads, if there are any nearby","חזרה בדרכים אחרות, אם יש כאלה בקרבת מקום"],"Отмена":["Cancel","ביטול"],"сейчас в одну сторону":["one way now","כרגע בכיוון אחד"]});
   Object.assign(D, {"участок": ["section", "קטע"], "участка": ["sections", "קטעים"], "участков": ["sections", "קטעים"]});
@@ -2024,6 +2025,10 @@ const DB = {
 // v150: while another account is signed in, the rides and routes that belong to the account synced before it (v147 keeps
 // them on the phone and never uploads them) are not shown, searched or put into a backup — they come back when their own
 // account signs in again (or when signed out: then the phone shows everything on it). The account's sync reads the store directly.
+// v151 (audit R15): the smallest / largest of an array of any length, exactly as Math.min / Math.max (Math.min with a long array spread runs out
+// of stack on a long track: 150 000 points broke the fly-over)
+const amin = a => { let m = Infinity; for (const x of a) { const v = +x; if (v !== v) return NaN; if (v < m) m = v; } return m; };
+const amax = a => { let m = -Infinity; for (const x of a) { const v = +x; if (v !== v) return NaN; if (v > m) m = v; } return m; };
 // v151 (audit R10): what a ride, a route and an own section must be before they are written from a backup file or the
 // account. The id alone let a route with coords {bad: true} in — the app then broke on it every time it was opened.
 const okLL = q => Array.isArray(q) && typeof q[0] === 'number' && typeof q[1] === 'number' && Number.isFinite(q[0]) && Number.isFinite(q[1]) && Math.abs(q[0]) <= 90 && Math.abs(q[1]) <= 180;
@@ -5111,7 +5116,7 @@ const RoadAlerts = {
       else if (e.type === 'way' && e.geometry) {
         const k = this.kindOf(e.tags, true); if (!k) continue;
         const ats = e.geometry.map(g => near(g.lat, g.lon)).filter(([d]) => d <= 10).map(([, at]) => at);
-        if (ats.length >= 2 && Math.max(...ats) - Math.min(...ats) >= 4) out.push({ kind: k, d: Math.min(...ats), len: Math.max(...ats) - Math.min(...ats) });
+        if (ats.length >= 2 && amax(ats) - amin(ats) >= 4) out.push({ kind: k, d: amin(ats), len: amax(ats) - amin(ats) });
       }
     }
     out.sort((a, b) => a.d - b.d);
@@ -5153,7 +5158,7 @@ function aheadCard(show) {
   el.hidden = false;
   // Never over «⟳ Кольцом» / 🎤 on the right: the card is narrowed to end before them.
   const rb = ['#t-ret', '#t-mic'].map(q => $(q)).filter(x => x && !x.hidden && getComputedStyle(x).visibility !== 'hidden' && getComputedStyle(x).display !== 'none').map(x => x.getBoundingClientRect()).filter(r => r.width && r.bottom > el.getBoundingClientRect().top && r.top < el.getBoundingClientRect().bottom);
-  el.style.maxWidth = rb.length ? Math.max(150, Math.min(...rb.map(r => r.left)) - el.getBoundingClientRect().left - 8) + 'px' : '';
+  el.style.maxWidth = rb.length ? Math.max(150, amin(rb.map(r => r.left)) - el.getBoundingClientRect().left - 8) + 'px' : '';
 }
 const Nav = {
   route: null, line: null, wptLayer: null, setAt: 0, wrongWay: 0, lastFlip: 0, progress: 0, offCount: 0, lost: false, lastReroute: 0, ignoreOffUntil: 0, said: {},
@@ -6028,7 +6033,7 @@ function drawRouteProf(mark) {
   const c = r.coords, cum = cumDist(c), T = cum[cum.length - 1] || 1, idx = c.map((p, i) => i).filter(i => c[i][2] != null); if (idx.length < 2) return null;
   const dpr = window.devicePixelRatio || 1, w = cv.clientWidth || 340, h = cv.clientHeight || 150; cv.width = w * dpr; cv.height = h * dpr;
   const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, h);
-  let lo = Math.min(...idx.map(i => c[i][2])), hi = Math.max(...idx.map(i => c[i][2])); const top = hi, bot = lo; if (hi - lo < 20) { const m = (hi + lo) / 2; lo = m - 10; hi = m + 10; }
+  let lo = amin(idx.map(i => c[i][2])), hi = amax(idx.map(i => c[i][2])); const top = hi, bot = lo; if (hi - lo < 20) { const m = (hi + lo) / 2; lo = m - 10; hi = m + 10; }
   const B = 22, X = d => 6 + d / T * (w - 12), Y = e => 8 + (h - B - 8) - (e - lo) / (hi - lo) * (h - B - 16);
   g.strokeStyle = 'rgba(255,255,255,.08)'; g.setLineDash([3, 4]); [8, h - B].forEach(y => { g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); }); g.setLineDash([]);
   g.beginPath(); g.moveTo(X(0), h - B); idx.forEach(i => g.lineTo(X(cum[i]), Y(c[i][2]))); g.lineTo(X(T), h - B); g.closePath();
@@ -6113,7 +6118,7 @@ async function buildPlan(pre) {
     $('#r-dist').textContent = fmtKm(r.distance); $('#r-asc').textContent = r.ascent != null ? Math.round(r.ascent) : '—';
     { const es = r.coords.map(c => c[2]).filter(e => e != null), has = es.length > 1;
       $('#r-desc').textContent = has ? Math.round(ascentOf(r.coords.slice().reverse())) : '—';
-      $('#r-emax').textContent = has ? Math.round(Math.max(...es)) : '—'; $('#r-emin').textContent = has ? Math.round(Math.min(...es)) : '—';
+      $('#r-emax').textContent = has ? Math.round(amax(es)) : '—'; $('#r-emin').textContent = has ? Math.round(amin(es)) : '—';
       $('#r-prof').hidden = $('#r-profx').hidden = !has; }
     renderResWps(); requestAnimationFrame(() => { try { drawRouteProf(); } catch {} });
     $('#r-time').textContent = fmtHM(r.gdur || rideTime(r, o.bike, o.mode)); $('#r-mix').innerHTML = mixHtml(r.mix); $('#r-eng').textContent = r.engine + (r.gdur ? (o.mode === 'car' ? ' · время — оценка Google без пробок' : ' · время — оценка Google. Велодорожки и тротуары учтены не везде — проверьте маршрут') : o.mode === 'car' ? ' · время без пробок' : o.mode === 'foot' ? ' · время пешком с учётом подъёмов' : ' · время — оценка по типу велосипеда и покрытию');
@@ -6649,6 +6654,7 @@ async function openRouteFiles(files) {
   const added = [];
   for (const f of files) {
     try {
+      impTooBig(f, IMP.file);
       const items = await parseBuffer(await f.arrayBuffer(), f.name);
       if (!items.length) throw new Error('в файле нет трека, маршрута или точек');
       for (const it of items) {
@@ -6741,9 +6747,9 @@ async function makeRouteCard(r, info) {
   g.fillStyle = '#fff'; g.font = `800 56px ${FONT}`; let title = r.name; while (g.measureText(title).width > W - 112 && title.length > 4) title = title.slice(0, -2) + '…'; g.fillText(title, 56, 150);
   const box = { x: 40, y: 190, w: W - 80, h: 800 };
   const la = c.map(p => p[0]), lo = c.map(p => p[1]); let z = 17, P;
-  for (; z > 3; z--) { const w = 256 * 2 ** z, xs = lo.map(x => shX(x, w)), ys = la.map(y => shY(y, w)); if (Math.max(...xs) - Math.min(...xs) <= box.w - 140 && Math.max(...ys) - Math.min(...ys) <= box.h - 140) break; }
+  for (; z > 3; z--) { const w = 256 * 2 ** z, xs = lo.map(x => shX(x, w)), ys = la.map(y => shY(y, w)); if (amax(xs) - amin(xs) <= box.w - 140 && amax(ys) - amin(ys) <= box.h - 140) break; }
   const WW = 256 * 2 ** z, xs = lo.map(x => shX(x, WW)), ys = la.map(y => shY(y, WW));
-  const ox = (Math.min(...xs) + Math.max(...xs)) / 2 - box.w / 2, oy = (Math.min(...ys) + Math.max(...ys)) / 2 - box.h / 2;
+  const ox = (amin(xs) + amax(xs)) / 2 - box.w / 2, oy = (amin(ys) + amax(ys)) / 2 - box.h / 2;
   P = i => [box.x + xs[i] - ox, box.y + ys[i] - oy];
   g.fillStyle = '#1e293b'; roundRect(g, box.x, box.y, box.w, box.h, 30); g.fill();
   const attr = await drawTiles(g, box, z, ox, oy);
@@ -7115,7 +7121,7 @@ async function insWeather(c, data, ms) {
     if (!rows.length) throw new Error('прогноз есть только на ближайшие 2–3 дня');
     const at = ts => { const along = Math.max(0, Math.min(total, (ts * 1000 - start) / ms * total)); const i = Math.max(0, Math.min(c.length - 2, lowerBound(cum, along) - 1)); return bearing(c[i], c[i + 1]); };
     const wind = (i, t) => { const rel = Math.abs(norm180(h.wind_direction_10m[i] - at(t))); return rel < 50 ? 'встречный' : rel > 130 ? 'попутный' : 'боковой'; };
-    const hot = Math.max(...rows.map(i => h.apparent_temperature[i])), rain = Math.max(...rows.map(i => h.precipitation_probability[i] ?? 0)), wmax = Math.max(...rows.map(i => h.wind_speed_10m[i])), uv = Math.max(...rows.map(i => h.uv_index[i] ?? 0));
+    const hot = amax(rows.map(i => h.apparent_temperature[i])), rain = amax(rows.map(i => h.precipitation_probability[i] ?? 0)), wmax = amax(rows.map(i => h.wind_speed_10m[i])), uv = amax(rows.map(i => h.uv_index[i] ?? 0));
     const warn = [];
     if (hot >= 32) warn.push(`🔥 Жара до ${Math.round(hot)}° по ощущению — возьмите больше воды${data ? ` (точек с водой по пути: ${data.pois.filter(p => p.k === 'water' || p.k === 'spring').length})` : ''}`);
     if (rain >= 50) warn.push(`🌧 Вероятность дождя до ${rain}% — тропы могут быть скользкими`);
@@ -7336,7 +7342,7 @@ async function preWeather(c, ms) {
     const brg = ts => { const along = Math.max(0, Math.min(total, (ts * 1000 - start) / ms * total)), i = Math.max(0, Math.min(c.length - 2, lowerBound(cum, along) - 1)); return bearing(c[i], c[i + 1]); };
     let head = 0, tail = 0;
     rows.forEach(i => { const rel = Math.abs(norm180(h.wind_direction_10m[i] - brg(Math.max(T[i], start / 1000)))); if (rel < 50) head++; else if (rel > 130) tail++; });
-    const mx = a => Math.max(...rows.map(i => a[i] ?? 0)), mn = a => Math.min(...rows.map(i => a[i] ?? 0));
+    const mx = a => amax(rows.map(i => a[i] ?? 0)), mn = a => amin(rows.map(i => a[i] ?? 0));
     return { tmin: mn(h.temperature_2m), tmax: mx(h.temperature_2m), hot: mx(h.apparent_temperature), rain: Math.round(mx(h.precipitation_probability)), wmax: mx(h.wind_speed_10m), uv: mx(h.uv_index || []),
       code: mx(h.weather_code), head: head / rows.length, tail: tail / rows.length };
   } catch (e) { return { err: navigator.onLine === false ? PR3('нет интернета', 'no internet', 'אין אינטרנט') : String(e && e.message || e) }; }
@@ -7352,7 +7358,7 @@ const speedTxt = (r, v) => ACTS[actOf(r)].pace ? fmtPace(v) + ' /км' : kmh(v) 
 const fmtDay = ts => new Date(ts).toLocaleDateString(LOC, { day: 'numeric', month: 'long', year: 'numeric' });
 const fmtHrs = ms => ms < 3600000 ? Math.round(ms / 60000) + ' мин' : Math.floor(ms / 3600000) + ' ч ' + Math.round(ms % 3600000 / 60000) + ' мин';
 const plural = (n, a, b, c) => { if (LANG !== 'ru') return n === 1 ? a : c; const m = n % 100, k = n % 10; return m > 10 && m < 20 ? c : k === 1 ? a : k >= 2 && k <= 4 ? b : c; };
-const HS = { seg: 'list', type: 'all', list: [], cur: null };
+const HS = { seg: 'list', type: 'all', list: [], cur: null, lim: 30 };   // lim: cards shown (v151, R11: in pages of 30)
 
 // 'shared' | 'cancel' | 'download'
 async function shareFile(file, title) {
@@ -7412,7 +7418,7 @@ function drawProfile(cv, tr, color, opts = {}) {
   if (!opts.ctx) { cv.width = w * dpr; cv.height = h * dpr; }
   const g = opts.ctx || cv.getContext('2d'); if (!opts.ctx) g.setTransform(dpr, 0, 0, dpr, 0, 0);
   const ox = opts.x || 0, oy = opts.y || 0, cum = cumDist(pts), len = cum[cum.length - 1] || 1;
-  let lo = Math.min(...pts.map(p => p[2])), hi = Math.max(...pts.map(p => p[2])); if (hi - lo < 20) { const m = (hi + lo) / 2; lo = m - 10; hi = m + 10; }
+  let lo = amin(pts.map(p => p[2])), hi = amax(pts.map(p => p[2])); if (hi - lo < 20) { const m = (hi + lo) / 2; lo = m - 10; hi = m + 10; }
   const X = i => ox + cum[i] / len * w, Yy = e => oy + h - 4 - (e - lo) / (hi - lo) * (h - 8);
   g.beginPath(); g.moveTo(X(0), oy + h); pts.forEach((p, i) => g.lineTo(X(i), Yy(p[2]))); g.lineTo(ox + w, oy + h); g.closePath();
   const gr = g.createLinearGradient(0, oy, 0, oy + h); gr.addColorStop(0, color + 'aa'); gr.addColorStop(1, color + '10'); g.fillStyle = gr; g.fill();
@@ -7449,7 +7455,7 @@ function miniTiles() {
 const pinIcon = kind => L.divIcon({ className: '', iconSize: [26, 26], iconAnchor: [13, 13], html: `<div class="rpin ${kind}">${kind === 'fin' ? '<svg viewBox="0 0 24 24"><path d="M6 21V4h11l-2 4 2 4H6" fill="currentColor"/></svg>' : '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>'}</div>` });
 function miniMap(el, tr, opts = {}) {
   const pts = tr.filter(p => isFinite(p[0]) && isFinite(p[1])); if (pts.length < 2) { el.classList.add('nomap'); return null; }
-  const m = L.map(el, { zoomControl: false, attributionControl: false, rotate: false, rotateControl: false, compassControl: false, dragging: !!opts.live, touchZoom: !!opts.live, scrollWheelZoom: false, doubleClickZoom: !!opts.live, boxZoom: false, keyboard: false, tap: false, maxZoom: 18 });
+  const m = L.map(el, { trackResize: !!opts.live, zoomControl: false, attributionControl: false, rotate: false, rotateControl: false, compassControl: false, dragging: !!opts.live, touchZoom: !!opts.live, scrollWheelZoom: false, doubleClickZoom: !!opts.live, boxZoom: false, keyboard: false, tap: false, maxZoom: 18 });
   el.classList.toggle('darkmap', !!S.darkmap);
   miniTiles().addTo(m);
   const ll = pts.map(p => [p[0], p[1]]), lls = segLL(pts, opts.brk);
@@ -7462,9 +7468,13 @@ function miniMap(el, tr, opts = {}) {
   return m;
 }
 let histObs = null;
+// v151 (audit R11): every small map of the list is kept and removed before the list is drawn again (they used to pile up —
+// maps, layers and window listeners — with every redraw of the History)
+const HMAPS = [];
+function clearHistMaps() { if (histObs) histObs.disconnect(); HMAPS.splice(0).forEach(m => { try { m.remove(); } catch {} }); }
 function lazyMaps(root, list) {
   if (histObs) histObs.disconnect();
-  const make = el => { if (el.dataset.done) return; el.dataset.done = 1; const r = list.find(x => x.id === el.dataset.mm); if (r) try { miniMap(el, r.track || [], { brk: r.brk, est: r.est }); } catch {} };
+  const make = el => { if (el.dataset.done) return; el.dataset.done = 1; const r = list.find(x => x.id === el.dataset.mm); if (r) try { const m = miniMap(el, r.track || [], { brk: r.brk, est: r.est }); if (m) HMAPS.push(m); } catch {} };
   if (!('IntersectionObserver' in window)) { [...root.querySelectorAll('[data-mm]')].forEach(make); return; }
   histObs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { make(e.target); histObs.unobserve(e.target); } }), { rootMargin: '300px' });
   [...root.querySelectorAll('[data-mm]')].forEach(el => histObs.observe(el));
@@ -7479,7 +7489,7 @@ async function renderRides() {
   if (HS.type !== 'all' && !types.includes(HS.type)) HS.type = 'all';
   $('#h-types').innerHTML = types.length > 1 ? ['all', ...types].map(k => `<button class="chip${HS.type === k ? ' on' : ''}" data-ht="${k}">${k === 'all' ? 'Все' : ACTS[k].ic + ' ' + ACTS[k].n}</button>`).join('') : '';
   $('#h-types').hidden = types.length < 2;
-  $$('#h-types [data-ht]').forEach(b => b.onclick = () => { HS.type = b.dataset.ht; renderRides(); });
+  $$('#h-types [data-ht]').forEach(b => b.onclick = () => { HS.type = b.dataset.ht; HS.lim = 30; renderRides(); });
   $$('#hseg button').forEach(b => b.classList.toggle('on', b.dataset.h === HS.seg));
   $('#h-list').hidden = HS.seg !== 'list'; $('#h-prog').hidden = HS.seg !== 'prog';
   const byType = HS.type === 'all' ? all : all.filter(r => actOf(r) === HS.type);
@@ -7491,7 +7501,9 @@ async function renderRides() {
   const avg = tot.t > 0 ? tot.d / (tot.t / 1000) : 0, pace = HS.type !== 'all' && ACTS[HS.type].pace;
   $('#hist-sum').innerHTML = `<div class="hs3"><div><span>${tr('Поездки')}</span><b>${list.length}</b></div><div><span>${tr('Дистанция')}</span><b class="acc">${fmtKm(tot.d)} <small>км</small></b></div><div><span>${tr('Время')}</span><b>${fmtDur(tot.t)}</b></div></div>
     <div class="hsrow"><span>◎ ${pace ? tr('Средний темп') : tr('Средняя скорость')}</span><b>${pace ? fmtPace(avg) + ' /км' : kmh0(avg) + ' км/ч'}</b></div>`;
-  const groups = []; list.forEach(r => { const d = new Date(r.start), k = d.getFullYear() * 12 + d.getMonth(); let g = groups[groups.length - 1]; if (!g || g.k !== k) groups.push(g = { k, ts: r.start, items: [] }); g.items.push(r); });
+  clearHistMaps();
+  const shown = list.slice(0, HS.lim), more = list.length - shown.length;
+  const groups = []; shown.forEach(r => { const d = new Date(r.start), k = d.getFullYear() * 12 + d.getMonth(); let g = groups[groups.length - 1]; if (!g || g.k !== k) groups.push(g = { k, ts: r.start, items: [] }); g.items.push(r); });
   const monthName = ts => { const s = new Date(ts).toLocaleDateString(LOC, { month: 'long', year: 'numeric' }); return s.charAt(0).toUpperCase() + s.slice(1); };
   $('#ride-list').innerHTML = list.length ? groups.map(g => `<div class="hmon"><b>${esc(monthName(g.ts))}</b><span>${g.items.length}</span></div>` + g.items.map(r => {
     const a = ACTS[actOf(r)], v = rideAvg(r);
@@ -7501,11 +7513,12 @@ async function renderRides() {
         <div class="rc3"><div><span>${tr('Дистанция')}</span><b>${fmtKm(r.dist)} <small>км</small></b></div><div><span>${tr('Время')}</span><b>${fmtClock(r.movingMs)}</b></div><div><span>${a.pace ? tr('Темп') : tr('Средняя')}</span><b>${a.pace ? fmtPace(v) : kmh0(v)} <small>${a.pace ? '/км' : 'км/ч'}</small></b></div></div></div>
     </div>`; }).join('')).join('')
     : `<div class="empty">${HS.per === 'all' ? 'Пока нет поездок — нажмите «Старт» на карте или импортируйте тренировку.' : 'За этот период поездок нет.'}</div>`;
+  if (more > 0) { $('#ride-list').insertAdjacentHTML('beforeend', `<button class="btn" id="h-more" style="width:100%;margin:6px 0 14px">${esc(tr('Показать ещё'))} (${more})</button>`); $('#h-more').onclick = () => { HS.lim += 30; renderRides(); }; }
   $$('#ride-list [data-card]').forEach(b => b.onclick = e => { e.stopPropagation(); openCardAsk(all.find(r => r.id === b.dataset.card)); });
   $$('#ride-list .rideit').forEach(el => el.onclick = e => { if (!e.target.closest('[data-card]')) { HS.fromRoute = null; openRide(el.dataset.open); } });
-  lazyMaps($('#ride-list'), list);
+  lazyMaps($('#ride-list'), shown);
 }
-$$('#h-per button').forEach(b => b.onclick = () => { HS.per = b.dataset.p; renderRides(); });
+$$('#h-per button').forEach(b => b.onclick = () => { HS.per = b.dataset.p; HS.lim = 30; renderRides(); });
 $('#h-imp').onclick = () => $('#act-file').click();
 
 // ---- one ride ----
@@ -7535,7 +7548,7 @@ function speedSegments(ser) {
   ser.forEach((s, i) => { const b = bucket(s.v); if (!cur || cur.b !== b || s.brk) { const seg = cur && !s.brk ? [cur.seg[cur.seg.length - 1]] : []; cur = { b, seg }; segs.push(cur); } cur.seg.push(s.ll); });
   return segs.filter(s => s.seg.length > 1).map(s => [s.seg, SPD_COL[s.b]]);
 }
-function hrStats(tr) { const h = tr.map(p => p[4]).filter(x => x > 30 && x < 240); return h.length ? { avg: Math.round(h.reduce((a, b) => a + b, 0) / h.length), max: Math.max(...h) } : null; }
+function hrStats(tr) { const h = tr.map(p => p[4]).filter(x => x > 30 && x < 240); return h.length ? { avg: Math.round(h.reduce((a, b) => a + b, 0) / h.length), max: amax(h) } : null; }
 // Calories: from the workout file, otherwise an estimate by activity, speed and the weight from Settings.
 function rideKcal(r) {
   if (r.kcal) return { v: Math.round(r.kcal), est: false };
@@ -7557,7 +7570,7 @@ function drawRideChart(cv, ser, mark) {
   const L0 = 34, R0 = 40, T0 = 8, B0 = 24, pw = w - L0 - R0, ph = h - T0 - B0, T = ser[ser.length - 1].t || 1;
   const vmax = Math.max(5, ...ser.map(s => s.v * 3.6)), vtop = Math.ceil(vmax / 4) * 4;
   const es = ser.map(s => s.e).filter(e => e != null), hasE = es.length > 1;
-  let elo = hasE ? Math.min(...es) : 0, ehi = hasE ? Math.max(...es) : 1; if (ehi - elo < 20) { const m = (ehi + elo) / 2; elo = m - 10; ehi = m + 10; }
+  let elo = hasE ? amin(es) : 0, ehi = hasE ? amax(es) : 1; if (ehi - elo < 20) { const m = (ehi + elo) / 2; elo = m - 10; ehi = m + 10; }
   const X = t => L0 + t / T * pw, Yv = v => T0 + ph - v / vtop * ph, Ye = e => T0 + ph - (e - elo) / (ehi - elo) * ph;
   g.font = '11px -apple-system,system-ui,sans-serif'; g.fillStyle = 'rgba(255,255,255,.5)'; g.strokeStyle = 'rgba(255,255,255,.08)'; g.setLineDash([3, 4]);
   for (let i = 0; i <= 4; i++) { const y = T0 + ph - i / 4 * ph; g.beginPath(); g.moveTo(L0, y); g.lineTo(L0 + pw, y); g.stroke(); g.textAlign = 'right'; g.fillText(String(Math.round(vtop * i / 4)), L0 - 6, y + 4); if (hasE) { g.textAlign = 'left'; g.fillText(String(Math.round(elo + (ehi - elo) * i / 4)), L0 + pw + 6, y + 4); } }
@@ -7580,7 +7593,7 @@ async function openRide(id) {
   const a = ACTS[actOf(r)], tr0 = r.track || [], v = rideAvg(r), sp = splits(tr0), ser = rideSeries(tr0, r.brk), hr = hrStats(tr0), kc = rideKcal(r);
   const title = rideTitle(r);
   $('#rd-title').textContent = title;
-  const fast = sp.length ? Math.max(...sp.map(s => s.len / s.ms)) : 1;
+  const fast = sp.length ? amax(sp.map(s => s.len / s.ms)) : 1;
   const time = ts => new Date(ts).toLocaleTimeString(LOC, { hour: '2-digit', minute: '2-digit' });
   const row = (ic, lab, val) => `<div class="rdrow"><span><i>${ic}</i>${lab}</span><b>${val}</b></div>`;
   $('#rd-body').innerHTML = `
@@ -7810,9 +7823,9 @@ async function makeCard(r, img) {
   const box = { x: 40, y: 190, w: W - 80, h: 660 };
   if (pts.length > 1) {
     const la = pts.map(p => p[0]), lo = pts.map(p => p[1]); let z = 17;
-    for (; z > 3; z--) { const w = 256 * 2 ** z, xs = lo.map(x => shX(x, w)), ys = la.map(y => shY(y, w)); if (Math.max(...xs) - Math.min(...xs) <= box.w - 140 && Math.max(...ys) - Math.min(...ys) <= box.h - 140) break; }
+    for (; z > 3; z--) { const w = 256 * 2 ** z, xs = lo.map(x => shX(x, w)), ys = la.map(y => shY(y, w)); if (amax(xs) - amin(xs) <= box.w - 140 && amax(ys) - amin(ys) <= box.h - 140) break; }
     const WW = 256 * 2 ** z, xs = lo.map(x => shX(x, WW)), ys = la.map(y => shY(y, WW));
-    const ox = (Math.min(...xs) + Math.max(...xs)) / 2 - box.w / 2, oy = (Math.min(...ys) + Math.max(...ys)) / 2 - box.h / 2;
+    const ox = (amin(xs) + amax(xs)) / 2 - box.w / 2, oy = (amin(ys) + amax(ys)) / 2 - box.h / 2;
     const P = i => [box.x + xs[i] - ox, box.y + ys[i] - oy];
     let attr = null;
     if (!img) { g.fillStyle = '#1e293b'; roundRect(g, box.x, box.y, box.w, box.h, 30); g.fill(); attr = await drawTiles(g, box, z, ox, oy); }
@@ -7983,7 +7996,9 @@ $('#act-file').onchange = async e => {
   const have = (await DB.all('rides')).map(r => r.start); let n = 0, dup = 0; const bad = [];
   for (const f of files) {
     try {
+      impTooBig(f, IMP.file);
       const acts = await parseActivities(await f.arrayBuffer(), f.name);
+      for (const a of acts) impTooMany((a.track || []).length);
       if (!acts.length) throw new Error('в файле нет тренировки');
       for (const a of acts) { const r = rideFromTrack(a); if (have.some(s => Math.abs(s - r.start) < 2000)) { dup++; continue; } await DB.put('rides', r); have.push(r.start); n++; }
     } catch (err) { bad.push(`${f.name}: ${err.message}`); }
@@ -8067,6 +8082,7 @@ async function restoreBackup(d) {
 }
 $('#bk-file').onchange = async e => {
   const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try { impTooBig(f, IMP.backup); } catch (err) { toast(tr('Резервная копия не восстановлена — на телефоне ничего не изменилось') + ': ' + err.message, 6000); return; }
   let d = null; try { d = JSON.parse(await f.text()); } catch {}
   let res;
   try { res = await restoreBackup(d); }
@@ -8756,7 +8772,7 @@ async function loadNear() {
     if (top.length) {
       const g = await overpass(`[out:json][timeout:60];relation(id:${top.map(x => x.e.id).join(',')});out geom;`);
       if (my !== Near.seq) return;
-      osm = itemsFromOverpass(g).map(it => ({ ...it, name: tName(it.tags), len: cumDist(it.line).pop(), d: Math.min(...(it.parts || [it.line]).map(l => lineDist(p, l))) })).filter(x => x.d <= R);
+      osm = itemsFromOverpass(g).map(it => ({ ...it, name: tName(it.tags), len: cumDist(it.line).pop(), d: amin((it.parts || [it.line]).map(l => lineDist(p, l))) })).filter(x => x.d <= R);
     }
   } catch (e) { osmErr = e.name === 'AbortError' ? tr('таймаут') : e.message || String(e); }
   if (my !== Near.seq) return;
@@ -8865,25 +8881,35 @@ async function unzipRoute(buf) {
   if (eocd < 0) throw new Error('архив повреждён');
   const n = dv.getUint16(eocd + 10, true); let p = dv.getUint32(eocd + 16, true);
   for (let k = 0; k < n; k++) {
-    const method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true), nlen = dv.getUint16(p + 28, true), elen = dv.getUint16(p + 30, true), clen = dv.getUint16(p + 32, true), lho = dv.getUint32(p + 42, true);
+    const method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true), usize = dv.getUint32(p + 24, true), nlen = dv.getUint16(p + 28, true), elen = dv.getUint16(p + 30, true), clen = dv.getUint16(p + 32, true), lho = dv.getUint32(p + 42, true);
     const name = new TextDecoder().decode(new Uint8Array(buf, p + 46, nlen)); p += 46 + nlen + elen + clen;
     if (!/\.(kml|gpx|tcx|geojson|json)$/i.test(name)) continue;
     const data = new Uint8Array(buf, lho + 30 + dv.getUint16(lho + 26, true) + dv.getUint16(lho + 28, true), csize);
     if (method === 0) return { name, text: new TextDecoder().decode(data) };
     if (method === 8) {
       if (typeof DecompressionStream === 'undefined') throw new Error('браузер не умеет распаковывать архивы — обновите iOS');
-      const out = await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer();
-      return { name, text: new TextDecoder().decode(out) };
+      if (usize > IMP.unzip) throw new Error(PR3(`файл в архиве слишком большой: ${mb(usize)} МБ, можно до ${mb(IMP.unzip)} МБ`, `the file in the archive is too big: ${mb(usize)} MB, up to ${mb(IMP.unzip)} MB`, `הקובץ בארכיון גדול מדי: ${mb(usize)} MB, עד ${mb(IMP.unzip)} MB`));
+      const rd = new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw')).getReader(), parts = []; let got = 0;
+      for (;;) { const { done, value } = await rd.read(); if (done) break; got += value.byteLength; if (got > IMP.unzip) { try { await rd.cancel(); } catch {} throw new Error(PR3(`файл в архиве больше ${mb(IMP.unzip)} МБ`, `the file in the archive is over ${mb(IMP.unzip)} MB`, `הקובץ בארכיון גדול מ-${mb(IMP.unzip)} MB`)); } parts.push(value); }
+      return { name, text: new TextDecoder().decode(await new Blob(parts).arrayBuffer()) };
     }
     throw new Error('неподдерживаемое сжатие архива');
   }
   throw new Error('в архиве нет файла маршрута');
 }
+// v151 (audit R15): how big an imported file may be (a phone runs out of memory long before a desktop does)
+const IMP = { file: 50e6, backup: 200e6, unzip: 50e6, pts: 300000 };
+const mb = n => Math.round(n / 1e6);
+function impTooBig(f, max) { if (f && f.size > max) throw new Error(PR3(`файл слишком большой: ${mb(f.size)} МБ, можно до ${mb(max)} МБ`, `the file is too big: ${mb(f.size)} MB, up to ${mb(max)} MB`, `הקובץ גדול מדי: ${mb(f.size)} MB, עד ${mb(max)} MB`)); }
+function impTooMany(n) { if (n > IMP.pts) throw new Error(PR3(`слишком много точек: ${n}, можно до ${IMP.pts}`, `too many points: ${n}, up to ${IMP.pts}`, `יותר מדי נקודות: ${n}, עד ${IMP.pts}`)); }
 async function parseBuffer(buf, fname) {
-  if (isFit(buf)) { const a = parseFit(buf, fname); if (a.track.length < 2) throw new Error('в FIT-файле нет координат'); return [{ name: a.name, coords: a.track.map(p => [p[0], p[1], p[2]]) }]; }
+  if (isFit(buf)) { const a = parseFit(buf, fname); if (a.track.length < 2) throw new Error('в FIT-файле нет координат'); impTooMany(a.track.length); return [{ name: a.name, coords: a.track.map(p => [p[0], p[1], p[2]]) }]; }
   const b = new Uint8Array(buf, 0, Math.min(4, buf.byteLength));
-  if (b[0] === 0x50 && b[1] === 0x4b) { const f = await unzipRoute(buf); return parseRouteFile(f.text, f.name); }
-  return parseRouteFile(new TextDecoder().decode(buf), fname);
+  let items;
+  if (b[0] === 0x50 && b[1] === 0x4b) { const f = await unzipRoute(buf); items = parseRouteFile(f.text, f.name); }
+  else items = parseRouteFile(new TextDecoder().decode(buf), fname);
+  for (const it of items || []) if (it && it.coords) impTooMany(it.coords.length);
+  return items;
 }
 const COORD_RE = /^\s*(-?\d{1,2}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)\s*$/;
 async function geocodeOne(q) {
@@ -9489,7 +9515,7 @@ function v3Cam() {
   const c = V3.coords, brg = map.getBearing ? map.getBearing() : 0;
   if (c) {
     const lats = c.map(p => p[0]), lons = c.map(p => p[1]);
-    const cam = V3.map.cameraForBounds([[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]], { padding: 50 });
+    const cam = V3.map.cameraForBounds([[amin(lons), amin(lats)], [amax(lons), amax(lats)]], { padding: 50 });
     if (cam) return V3.map.jumpTo({ center: cam.center, zoom: Math.min(16.5, (cam.zoom || 14) - .4), pitch: 60, bearing: brg });
   }
   const ll = GPS.fix ? [GPS.fix.lon, GPS.fix.lat] : [map.getCenter().lng, map.getCenter().lat];
@@ -9931,8 +9957,8 @@ function askResume(an) {
   }
   requestAnimationFrame(() => { try {
     const cv = $('#rs-thumb'), g = cv.getContext('2d'), W = cv.width, H = cv.height, c = an.coords, k = Math.cos(c[0][0] * D2R);
-    const xs = c.map(p => p[1] * k), ys = c.map(p => -p[0]), mx = Math.min(...xs), my = Math.min(...ys), sc = Math.min((W - 36) / Math.max(Math.max(...xs) - mx, 1e-9), (H - 36) / Math.max(Math.max(...ys) - my, 1e-9));
-    const ox = (W - (Math.max(...xs) - mx) * sc) / 2, oy = (H - (Math.max(...ys) - my) * sc) / 2, P = i => [ox + (xs[i] - mx) * sc, oy + (ys[i] - my) * sc];
+    const xs = c.map(p => p[1] * k), ys = c.map(p => -p[0]), mx = amin(xs), my = amin(ys), sc = Math.min((W - 36) / Math.max(amax(xs) - mx, 1e-9), (H - 36) / Math.max(amax(ys) - my, 1e-9));
+    const ox = (W - (amax(xs) - mx) * sc) / 2, oy = (H - (amax(ys) - my) * sc) / 2, P = i => [ox + (xs[i] - mx) * sc, oy + (ys[i] - my) * sc];
     g.clearRect(0, 0, W, H); g.lineJoin = g.lineCap = 'round'; g.beginPath(); c.forEach((_, i) => { const [x, y] = P(i); i ? g.lineTo(x, y) : g.moveTo(x, y); });
     g.strokeStyle = '#ff2d8a'; g.lineWidth = 7; g.stroke();
     for (const [i, col] of [[c.length - 1, '#ef4444'], [0, '#22c55e']]) { const [x, y] = P(i); g.beginPath(); g.arc(x, y, 9, 0, 7); g.fillStyle = col; g.fill(); g.lineWidth = 3; g.strokeStyle = '#fff'; g.stroke(); }
