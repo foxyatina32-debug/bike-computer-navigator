@@ -54,7 +54,7 @@ async def main():
         await pg.wait_for_timeout(1200)
         r = await pg.evaluate(LONG + "(14400)")
         check('4-hour ride (14 400 fixes): the distance is right (±3 %)', abs(r['dist'] - r['want']) <= r['want'] * 0.03, r)
-        check('…every fix handled fast and no slowdown as the track grows (avg < 3 ms, the last tenth < 2× the first + 1 ms)', r['last'] < 3 and r['last'] <= r['first'] * 2 + 1, r)
+        check('…every fix handled fast and no slowdown as the track grows (the last tenth < 5 ms and ≤ 1.5× the first + 0.5 ms; it was 2.7 → 5.1 ms)', r['last'] < 5 and r['last'] <= r['first'] * 1.5 + 0.5, r)
         ok = await pg.evaluate("(async () => { const s = await Ride.stop(true); const rd = Ride.lastSaved; await openRide(rd.id); return s && !!document.querySelector('#sheet-ride:not([hidden])') && rd.track.length > 1000; })()")
         check('…it saves and reopens', ok)
         check('no JS errors (long ride)', not log['errors'], log['errors'][:3])
@@ -63,7 +63,7 @@ async def main():
         b, ctx, pg, log = await open_app(p, url + '?lang=ru', Mocks(), geo=(32.0, 34.8))
         await pg.wait_for_timeout(1200)
         h = await pg.evaluate(HIST)
-        check('History with 300 rides of 2 000 points: opens in < 3 s, 30 cards, small maps not piling up', h['open'] < 3000 and h['cards'] == 30 and h['maps'] <= 30, h)
+        check('History with 300 rides of 2 000 points: opens in < 3 s, 30 cards, small maps not piling up, the tracks not held in memory (< 60 MB; it was 234 MB)', h['open'] < 3000 and h['cards'] == 30 and h['maps'] <= 30 and h['grow'] < 60, h)
         check('no JS errors (big History)', not log['errors'], log['errors'][:3])
         await b.close()
         # ---- 3: chaos

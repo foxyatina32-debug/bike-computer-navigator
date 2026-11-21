@@ -2064,8 +2064,31 @@ const DB = {
   del(store, id) { return this.tx(store, 'readwrite', s => s.delete(id)); },
   all(store) { return this.tx(store, 'readonly', s => s.getAll()).catch(() => []); },
   // For the backup: a read error must not look like «no rides».
-  allStrict(store) { return this.tx(store, 'readonly', s => s.getAll()).then(r => r || []); }
+  allStrict(store) { return this.tx(store, 'readonly', s => s.getAll()).then(r => r || []); },
+  // v153 audit: the rides for the History list, one at a time, each without its track (a thinned copy of ≤ 150 points draws
+  // its small map). Reading them all whole kept every track in memory: 300 rides of 2 000 points held 234 MB — a year of
+  // riding could take the iPhone's tab down. A read error is an error (not «no rides»), as with allStrict.
+  async ridesLight() {
+    if (!this.db) throw new Error('хранилище недоступно');
+    const out = []; let after = null;
+    for (;;) {   // 25 at a time (a cursor over big records took the tab down in Chromium)
+      const batch = await this.tx('rides', 'readonly', st => st.getAll(after == null ? null : IDBKeyRange.lowerBound(after, true), 25));
+      if (!batch || !batch.length) break;
+      for (const v of batch) if (v && !foreignItem('rides', v.id)) out.push(lightRide(v));
+      after = batch[batch.length - 1].id;
+      if (batch.length < 25) break;
+    }
+    return out;
+  }
 };
+// a ride without its track: a thinned copy (≤ 150 points) keeps the shape, the pieces' starts (brk) and the stretches
+// counted without GPS (est) for the small map
+function lightRide(v) {
+  const { track, ...r } = v, tr = Array.isArray(track) ? track : [], keep = new Set([...(v.brk || []), ...((v.est || []).flatMap(e => e ? [e.t0, e.t1] : []))]);
+  const step = Math.max(1, Math.ceil(tr.length / 150)), mm = [];
+  for (let i = 0; i < tr.length; i++) { const p = tr[i], nx = tr[i + 1]; if (i % step === 0 || i === tr.length - 1 || (p && keep.has(p[3])) || (nx && keep.has(nx[3]))) mm.push(p); }
+  r.mm = mm; r.nPts = tr.length; return r;
+}
 // v150: while another account is signed in, the rides and routes that belong to the account synced before it (v147 keeps
 // them on the phone and never uploads them) are not shown, searched or put into a backup — they come back when their own
 // account signs in again (or when signed out: then the phone shows everything on it). The account's sync reads the store directly.
@@ -3608,6 +3631,39 @@ function trackSegs(tr, brk) {
   return out;
 }
 const segLL = (tr, brk) => trackSegs(tr, brk).map(sg => sg.map(p => [p[0], p[1]]));
+// v153 audit: the recorded track on the map, in pieces of ≤ 400 points: a new point redraws only the last piece. One long line
+// was redrawn whole on every fix (2.7 → 5.1 ms a fix over 4 hours: the phone's work, and battery, growing with the ride).
+// setLatLngs takes a flat list or a list of pieces (segLL); addLatLng(ll, newSeg) adds a point, newSeg starts a separate piece.
+function trackLine(lls) {
+  const g = L.featureGroup().addTo(map), CH = 400, opt = () => ({ color: css('--track') || '#e2e08a', weight: 5, opacity: .9, interactive: false });
+  let cur = null, n = 0, last = null, seg = -1;
+  const piece = (pts, cont) => { const pl = L.polyline(pts, opt()); pl._seg = seg; pl._cont = cont; return pl.addTo(g); };
+  const api = {
+    group: g,
+    setLatLngs(x) {
+      g.clearLayers(); cur = null; n = 0; last = null; seg = -1;
+      const segs = !x || !x.length ? [] : typeof x[0][0] === 'number' ? [x] : x;
+      for (const sg of segs) {
+        if (!sg || !sg.length) continue;
+        seg++;
+        for (let i = 0; i < sg.length; i += CH - 1) { const part = sg.slice(i, i + CH); if (i && part.length < 2) break; cur = piece(part, i > 0); n = part.length; }
+        last = sg[sg.length - 1];
+      }
+      return api;
+    },
+    addLatLng(ll, newSeg) {
+      if (!cur || newSeg) { seg++; cur = piece([ll], false); n = 1; }
+      else if (n >= CH) { cur = piece([last, ll], true); n = 2; }   // the next piece goes on from the last point
+      else { cur.addLatLng(ll); n++; }
+      last = ll; return api;
+    },
+    // the pieces of the track as separate lines (a continuation's first point is the previous piece's last)
+    getLatLngs() { const out = []; g.eachLayer(pl => { const a = pl.getLatLngs(); if (pl._cont && out[pl._seg]) out[pl._seg].push(...a.slice(1)); else out[pl._seg] = a.slice(); }); return out.filter(Boolean); },
+    getBounds() { return g.getBounds(); },
+    remove() { map.removeLayer(g); return api; }
+  };
+  return lls ? api.setLatLngs(lls) : api;
+}
 // v151 (audit R08): where a recorded track is not one line — a new piece after a manual pause or a GPS gap (brk), and after
 // a stretch counted without GPS (est: its straight line is an estimate, not a road). The indices of the points that start one.
 function trackCuts(tr, brk, est) {
@@ -3648,7 +3704,7 @@ const Ride = {
     // Resuming after a manual pause: what was ridden while paused must not be added as a straight line.
     if (this.status === 'paused' && !this.restored) this.gap = true;
     this.status = 'rec'; this.restored = false; this.moveSince = 0; this.lastTick = Date.now(); startGPS(); unlockSpeech();
-    if (!this.line) this.line = L.polyline([], { color: css('--track'), weight: 5, opacity: .9 }).addTo(map);
+    if (!this.line) this.line = trackLine();
     this.line.setLatLngs(segLL(this.track, this.brk)); this.drawEst();
     renderRecUI(); updateWake();
   },
@@ -3662,7 +3718,7 @@ const Ride = {
   addPt(p, newSeg) {
     this.track.push(p);
     if (newSeg && this.track.length > 1) { this.brk.push(p[3]); this.line.setLatLngs(segLL(this.track, this.brk)); return; }
-    const r = this.line.getLatLngs(); this.line.addLatLng([p[0], p[1]], r.length && Array.isArray(r[0]) ? r[r.length - 1] : r);
+    this.line.addLatLng([p[0], p[1]]);
   },
   // v151 (audit R05): one finish at a time. A second ■ (a double tap, the voice and the button together) while the ride is
   // being saved gets the same answer — never a second copy of the ride. The ride stops taking points at once (a frozen copy
@@ -5407,7 +5463,7 @@ const Nav = {
       Object.assign(Ride, { startTs, movingMs: Math.max(Ride.movingMs, now - startTs), dist: Math.max(Ride.dist, len), asc: Ride.asc + asc, desc: Ride.desc + desc, track: tr.concat(Ride.track) });
       if (Ride.status === 'paused') Ride.start();
     }
-    if (Ride.line) Ride.line.setLatLngs(Ride.track.map(p => [p[0], p[1]]));
+    if (Ride.line) Ride.line.setLatLngs(segLL(Ride.track, Ride.brk));
     Ride.persist(); renderDash();
   },
   choose(kind) {
@@ -7530,7 +7586,7 @@ const HMAPS = [];
 function clearHistMaps() { if (histObs) histObs.disconnect(); HMAPS.splice(0).forEach(m => { try { m.remove(); } catch {} }); }
 function lazyMaps(root, list) {
   if (histObs) histObs.disconnect();
-  const make = el => { if (el.dataset.done) return; el.dataset.done = 1; const r = list.find(x => x.id === el.dataset.mm); if (r) try { const m = miniMap(el, r.track || [], { brk: r.brk, est: r.est }); if (m) HMAPS.push(m); } catch {} };
+  const make = el => { if (el.dataset.done) return; el.dataset.done = 1; const r = list.find(x => x.id === el.dataset.mm); if (r) try { const m = miniMap(el, r.mm || r.track || [], { brk: r.brk, est: r.est }); if (m) HMAPS.push(m); } catch {} };
   if (!('IntersectionObserver' in window)) { [...root.querySelectorAll('[data-mm]')].forEach(make); return; }
   histObs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { make(e.target); histObs.unobserve(e.target); } }), { rootMargin: '300px' });
   [...root.querySelectorAll('[data-mm]')].forEach(el => histObs.observe(el));
@@ -7538,7 +7594,7 @@ function lazyMaps(root, list) {
 
 async function renderRides() {
   let all;
-  try { all = (await DB.allStrict('rides')).sort((a, b) => b.start - a.start); }
+  try { all = (await DB.ridesLight()).sort((a, b) => b.start - a.start); }
   catch { HS.list = []; $('#ride-list').innerHTML = '<div class="empty">Не удалось прочитать поездки из памяти телефона. Они не удалены — закройте и снова откройте приложение.</div>'; return; }
   HS.list = all;
   const types = Object.keys(ACTS).filter(k => all.some(r => actOf(r) === k));
@@ -7570,7 +7626,7 @@ async function renderRides() {
     </div>`; }).join('')).join('')
     : `<div class="empty">${HS.per === 'all' ? 'Пока нет поездок — нажмите «Старт» на карте или импортируйте тренировку.' : 'За этот период поездок нет.'}</div>`;
   if (more > 0) { $('#ride-list').insertAdjacentHTML('beforeend', `<button class="btn" id="h-more" style="width:100%;margin:6px 0 14px">${esc(tr('Показать ещё'))} (${more})</button>`); $('#h-more').onclick = () => { HS.lim += 30; renderRides(); }; }
-  $$('#ride-list [data-card]').forEach(b => b.onclick = e => { e.stopPropagation(); openCardAsk(all.find(r => r.id === b.dataset.card)); });
+  $$('#ride-list [data-card]').forEach(b => b.onclick = async e => { e.stopPropagation(); openCardAsk((await DB.get('rides', b.dataset.card)) || all.find(r => r.id === b.dataset.card)); });
   $$('#ride-list .rideit').forEach(el => el.onclick = e => { if (!e.target.closest('[data-card]')) { HS.fromRoute = null; openRide(el.dataset.open); } });
   lazyMaps($('#ride-list'), shown);
 }
@@ -7644,7 +7700,7 @@ const RD = { map: null, fly: 0, dot: null };
 function rdStopFly() { if (RD.fly) cancelAnimationFrame(RD.fly); RD.fly = 0; if (RD.flyEnd) { RD.flyEnd(); RD.flyEnd = null; } const b = $('#rd-fly'); if (b) b.innerHTML = '▶ ' + tr('Пролёт'); }
 
 async function openRide(id) {
-  const r = HS.list.find(x => x.id === id) || await DB.get('rides', id); if (!r) return;
+  const r = (await DB.get('rides', id).catch(() => null)) || HS.list.find(x => x.id === id && x.track); if (!r) return;   // v153: the whole ride (the list holds light copies)
   HS.cur = r; rdStopFly(); if (RD.map) { try { RD.map.remove(); } catch {} RD.map = null; }
   const a = ACTS[actOf(r)], tr0 = r.track || [], v = rideAvg(r), sp = splits(tr0), ser = rideSeries(tr0, r.brk), hr = hrStats(tr0), kc = rideKcal(r);
   const title = rideTitle(r);
@@ -9496,7 +9552,7 @@ window.addEventListener('online', () => setTimeout(() => runMapUpdate(false), 30
       const wasRec = cur.v.status === 'rec' && Date.now() - (cur.v.savedAt || 0) < 3 * 3600e3;
       Object.assign(Ride, cur.v, { status: 'paused', restored: cur.v.status !== 'paused', moveSince: 0 });
       if (!Array.isArray(Ride.brk)) Ride.brk = [];
-      Ride.line = L.polyline(segLL(Ride.track, Ride.brk), { color: css('--track'), weight: 5, opacity: .9 }).addTo(map);
+      if (Ride.line) Ride.line.remove(); Ride.line = trackLine(segLL(Ride.track, Ride.brk));
       if (!Array.isArray(Ride.est)) Ride.est = []; Ride.drawEst();
       if (wasRec) { rideWasRec = true; Ride.start(); renderDash(); toast(`▶ Запись поездки продолжается (${fmtKm(Ride.dist)} км)`, 5000); }
       else { renderRecUI(); renderDash(); toast('Восстановлена незавершённая поездка: ▶ — продолжить, ■ — завершить. Начнёте ехать — запись продолжится сама', 6000); }

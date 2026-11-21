@@ -114,11 +114,11 @@ async def main():
         await b.close()
         b, pg, log = await fresh(p, url, m)
         # 10. Read error in History: a clear message, not «no rides».
-        await pg.evaluate("window.__allStrict = DB.allStrict; DB.allStrict = () => Promise.reject(new Error('io')); 0")
+        await pg.evaluate("window.__allStrict = DB.allStrict; window.__rl = DB.ridesLight; DB.allStrict = DB.ridesLight = () => Promise.reject(new Error('io')); 0")   # v153: the History reads through ridesLight
         await pg.evaluate("showTab('history')"); await pg.evaluate("renderRides()"); await pg.wait_for_timeout(300)
         h = await pg.evaluate("document.getElementById('ride-list').innerText")
         check('History, storage read error: «Не удалось прочитать поездки…»', 'Не удалось прочитать поездки' in h, h[:120])
-        await pg.evaluate("DB.allStrict = window.__allStrict; 0")
+        await pg.evaluate("DB.allStrict = window.__allStrict; DB.ridesLight = window.__rl; 0")
         # 11. No Strava text; version 102.
         await pg.evaluate("showTab('profile')"); await pg.wait_for_timeout(300)
         body = await pg.evaluate("document.body.innerText")
