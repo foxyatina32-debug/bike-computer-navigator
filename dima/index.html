@@ -1253,7 +1253,7 @@ body.onride #t-mic, body.onride #t-compass, body.onride #z-in, body.onride #z-ou
 /* v153 audit: «✓ Поездка сохранена» readable on the light panels (the light green was 1.7 : 1 on white) */
 body.sun .savebar .sb-t b, body.md:not(.mdk):not(.mdn) .savebar .sb-t b { color: #15803d; }
 /* v153 audit: «Яркое солнце», off the route — the red banner with white text and icons (dark text on red was unreadable) */
-body.sun #navb.off { background: #b91c1c; border-color: #7f1d1d; }
+body.sun:not(.md) #navb.off { background: #b91c1c; border-color: #7f1d1d; }
 body.sun #navb.off :is(#nv-dist, #nv-txt, #nv-rem, #nv-eta, .nv-next, .nv-next *, small, .d, svg, #nv-icon, #nv-icon *) { color: #fff !important; }
 body.sun #navb.off #nv-icon { background: rgba(255, 255, 255, .2); border-color: rgba(255, 255, 255, .5); }
 body.sun #navb.off .nv-x, body.sun #navb.off #nv-snd { background: rgba(255, 255, 255, .2); color: #fff; }
