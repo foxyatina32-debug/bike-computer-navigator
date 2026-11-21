@@ -885,7 +885,7 @@ body.pv-on #hud{display:none!important}
 #c-play{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 #c-play.rec{background:#38bdf8;border-color:#38bdf8;color:#0f172a}
 #c-play.paused svg{display:none}
-#c-stop{background:#ef4444;border-color:#ef4444;color:#fff}
+#c-stop{background:#dc2626;border-color:#dc2626;color:#fff}
 #c-stop svg{color:#fff}
 #c-stop:disabled{background:var(--glass-hi);border-color:var(--line);color:#94a3b8;opacity:.8}
 
@@ -899,7 +899,7 @@ body.pv-on #hud{display:none!important}
 .mini .mp.rec{background:#38bdf8;color:#0f172a}
 /* v111: ■ always visible in the folded panel while a ride is recorded or paused — solid red, not glass */
 .mini.has-stop{grid-template-columns:40px 40px repeat(4,auto) 32px}
-.mini .ms{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:#ef4444;border:1px solid #ef4444;color:#fff;box-shadow:0 4px 14px rgba(239,68,68,.45)}
+.mini .ms{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:#dc2626;border:1px solid #dc2626;color:#fff;box-shadow:0 4px 14px rgba(220,38,38,.45)}
 .mini .ms svg{width:20px;height:20px}
 .mini .ms:active{transform:scale(.94)}
 @media (max-width:359px){.mini.has-stop{grid-template-columns:34px 34px repeat(4,auto) 28px;gap:4px 3px;padding-left:6px;padding-right:6px}.mini.has-stop .mp,.mini.has-stop .ms{width:34px;height:34px;border-radius:10px}.mini.has-stop .ex{width:28px;height:28px}.mini.has-stop .c b{font-size:14px}.mini.has-stop .c.sp b{font-size:17px}.mini.has-stop .c span{font-size:9px}}
@@ -1258,6 +1258,13 @@ body.sun #navb.off :is(#nv-dist, #nv-txt, #nv-rem, #nv-eta, .nv-next, .nv-next *
 body.sun #navb.off #nv-icon { background: rgba(255, 255, 255, .2); border-color: rgba(255, 255, 255, .5); }
 body.sun #navb.off .nv-x, body.sun #navb.off #nv-snd { background: rgba(255, 255, 255, .2); color: #fff; }
 body.sun #navb.off .act button { background: #fff; color: #991b1b; border-color: #fff; }
+/* v153 audit: touch targets riding — ✕ and 🔊 on the route banner and «Свернуть» get a bigger hit area (44 px) without
+   moving anything; «Перестроить» / «Игнорировать» 40 px tall, white with red text on the red banner in every look (readable) */
+#nv-x, #nv-snd, #hud-min { position: relative; }
+#nv-x::after, #nv-snd::after { content: ''; position: absolute; inset: -7px; }
+#hud-min::after { content: ''; position: absolute; inset: -10px 0; }
+.navb .act button { min-height: 40px; }
+#navb.off .act button { background: #fff !important; color: #b91c1c !important; border-color: #fff !important; }
 </style>
 </head>
 <body>

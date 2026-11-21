@@ -31,7 +31,7 @@ async def run(p, url, m, vp, lang):
     # the worst case from a real ride: 3+ hours, tens of km, «осталось» shown while navigating
     await pg.evaluate("document.getElementById('m-rem-c').hidden = false; document.getElementById('m-dist').textContent = '46.3'; document.getElementById('m-time').textContent = '3:33:12'; document.getElementById('m-rem').textContent = '10.00'")
     st = await pg.evaluate(STATE)
-    check(f'{tag}: recording — red ■ visible in the folded panel', st['vis'] and st['bg'] == 'rgb(239, 68, 68)' and st['op'] == 1 and st['inside'], st)
+    check(f'{tag}: recording — red ■ visible in the folded panel', st['vis'] and st['bg'] == 'rgb(220, 38, 38)' and st['op'] == 1 and st['inside'], st)
     check(f'{tag}: folded panel — nothing overlaps or sticks out', not st['overlap'] and not st['out'], st)
     await pg.click('#m-play'); await pg.clock.run_for(500)   # pause
     st = await pg.evaluate(STATE)
@@ -43,7 +43,7 @@ async def run(p, url, m, vp, lang):
     await pg.click('#st-cont'); await pg.clock.run_for(300)
     await pg.click('#hud-max'); await pg.clock.run_for(400)
     st = await pg.evaluate(STATE)
-    check(f'{tag}: open panel — «Стоп» solid red', st['cbg'] == 'rgb(239, 68, 68)' and st['cop'] == 1, st)
+    check(f'{tag}: open panel — «Стоп» solid red', st['cbg'] == 'rgb(220, 38, 38)' and st['cop'] == 1, st)
     if vp[0] == 390 and lang == 'ru':
         await pg.screenshot(path='/tmp/stop_open.png')
     await pg.click('#hud-min'); await pg.clock.run_for(300)
